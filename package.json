@@ -1,0 +1,18 @@
+{
+  "name": "eslint-plugin-anti-slop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Config-driven anti-slop ESLint rules for React/TypeScript projects.",
+  "main": "src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  },
+  "license": "UNLICENSED"
+}
