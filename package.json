@@ -12,9 +12,10 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "test": "node --test",
-    "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
-    "verify": "pnpm test && pnpm test:coverage && pre-cr run --workspace . && pnpm pack --pack-destination /private/tmp"
+    "test": "node --test test/rules.test.mjs",
+    "test:coverage": "mkdir -p coverage && node --test test/rules.test.mjs --experimental-test-coverage --test-coverage-include=src/**/*.mjs --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
+    "smoke:consumer": "pnpm --dir smoke-consumer install --frozen-lockfile && pnpm --dir smoke-consumer lint",
+    "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pre-cr run --workspace . && pnpm pack --pack-destination /private/tmp"
   },
   "keywords": [
     "eslint",

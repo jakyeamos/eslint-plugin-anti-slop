@@ -1,0 +1,14 @@
+{
+  "name": "anti-slop-smoke-consumer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint fixture.jsx --max-warnings=0"
+  },
+  "dependencies": {
+    "eslint-plugin-anti-slop": "file:.."
+  },
+  "devDependencies": {
+    "eslint": "^9.29.0"
+  }
+}

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added a pnpm-based smoke consumer that installs the plugin through `file:..`
+  and lints a small JSX fixture.
+- Updated development and release docs to use the smoke consumer through
+  `pnpm smoke:consumer` and `pnpm verify`.
+
 ## 0.1.0
 
 - Added seven ESLint rules for React/TypeScript UI quality checks.

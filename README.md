@@ -239,14 +239,21 @@ export function Dashboard() {
 ```bash
 pnpm install
 pnpm test
+pnpm smoke:consumer
+pnpm verify
 ```
 
 Tests use ESLint `RuleTester` through Node's built-in test runner.
 
+`pnpm smoke:consumer` installs `eslint-plugin-anti-slop` into `smoke-consumer/`
+as a local `file:..` dependency with pnpm, then runs ESLint against a small JSX
+fixture. Use it when you need to confirm the package works from a real consumer
+project instead of only through direct source imports.
+
 ## Release Checklist
 
 1. Run `pnpm install --frozen-lockfile`.
-2. Run `pnpm test`.
+2. Run `pnpm verify`.
 3. Update `CHANGELOG.md`.
 4. Confirm `package.json` version and package metadata.
 5. Publish with `pnpm publish` when ready.
