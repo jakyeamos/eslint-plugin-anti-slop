@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** Product hardening baseline complete
+**Current focus:** Product hardening baseline plus consumer smoke verification complete
 
 ## Current Position
 
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-06-23 - Tightened placeholder-copy detection after consumer rollout surfaced className false positives
+Last activity: 2026-06-23 - Added pnpm smoke consumer that installs the plugin through a local file dependency
 
 Progress: [██████████] 100%
 
@@ -44,6 +44,8 @@ Recent decisions affecting current work:
 - [Product hardening]: Added RuleTester coverage, flat-config presets, pnpm-based docs, CI, changelog, MIT license, package metadata, package smoke verification, and Pre-CR coverage gating.
 - [Workflow hardening]: Added repo-local `AGENTS.md`, `CONTRIBUTING.md`, `docs/rule-authoring.md`, PR template, and a single `pnpm verify` command for local pre-PR verification.
 - [Consumer rollout]: Narrowed user-facing JSX attribute detection to copy-bearing attributes after installation in local apps surfaced className false positives.
+- [Consumer smoke]: Added `smoke-consumer/` as a pnpm-managed local file dependency check and included it in `pnpm verify`.
+- [Coverage hardening]: Focused `pnpm test` and `pnpm test:coverage` on the RuleTester suite, with source LCOV output for the Pre-CR coverage gate.
 
 ### Pending Todos
 
