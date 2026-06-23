@@ -13,7 +13,8 @@
   ],
   "scripts": {
     "test": "node --test",
-    "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info"
+    "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
+    "verify": "pnpm test && pnpm test:coverage && pre-cr run --workspace . && pnpm pack --pack-destination /private/tmp"
   },
   "keywords": [
     "eslint",
