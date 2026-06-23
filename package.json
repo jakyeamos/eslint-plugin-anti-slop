@@ -1,7 +1,6 @@
 {
   "name": "eslint-plugin-anti-slop",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "Config-driven anti-slop ESLint rules for React/TypeScript projects.",
   "main": "src/index.mjs",
@@ -9,10 +8,36 @@
     ".": "./src/index.mjs"
   },
   "files": [
-    "src"
+    "src",
+    "CHANGELOG.md"
   ],
+  "scripts": {
+    "test": "node --test",
+    "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info"
+  },
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "react",
+    "typescript",
+    "ui-quality"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jakyeamos/eslint-plugin-anti-slop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jakyeamos/eslint-plugin-anti-slop/issues"
+  },
+  "homepage": "https://github.com/jakyeamos/eslint-plugin-anti-slop#readme",
   "peerDependencies": {
     "eslint": "^9.0.0"
   },
-  "license": "UNLICENSED"
+  "devDependencies": {
+    "eslint": "^9.29.0"
+  },
+  "license": "MIT"
 }

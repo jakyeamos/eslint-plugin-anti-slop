@@ -26,8 +26,6 @@ function isTrivialExpression(node) {
     "Identifier",
     "MemberExpression",
     "BinaryExpression",
-    "ArrayExpression",
-    "ObjectExpression",
   ].includes(node.type);
 }
 

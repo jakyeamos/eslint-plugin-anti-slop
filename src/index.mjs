@@ -22,4 +22,35 @@ const plugin = {
   },
 };
 
+plugin.configs = {
+  recommended: {
+    plugins: {
+      "anti-slop": plugin,
+    },
+    rules: {
+      "anti-slop/no-unjustified-use-client": "error",
+      "anti-slop/no-useless-memo": "warn",
+      "anti-slop/no-placeholder-copy": "error",
+      "anti-slop/no-marketing-copy": "warn",
+      "anti-slop/require-empty-state-action": "warn",
+      "anti-slop/no-demo-data-primary-path": "error",
+      "anti-slop/no-generic-stat-label": "warn",
+    },
+  },
+  strict: {
+    plugins: {
+      "anti-slop": plugin,
+    },
+    rules: {
+      "anti-slop/no-unjustified-use-client": "error",
+      "anti-slop/no-useless-memo": "error",
+      "anti-slop/no-placeholder-copy": "error",
+      "anti-slop/no-marketing-copy": "error",
+      "anti-slop/require-empty-state-action": "error",
+      "anti-slop/no-demo-data-primary-path": "error",
+      "anti-slop/no-generic-stat-label": "error",
+    },
+  },
+};
+
 export default plugin;

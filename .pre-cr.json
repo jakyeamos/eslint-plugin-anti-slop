@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "testCommand": "pnpm test:coverage",
+  "coveragePaths": [
+    "coverage/lcov.info",
+    "coverage/coverage-final.json",
+    ".nyc_output/coverage.json",
+    "coverage.lcov",
+    "lcov.info",
+    "coverage.out"
+  ],
+  "coverageFormat": "auto",
+  "surfaces": {
+    "covered": [
+      "src/**"
+    ],
+    "ignored": [
+      ".github/**",
+      ".gitignore",
+      ".pre-cr.json",
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "package.json",
+      "pnpm-lock.yaml",
+      "test/**"
+    ],
+    "unsupported": []
+  },
+  "threshold": 80,
+  "checks": {
+    "coverage": true,
+    "security": true,
+    "checklist": true
+  }
+}

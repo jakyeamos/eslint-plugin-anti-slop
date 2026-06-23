@@ -32,6 +32,7 @@ export const noUnjustifiedUseClientRule = {
     let useClientDirective = null;
     let hasClientSignal = false;
     const importedHookNames = new Set();
+    const reactNamespaceNames = new Set();
 
     function markClientSignal() {
       hasClientSignal = true;
@@ -63,6 +64,10 @@ export const noUnjustifiedUseClientRule = {
           for (const specifier of node.specifiers) {
             if (specifier.type === "ImportSpecifier") {
               importedHookNames.add(specifier.imported.name);
+            } else if (specifier.type === "ImportNamespaceSpecifier") {
+              reactNamespaceNames.add(specifier.local.name);
+            } else if (specifier.type === "ImportDefaultSpecifier") {
+              reactNamespaceNames.add(specifier.local.name);
             }
           }
         }
@@ -78,6 +83,22 @@ export const noUnjustifiedUseClientRule = {
         }
 
         if (importedHookNames.has(node.name) && CLIENT_HOOKS.has(node.name)) {
+          markClientSignal();
+        }
+      },
+      MemberExpression(node) {
+        if (!useClientDirective || node.object.type !== "Identifier") {
+          return;
+        }
+
+        const propertyName =
+          node.property.type === "Identifier"
+            ? node.property.name
+            : node.property.type === "Literal" && typeof node.property.value === "string"
+              ? node.property.value
+              : null;
+
+        if (propertyName && reactNamespaceNames.has(node.object.name) && CLIENT_HOOKS.has(propertyName)) {
           markClientSignal();
         }
       },

@@ -2,6 +2,20 @@ import { extractJSXText, getAntiSlopConfig, hasActionableElement, patternMatches
 
 const EMPTY_STATE_PATTERNS = ["no ", "nothing found", "0 results", "empty", "not found"];
 
+function hasEmptyStateAncestor(node) {
+  let current = node.parent;
+
+  while (current) {
+    if (current.type === "JSXElement" && patternMatches(extractJSXText(current), EMPTY_STATE_PATTERNS)) {
+      return true;
+    }
+
+    current = current.parent;
+  }
+
+  return false;
+}
+
 export const requireEmptyStateActionRule = {
   meta: {
     type: "suggestion",
@@ -19,6 +33,10 @@ export const requireEmptyStateActionRule = {
 
     return {
       JSXElement(node) {
+        if (hasEmptyStateAncestor(node)) {
+          return;
+        }
+
         const text = extractJSXText(node);
         if (!text) {
           return;
