@@ -22,6 +22,7 @@
       "LICENSE",
       "README.md",
       "package.json",
+      ".planning/**",
       "pnpm-lock.yaml",
       "test/**"
     ],
