@@ -8,6 +8,14 @@ const DEFAULT_CONFIG = {
   clientOnlyImports: ["next/navigation", "@tanstack/react-query", "recharts"],
 };
 
+const USER_FACING_JSX_ATTRS = new Set([
+  "aria-label",
+  "alt",
+  "label",
+  "placeholder",
+  "title",
+]);
+
 export function getAntiSlopConfig(context) {
   const cfg = context.settings?.["anti-slop"];
   if (!cfg || typeof cfg !== "object") {
@@ -51,7 +59,7 @@ export function isLikelyUserFacingString(node) {
   }
 
   if (parent.type === "JSXAttribute") {
-    return true;
+    return parent.name?.type === "JSXIdentifier" && USER_FACING_JSX_ATTRS.has(parent.name.name);
   }
 
   if (parent.type === "Property") {

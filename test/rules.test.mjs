@@ -104,10 +104,19 @@ tester.run("no-placeholder-copy", plugin.rules["no-placeholder-copy"], {
       code: "const label = 'todo';",
       settings,
     },
+    {
+      code: "export function View() { return <input className=\"placeholder:text-muted\" />; }",
+      settings,
+    },
   ],
   invalid: [
     {
       code: "export function View() { return <p>Coming soon</p>; }",
+      settings,
+      errors: [{ messageId: "placeholder" }],
+    },
+    {
+      code: "export function View() { return <input placeholder=\"Coming soon\" />; }",
       settings,
       errors: [{ messageId: "placeholder" }],
     },

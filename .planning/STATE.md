@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-04-10)
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-06-23 - Added repo-local agent workflow, contribution standards, rule authoring guide, PR template, and `pnpm verify`
+Last activity: 2026-06-23 - Tightened placeholder-copy detection after consumer rollout surfaced className false positives
 
 Progress: [██████████] 100%
 
@@ -43,6 +43,7 @@ Recent decisions affecting current work:
 - [Bootstrap]: Initialized GSD planning state for this brownfield repo
 - [Product hardening]: Added RuleTester coverage, flat-config presets, pnpm-based docs, CI, changelog, MIT license, package metadata, package smoke verification, and Pre-CR coverage gating.
 - [Workflow hardening]: Added repo-local `AGENTS.md`, `CONTRIBUTING.md`, `docs/rule-authoring.md`, PR template, and a single `pnpm verify` command for local pre-PR verification.
+- [Consumer rollout]: Narrowed user-facing JSX attribute detection to copy-bearing attributes after installation in local apps surfaced className false positives.
 
 ### Pending Todos
 
