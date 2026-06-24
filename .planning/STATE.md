@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** Product hardening baseline plus consumer smoke verification complete
+**Current focus:** Product hardening baseline plus consumer smoke verification and branch-aware audit formatter complete
 
 ## Current Position
 
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-06-23 - Added pnpm smoke consumer that installs the plugin through a local file dependency
+Last activity: 2026-06-23 - Added branch-aware AIOS-compatible audit helper and ESLint formatter for Anti-Slop findings
 
 Progress: [██████████] 100%
 
@@ -46,6 +46,7 @@ Recent decisions affecting current work:
 - [Consumer rollout]: Narrowed user-facing JSX attribute detection to copy-bearing attributes after installation in local apps surfaced className false positives.
 - [Consumer smoke]: Added `smoke-consumer/` as a pnpm-managed local file dependency check and included it in `pnpm verify`.
 - [Coverage hardening]: Focused `pnpm test` and `pnpm test:coverage` on the RuleTester suite, with source LCOV output for the Pre-CR coverage gate.
+- [Gate audit]: Added `eslint-plugin-anti-slop/audit` and `eslint-plugin-anti-slop/audit-formatter` so Anti-Slop ESLint results can write branch-aware `.aios/audit/` JSONL, summary, and learning artifacts.
 
 ### Pending Todos
 

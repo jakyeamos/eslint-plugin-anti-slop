@@ -4,6 +4,10 @@
 
 - Added a pnpm-based smoke consumer that installs the plugin through `file:..`
   and lints a small JSX fixture.
+- Expanded the RuleTester suite to cover every current rule and source-focused
+  LCOV generation for the Pre-CR coverage gate.
+- Added an AIOS-compatible audit helper and ESLint formatter for branch-aware
+  Anti-Slop findings.
 - Updated development and release docs to use the smoke consumer through
   `pnpm smoke:consumer` and `pnpm verify`.
 

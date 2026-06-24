@@ -1,4 +1,5 @@
 node_modules/
 coverage/
+.aios/audit/
 .DS_Store
 *.log

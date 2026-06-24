@@ -239,16 +239,29 @@ export function Dashboard() {
 ```bash
 pnpm install
 pnpm test
+pnpm test:coverage
 pnpm smoke:consumer
 pnpm verify
 ```
 
-Tests use ESLint `RuleTester` through Node's built-in test runner.
+Rule tests use ESLint `RuleTester` through Node's built-in test runner. `pnpm
+test:coverage` writes source LCOV to `coverage/lcov.info` for the repo's Pre-CR
+coverage gate.
 
 `pnpm smoke:consumer` installs `eslint-plugin-anti-slop` into `smoke-consumer/`
 as a local `file:..` dependency with pnpm, then runs ESLint against a small JSX
 fixture. Use it when you need to confirm the package works from a real consumer
 project instead of only through direct source imports.
+
+## Gate Audit Output
+
+Anti-Slop ESLint runners can emit AIOS-compatible audit artifacts with the package formatter:
+
+```bash
+pnpm exec eslint . --format eslint-plugin-anti-slop/audit-formatter
+```
+
+The formatter records branch-aware `anti-slop/*` findings in `.aios/audit/gate-events.jsonl` and refreshes `.aios/audit/gate-summary.md` plus `.aios/audit/learning-lessons.md`. Findings are recorded as blocks on `main`, `master`, `dev`, `develop`, `development`, or when `AIOS_DEV_ENVIRONMENT`, `AIOS_DEV_ENV`, `QUALITY_GATE_DEV_ENV`, or `GATE_CONNECTED_DEV_ENV` is set; detected unprotected feature branches are recorded as warnings. ESLint process exit behavior still depends on the runner's rule severity and CLI settings.
 
 ## Release Checklist
 
