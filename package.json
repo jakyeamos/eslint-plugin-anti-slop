@@ -5,16 +5,20 @@
   "description": "Config-driven anti-slop ESLint rules for React/TypeScript projects.",
   "main": "src/index.mjs",
   "exports": {
-    ".": "./src/index.mjs"
+    ".": "./src/index.mjs",
+    "./audit": "./src/audit.mjs",
+    "./audit-formatter": "./src/audit-formatter.mjs"
   },
   "files": [
     "src",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "test": "node --test test/rules.test.mjs",
-    "test:coverage": "mkdir -p coverage && node --test test/rules.test.mjs --experimental-test-coverage --test-coverage-include=src/**/*.mjs --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
+    "test": "node --test test/*.test.mjs",
+    "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include=src/**/*.mjs --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.test.mjs",
     "smoke:consumer": "pnpm --dir smoke-consumer install --frozen-lockfile && pnpm --dir smoke-consumer lint",
+    "secret:scan": "node scripts/secret-scan.mjs",
+    "dependency:security": "pnpm audit --audit-level high",
     "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pre-cr run --workspace . && pnpm pack --pack-destination /private/tmp"
   },
   "keywords": [
