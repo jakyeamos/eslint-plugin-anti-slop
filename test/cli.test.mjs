@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { runCli } from "../src/cli.mjs";
@@ -37,6 +37,33 @@ function capture() {
 }
 
 describe("runCli", () => {
+  it("runs with the built-in anti-slop config when a repo has no ESLint config", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-standalone-"));
+    const io = capture();
+
+    try {
+      mkdirSync(join(repoRoot, "app"));
+      writeFileSync(
+        join(repoRoot, "app", "page.tsx"),
+        "export function Page(): JSX.Element {\n  return <p>TODO</p>;\n}\n",
+        "utf8",
+      );
+
+      const exitCode = await runCli(["check", "app/page.tsx", "--format", "json", "--mode", "audit"], {
+        cwd: repoRoot,
+        stdout: io.stdout,
+        stderr: io.stderr,
+      });
+
+      const output = JSON.parse(io.read().stdout);
+      assert.equal(exitCode, 0);
+      assert.equal(output.gate, "Anti-Slop");
+      assert.equal(output.newFindings[0].ruleId, "anti-slop/no-placeholder-copy");
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
   it("runs the check command and exits nonzero when block mode has new errors", async () => {
     const io = capture();
     const seen = {};

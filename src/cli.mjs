@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import tsParser from "@typescript-eslint/parser";
+import antiSlop from "./index.mjs";
 import {
   antiSlopFindingsFromResults,
   buildGateReport,
@@ -11,6 +13,13 @@ import {
 const VALID_COMMANDS = new Set(["check", "gate"]);
 const VALID_FORMATS = new Set(["text", "json", "jsonl", "pre-cr", "sarif"]);
 const VALID_MODES = new Set(["auto", "block", "warn", "audit"]);
+const DEFAULT_CLI_IGNORES = [
+  "**/.next/**",
+  "**/build/**",
+  "**/coverage/**",
+  "**/dist/**",
+  "**/node_modules/**",
+];
 
 export async function runCli(argv, dependencies = {}) {
   const stdout = dependencies.stdout ?? ((text) => process.stdout.write(text));
@@ -34,7 +43,7 @@ export async function runCli(argv, dependencies = {}) {
     changedFiles: dependencies.changedFiles ?? defaultChangedFiles,
   });
 
-  const eslintRunner = dependencies.eslintRunner ?? defaultEslintRunner(cwd);
+  const eslintRunner = dependencies.eslintRunner ?? defaultEslintRunner(cwd, projectConfig);
   const results = await eslintRunner(files, { cwd, ignores: projectConfig.ignores });
   const findings = antiSlopFindingsFromResults({ repoRoot: cwd, results });
   const baseline = readBaseline(resolve(cwd, baselinePath));
@@ -161,12 +170,55 @@ function defaultChangedFiles(cwd) {
   }
 }
 
-function defaultEslintRunner(cwd) {
+function defaultEslintRunner(cwd, projectConfig) {
   return async (files) => {
     const { ESLint } = await import("eslint");
-    const eslint = new ESLint({ cwd });
+    const eslint = new ESLint({
+      cwd,
+      errorOnUnmatchedPattern: false,
+      overrideConfigFile: true,
+      overrideConfig: antiSlopCliConfig(projectConfig),
+    });
     return eslint.lintFiles(files);
   };
+}
+
+function antiSlopCliConfig(projectConfig) {
+  const ignores = [...DEFAULT_CLI_IGNORES, ...projectConfig.ignores];
+  const recommended = antiSlop.configs.recommended;
+
+  return [
+    { ignores },
+    {
+      files: ["**/*.{js,jsx,mjs,cjs}"],
+      languageOptions: {
+        ecmaVersion: 2024,
+        sourceType: "module",
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+      plugins: recommended.plugins,
+      rules: recommended.rules,
+    },
+    {
+      files: ["**/*.{ts,tsx,mts,cts}"],
+      languageOptions: {
+        ecmaVersion: 2024,
+        sourceType: "module",
+        parser: tsParser,
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+      plugins: recommended.plugins,
+      rules: recommended.rules,
+    },
+  ];
 }
 
 function readBaseline(path) {

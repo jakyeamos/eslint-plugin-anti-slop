@@ -52,5 +52,8 @@
   "devDependencies": {
     "eslint": "^9.29.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@typescript-eslint/parser": "^8.62.0"
+  }
 }

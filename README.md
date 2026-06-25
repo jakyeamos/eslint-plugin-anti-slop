@@ -290,10 +290,12 @@ pnpm exec anti-slop gate --changed --mode block --format pre-cr
 ```
 
 `anti-slop check` defaults to human-readable output. `anti-slop gate` defaults to
-line-delimited Pre-CR-compatible records. Both commands run ESLint with the
-project's existing ESLint config, normalize `anti-slop/*` findings, apply the
+line-delimited Pre-CR-compatible records. Both commands run ESLint with a
+built-in Anti-Slop flat config, normalize `anti-slop/*` findings, apply the
 configured gate policy, and exit nonzero only when the effective policy blocks
-new error findings.
+new error findings. The built-in config supports JavaScript, JSX, TypeScript,
+and TSX, so backfill scans can run before a target repo has adopted an
+Anti-Slop ESLint config.
 
 Gate policy modes:
 
@@ -327,6 +329,12 @@ Use changed-file mode for fast local gates:
 
 ```bash
 pnpm exec anti-slop gate --changed --mode block --format pre-cr
+```
+
+Use audit mode for first-pass repo adoption/backfill evidence:
+
+```bash
+pnpm exec anti-slop check . --mode audit --format json
 ```
 
 Use a baseline to adopt the gate in existing codebases without blocking on

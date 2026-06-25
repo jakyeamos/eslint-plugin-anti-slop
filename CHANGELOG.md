@@ -6,6 +6,8 @@
   stable `block`/`warn`/`audit` policy modes, changed-file mode, baseline
   support, JSON/JSONL/Pre-CR/SARIF output, and optional
   `anti-slop.config.json` project settings.
+- Added a built-in JavaScript/TypeScript flat config to the CLI so adoption and
+  backfill scans can run before a target repo has configured Anti-Slop in ESLint.
 - Centralized rule gate metadata so audit, SARIF, and CLI remediation text stay
   in sync.
 - Added `anti-slop/no-defensive-guard-sprawl` to flag ordinary functions that
