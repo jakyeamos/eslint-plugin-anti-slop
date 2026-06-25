@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** Product hardening baseline plus consumer smoke verification and branch-aware audit formatter complete
+**Current focus:** Product hardening baseline plus defensive guard sprawl detection complete
 
 ## Current Position
 
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-06-23 - Added branch-aware AIOS-compatible audit helper and ESLint formatter for Anti-Slop findings
+Last activity: 2026-06-25 - Added no-defensive-guard-sprawl to flag repeated nullish and isRecord guards in ordinary functions
 
 Progress: [██████████] 100%
 
@@ -47,6 +47,7 @@ Recent decisions affecting current work:
 - [Consumer smoke]: Added `smoke-consumer/` as a pnpm-managed local file dependency check and included it in `pnpm verify`.
 - [Coverage hardening]: Focused `pnpm test` and `pnpm test:coverage` on the RuleTester suite, with source LCOV output for the Pre-CR coverage gate.
 - [Gate audit]: Added `eslint-plugin-anti-slop/audit` and `eslint-plugin-anti-slop/audit-formatter` so Anti-Slop ESLint results can write branch-aware `.aios/audit/` JSONL, summary, and learning artifacts.
+- [Guard sprawl]: Added `anti-slop/no-defensive-guard-sprawl` as a code-structure slop signal for repeated nullish or `isRecord(...)` guards outside centralized validation helpers.
 
 ### Pending Todos
 
