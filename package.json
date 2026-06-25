@@ -7,16 +7,23 @@
   "exports": {
     ".": "./src/index.mjs",
     "./audit": "./src/audit.mjs",
-    "./audit-formatter": "./src/audit-formatter.mjs"
+    "./audit-formatter": "./src/audit-formatter.mjs",
+    "./cli": "./src/cli.mjs",
+    "./gate": "./src/gate.mjs",
+    "./rule-metadata": "./src/rule-metadata.mjs"
+  },
+  "bin": {
+    "anti-slop": "./bin/anti-slop.mjs"
   },
   "files": [
+    "bin",
     "src",
     "CHANGELOG.md"
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include=src/**/*.mjs --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.test.mjs",
-    "smoke:consumer": "pnpm --dir smoke-consumer install --frozen-lockfile && pnpm --dir smoke-consumer lint",
+    "smoke:consumer": "pnpm --dir smoke-consumer install --frozen-lockfile && pnpm --dir smoke-consumer lint && pnpm --dir smoke-consumer quality:anti-slop",
     "secret:scan": "node scripts/secret-scan.mjs",
     "dependency:security": "pnpm audit --audit-level high",
     "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pre-cr run --workspace . && pnpm pack --pack-destination /private/tmp"

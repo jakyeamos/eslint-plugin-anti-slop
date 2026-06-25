@@ -6,6 +6,7 @@ import { noPlaceholderCopyRule } from "./rules/no-placeholder-copy.mjs";
 import { noUnjustifiedUseClientRule } from "./rules/no-unjustified-use-client.mjs";
 import { noUselessMemoRule } from "./rules/no-useless-memo.mjs";
 import { requireEmptyStateActionRule } from "./rules/require-empty-state-action.mjs";
+import { ruleMetadata } from "./rule-metadata.mjs";
 
 const plugin = {
   meta: {
@@ -29,32 +30,20 @@ plugin.configs = {
     plugins: {
       "anti-slop": plugin,
     },
-    rules: {
-      "anti-slop/no-unjustified-use-client": "error",
-      "anti-slop/no-useless-memo": "warn",
-      "anti-slop/no-placeholder-copy": "error",
-      "anti-slop/no-marketing-copy": "warn",
-      "anti-slop/require-empty-state-action": "warn",
-      "anti-slop/no-demo-data-primary-path": "error",
-      "anti-slop/no-defensive-guard-sprawl": "warn",
-      "anti-slop/no-generic-stat-label": "warn",
-    },
+    rules: rulesForPreset("recommendedSeverity"),
   },
   strict: {
     plugins: {
       "anti-slop": plugin,
     },
-    rules: {
-      "anti-slop/no-unjustified-use-client": "error",
-      "anti-slop/no-useless-memo": "error",
-      "anti-slop/no-placeholder-copy": "error",
-      "anti-slop/no-marketing-copy": "error",
-      "anti-slop/require-empty-state-action": "error",
-      "anti-slop/no-demo-data-primary-path": "error",
-      "anti-slop/no-defensive-guard-sprawl": "error",
-      "anti-slop/no-generic-stat-label": "error",
-    },
+    rules: rulesForPreset("strictSeverity"),
   },
 };
+
+function rulesForPreset(severityKey) {
+  return Object.fromEntries(
+    Object.entries(ruleMetadata).map(([ruleId, metadata]) => [ruleId, metadata[severityKey]]),
+  );
+}
 
 export default plugin;

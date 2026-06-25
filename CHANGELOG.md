@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added the `anti-slop` CLI quality gate with `check` and `gate` commands,
+  stable `block`/`warn`/`audit` policy modes, changed-file mode, baseline
+  support, JSON/JSONL/Pre-CR/SARIF output, and optional
+  `anti-slop.config.json` project settings.
+- Centralized rule gate metadata so audit, SARIF, and CLI remediation text stay
+  in sync.
 - Added `anti-slop/no-defensive-guard-sprawl` to flag ordinary functions that
   stack repeated nullish or `isRecord(...)` guards instead of centralizing shape
   validation.

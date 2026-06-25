@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs"
 import { relative, join } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
+import { metadataForRule } from "./rule-metadata.mjs";
 
 const SECRET_RE =
   /\b(api[_-]?key|secret|token|password|private[_-]?key|client[_-]?secret)\b\s*[:=]\s*['"][^'"\s]{8,}['"]/gi;
@@ -41,6 +42,7 @@ export function auditEventsFromEslintResults({
 
       const failurePattern = antiSlopPattern(message.ruleId);
       const fingerprint = dedupeFingerprint("Anti-Slop", message.ruleId, [file], failurePattern);
+      const metadata = metadataForRule(message.ruleId);
       events.push({
         schema_version: "1.0",
         event_id: randomUUID(),
@@ -54,7 +56,7 @@ export function auditEventsFromEslintResults({
         gate_version: null,
         event_type: "commit_blocked",
         severity: gateDecision === "block" ? "error" : "warning",
-        category: "UX",
+        category: metadata.category,
         rule_id: message.ruleId,
         rule_name: message.ruleId.replace("anti-slop/", ""),
         decision: gateDecision,
@@ -71,7 +73,7 @@ export function auditEventsFromEslintResults({
         ],
         failure_pattern: failurePattern,
         root_cause_hypothesis: "UI implementation tripped a configured anti-slop rule.",
-        required_fix: requiredFixForRule(message.ruleId),
+        required_fix: metadata.requiredFix,
         actual_fix: null,
         learning_lesson: `Address ${message.ruleId} before committing; anti-slop findings are product-quality defects, not lint noise.`,
         dedupe_fingerprint: fingerprint,
@@ -258,18 +260,4 @@ function repeatedPatternLines(events) {
 function antiSlopPattern(ruleId) {
   const normalized = ruleId.replace("anti-slop/", "").replaceAll("-", " ");
   return `anti-slop ${normalized}`;
-}
-
-function requiredFixForRule(ruleId) {
-  const fixes = {
-    "anti-slop/no-placeholder-copy": "Replace placeholder copy with real product text.",
-    "anti-slop/no-marketing-copy": "Replace generic marketing language with specific workflow copy.",
-    "anti-slop/no-unjustified-use-client": "Remove the directive or add real client-only behavior.",
-    "anti-slop/no-useless-memo": "Remove trivial memoization or justify a memo-sensitive boundary.",
-    "anti-slop/require-empty-state-action": "Add an explicit empty-state action or action wording.",
-    "anti-slop/no-demo-data-primary-path": "Use real data in primary routes or move demo data off the main path.",
-    "anti-slop/no-defensive-guard-sprawl": "Move repeated shape checks into a centralized validator or type guard.",
-    "anti-slop/no-generic-stat-label": "Use domain-specific metric labels.",
-  };
-  return fixes[ruleId] ?? "Fix the anti-slop rule violation before committing.";
 }

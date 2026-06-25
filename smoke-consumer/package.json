@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint fixture.jsx --max-warnings=0"
+    "lint": "eslint fixture.jsx --max-warnings=0",
+    "quality:anti-slop": "anti-slop check fixture.jsx --mode block --format json"
   },
   "dependencies": {
     "eslint-plugin-anti-slop": "file:.."

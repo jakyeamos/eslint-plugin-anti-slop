@@ -280,6 +280,76 @@ as a local `file:..` dependency with pnpm, then runs ESLint against a small JSX
 fixture. Use it when you need to confirm the package works from a real consumer
 project instead of only through direct source imports.
 
+## Quality Gate CLI
+
+The package includes a gate runner for CI, local hooks, and Pre-CR-adjacent checks:
+
+```bash
+pnpm exec anti-slop check .
+pnpm exec anti-slop gate --changed --mode block --format pre-cr
+```
+
+`anti-slop check` defaults to human-readable output. `anti-slop gate` defaults to
+line-delimited Pre-CR-compatible records. Both commands run ESLint with the
+project's existing ESLint config, normalize `anti-slop/*` findings, apply the
+configured gate policy, and exit nonzero only when the effective policy blocks
+new error findings.
+
+Gate policy modes:
+
+- `--mode auto`: block on protected branches or known dev/production gate envs,
+  warn on detected feature branches.
+- `--mode block`: fail the process when new error findings exist.
+- `--mode warn`: report findings without failing the process.
+- `--mode audit`: always exit zero while still emitting findings.
+
+Output formats:
+
+- `text`: concise terminal summary.
+- `json`: full report with summary, new findings, and baselined findings.
+- `jsonl`: one machine-readable finding per line.
+- `pre-cr`: JSONL records shaped for quality-gate ingestion.
+- `sarif`: SARIF 2.1.0 for CI code-scanning systems.
+
+Optional `anti-slop.config.json`:
+
+```json
+{
+  "files": ["app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "lib/**/*.{ts,tsx}"],
+  "ignores": ["dist/**"],
+  "mode": "auto",
+  "baselinePath": ".anti-slop-baseline.json",
+  "outputPath": ".aios/audit/anti-slop.json"
+}
+```
+
+Use changed-file mode for fast local gates:
+
+```bash
+pnpm exec anti-slop gate --changed --mode block --format pre-cr
+```
+
+Use a baseline to adopt the gate in existing codebases without blocking on
+known findings:
+
+```bash
+pnpm exec anti-slop check . --update-baseline
+pnpm exec anti-slop gate . --baseline .anti-slop-baseline.json --mode block
+```
+
+For Pre-CR, keep Anti-Slop as a separate quality command alongside
+`pre-cr run --workspace .` until Pre-CR grows a first-class external-gate
+adapter:
+
+```json
+{
+  "scripts": {
+    "quality:anti-slop": "anti-slop gate --changed --mode block --format pre-cr",
+    "quality": "pnpm quality:anti-slop && pre-cr run --workspace ."
+  }
+}
+```
+
 ## Gate Audit Output
 
 Anti-Slop ESLint runners can emit AIOS-compatible audit artifacts with the package formatter:
