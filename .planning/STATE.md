@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** Product hardening baseline plus defensive guard sprawl detection complete
+**Current focus:** Product hardening baseline plus reliable Anti-Slop quality gate CLI complete
 
 ## Current Position
 
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-06-25 - Added no-defensive-guard-sprawl to flag repeated nullish and isRecord guards in ordinary functions
+Last activity: 2026-06-25 - Added the anti-slop CLI quality gate with policy modes, changed-file runs, baselines, and parseable output formats
 
 Progress: [██████████] 100%
 
@@ -48,6 +48,7 @@ Recent decisions affecting current work:
 - [Coverage hardening]: Focused `pnpm test` and `pnpm test:coverage` on the RuleTester suite, with source LCOV output for the Pre-CR coverage gate.
 - [Gate audit]: Added `eslint-plugin-anti-slop/audit` and `eslint-plugin-anti-slop/audit-formatter` so Anti-Slop ESLint results can write branch-aware `.aios/audit/` JSONL, summary, and learning artifacts.
 - [Guard sprawl]: Added `anti-slop/no-defensive-guard-sprawl` as a code-structure slop signal for repeated nullish or `isRecord(...)` guards outside centralized validation helpers.
+- [Quality gate CLI]: Added the `anti-slop` binary with `check` and `gate` commands, stable policy modes, changed-file support, baselines, JSON/JSONL/Pre-CR/SARIF output, optional `anti-slop.config.json`, and smoke-consumer coverage through `pnpm verify`.
 
 ### Pending Todos
 
