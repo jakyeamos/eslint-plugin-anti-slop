@@ -291,3 +291,21 @@ tester.run("no-generic-stat-label", plugin.rules["no-generic-stat-label"], {
     },
   ],
 });
+
+tester.run("no-defensive-guard-sprawl", plugin.rules["no-defensive-guard-sprawl"], {
+  valid: [
+    "function isRecord(value) { return value !== null && typeof value === 'object' && !Array.isArray(value); }",
+    "function parseUser(input) { if (!isRecord(input)) return null; if (input.id == null) return null; return { id: input.id }; }",
+    "function assertPayload(input) { if (!isRecord(input)) throw new Error('bad'); if (input.id == null) throw new Error('bad'); if (input.email == null) throw new Error('bad'); }",
+  ],
+  invalid: [
+    {
+      code: "function parseUser(input) { if (!isRecord(input)) return null; if (input.id == null) return null; if (input.email == null) return null; return { id: input.id, email: input.email }; }",
+      errors: [{ messageId: "guardSprawl" }],
+    },
+    {
+      code: "const normalizeUser = (input) => { if (input == null) return null; if (input.id == null) return null; if (typeof input.name === 'undefined') return null; return input; };",
+      errors: [{ messageId: "guardSprawl" }],
+    },
+  ],
+});

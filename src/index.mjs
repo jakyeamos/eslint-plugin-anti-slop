@@ -1,4 +1,5 @@
 import { noDemoDataPrimaryPathRule } from "./rules/no-demo-data-primary-path.mjs";
+import { noDefensiveGuardSprawlRule } from "./rules/no-defensive-guard-sprawl.mjs";
 import { noGenericStatLabelRule } from "./rules/no-generic-stat-label.mjs";
 import { noMarketingCopyRule } from "./rules/no-marketing-copy.mjs";
 import { noPlaceholderCopyRule } from "./rules/no-placeholder-copy.mjs";
@@ -18,6 +19,7 @@ const plugin = {
     "no-marketing-copy": noMarketingCopyRule,
     "require-empty-state-action": requireEmptyStateActionRule,
     "no-demo-data-primary-path": noDemoDataPrimaryPathRule,
+    "no-defensive-guard-sprawl": noDefensiveGuardSprawlRule,
     "no-generic-stat-label": noGenericStatLabelRule,
   },
 };
@@ -34,6 +36,7 @@ plugin.configs = {
       "anti-slop/no-marketing-copy": "warn",
       "anti-slop/require-empty-state-action": "warn",
       "anti-slop/no-demo-data-primary-path": "error",
+      "anti-slop/no-defensive-guard-sprawl": "warn",
       "anti-slop/no-generic-stat-label": "warn",
     },
   },
@@ -48,6 +51,7 @@ plugin.configs = {
       "anti-slop/no-marketing-copy": "error",
       "anti-slop/require-empty-state-action": "error",
       "anti-slop/no-demo-data-primary-path": "error",
+      "anti-slop/no-defensive-guard-sprawl": "error",
       "anti-slop/no-generic-stat-label": "error",
     },
   },

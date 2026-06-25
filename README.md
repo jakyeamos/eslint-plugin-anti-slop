@@ -2,7 +2,7 @@
 
 Config-driven ESLint rules that catch high-confidence UI and code quality problems in React and TypeScript products.
 
-The plugin is intentionally opinionated. It focuses on issues that make product interfaces feel unfinished: unjustified client components, placeholder text, generic marketing copy, demo data in primary routes, weak empty states, generic stat labels, and low-value memoization.
+The plugin is intentionally opinionated. It focuses on issues that make product interfaces feel unfinished or codebases feel vibe-coded: unjustified client components, placeholder text, generic marketing copy, demo data in primary routes, weak empty states, generic stat labels, defensive guard sprawl, and low-value memoization.
 
 ## Install
 
@@ -64,6 +64,7 @@ export default [
       "anti-slop/no-marketing-copy": "warn",
       "anti-slop/require-empty-state-action": "warn",
       "anti-slop/no-demo-data-primary-path": "error",
+      "anti-slop/no-defensive-guard-sprawl": "warn",
       "anti-slop/no-generic-stat-label": "warn",
     },
   },
@@ -231,6 +232,32 @@ Valid:
 ```tsx
 export function Dashboard() {
   return <h2>Failed payments</h2>;
+}
+```
+
+### `anti-slop/no-defensive-guard-sprawl`
+
+Flags ordinary functions that stack more than two leading nullish or `isRecord(...)` guards. Centralized validators and type guards such as `isRecord`, `assertPayload`, `ensurePayload`, and `validatePayload` are allowed to own repeated shape checks.
+
+Invalid:
+
+```ts
+function parseUser(input) {
+  if (!isRecord(input)) return null;
+  if (input.id == null) return null;
+  if (input.email == null) return null;
+
+  return { id: input.id, email: input.email };
+}
+```
+
+Valid:
+
+```ts
+function assertUserPayload(input) {
+  if (!isRecord(input)) throw new Error("Invalid user");
+  if (input.id == null) throw new Error("Invalid user");
+  if (input.email == null) throw new Error("Invalid user");
 }
 ```
 

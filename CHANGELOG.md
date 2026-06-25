@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added `anti-slop/no-defensive-guard-sprawl` to flag ordinary functions that
+  stack repeated nullish or `isRecord(...)` guards instead of centralizing shape
+  validation.
 - Added a pnpm-based smoke consumer that installs the plugin through `file:..`
   and lints a small JSX fixture.
 - Expanded the RuleTester suite to cover every current rule and source-focused

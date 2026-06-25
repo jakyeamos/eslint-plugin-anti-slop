@@ -268,6 +268,7 @@ function requiredFixForRule(ruleId) {
     "anti-slop/no-useless-memo": "Remove trivial memoization or justify a memo-sensitive boundary.",
     "anti-slop/require-empty-state-action": "Add an explicit empty-state action or action wording.",
     "anti-slop/no-demo-data-primary-path": "Use real data in primary routes or move demo data off the main path.",
+    "anti-slop/no-defensive-guard-sprawl": "Move repeated shape checks into a centralized validator or type guard.",
     "anti-slop/no-generic-stat-label": "Use domain-specific metric labels.",
   };
   return fixes[ruleId] ?? "Fix the anti-slop rule violation before committing.";
