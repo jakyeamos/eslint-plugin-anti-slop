@@ -8,7 +8,9 @@
   "exports": {
     ".": "./src/index.mjs",
     "./audit": "./src/audit.mjs",
+    "./aios-audit-config": "./src/aios-audit-config.mjs",
     "./audit-formatter": "./src/audit-formatter.mjs",
+    "./audit-formatter.mjs": "./audit-formatter.mjs",
     "./cli": "./src/cli.mjs",
     "./gate": "./src/gate.mjs",
     "./rule-metadata": "./src/rule-metadata.mjs"
@@ -17,14 +19,18 @@
     "anti-slop": "./bin/anti-slop.mjs"
   },
   "files": [
+    "audit-formatter.mjs",
     "bin",
+    "eslint.aios-audit.config.mjs",
     "src",
     "CHANGELOG.md"
   ],
   "scripts": {
+    "audit:anti-slop": "eslint . --config eslint.aios-audit.config.mjs --format ./audit-formatter.mjs",
     "test": "node --test test/*.test.mjs",
     "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include=src/**/*.mjs --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.test.mjs",
-    "smoke:consumer": "pnpm --dir smoke-consumer install --frozen-lockfile && pnpm --dir smoke-consumer lint && pnpm --dir smoke-consumer quality:anti-slop",
+    "smoke:eslint9": "pnpm --dir smoke-consumer install --frozen-lockfile --force && pnpm --dir smoke-consumer lint && pnpm --dir smoke-consumer quality:anti-slop && pnpm --dir smoke-consumer audit:anti-slop",
+    "smoke:consumer": "pnpm smoke:eslint9",
     "secret:scan": "node scripts/secret-scan.mjs",
     "dependency:security": "pnpm audit --audit-level high",
     "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pre-cr run --workspace . && pnpm pack --pack-destination /tmp"
@@ -48,7 +54,7 @@
   },
   "homepage": "https://github.com/jakyeamos/eslint-plugin-anti-slop#readme",
   "peerDependencies": {
-    "eslint": "^9.0.0"
+    "eslint": ">=9.0.0 <10.0.0"
   },
   "devDependencies": {
     "eslint": "^9.29.0"

@@ -1,8 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import tsParser from "@typescript-eslint/parser";
-import antiSlop from "./index.mjs";
+import { antiSlopAiosAuditConfig } from "./aios-audit-config.mjs";
 import {
   antiSlopFindingsFromResults,
   buildGateReport,
@@ -13,13 +12,6 @@ import {
 const VALID_COMMANDS = new Set(["check", "gate"]);
 const VALID_FORMATS = new Set(["text", "json", "jsonl", "pre-cr", "sarif"]);
 const VALID_MODES = new Set(["auto", "block", "warn", "audit"]);
-const DEFAULT_CLI_IGNORES = [
-  "**/.next/**",
-  "**/build/**",
-  "**/coverage/**",
-  "**/dist/**",
-  "**/node_modules/**",
-];
 
 export async function runCli(argv, dependencies = {}) {
   const stdout = dependencies.stdout ?? ((text) => process.stdout.write(text));
@@ -184,41 +176,7 @@ function defaultEslintRunner(cwd, projectConfig) {
 }
 
 function antiSlopCliConfig(projectConfig) {
-  const ignores = [...DEFAULT_CLI_IGNORES, ...projectConfig.ignores];
-  const recommended = antiSlop.configs.recommended;
-
-  return [
-    { ignores },
-    {
-      files: ["**/*.{js,jsx,mjs,cjs}"],
-      languageOptions: {
-        ecmaVersion: 2024,
-        sourceType: "module",
-        parserOptions: {
-          ecmaFeatures: {
-            jsx: true,
-          },
-        },
-      },
-      plugins: recommended.plugins,
-      rules: recommended.rules,
-    },
-    {
-      files: ["**/*.{ts,tsx,mts,cts}"],
-      languageOptions: {
-        ecmaVersion: 2024,
-        sourceType: "module",
-        parser: tsParser,
-        parserOptions: {
-          ecmaFeatures: {
-            jsx: true,
-          },
-        },
-      },
-      plugins: recommended.plugins,
-      rules: recommended.rules,
-    },
-  ];
+  return antiSlopAiosAuditConfig({ ignores: projectConfig.ignores });
 }
 
 function readBaseline(path) {

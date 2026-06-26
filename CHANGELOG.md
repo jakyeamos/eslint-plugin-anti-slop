@@ -19,10 +19,16 @@
   LCOV generation for the Pre-CR coverage gate.
 - Added an AIOS-compatible audit helper and ESLint formatter for branch-aware
   Anti-Slop findings.
+- Packaged the AIOS audit formatter integration with an exported
+  `eslint-plugin-anti-slop/aios-audit-config`, repo-local audit script, consumer
+  smoke coverage, and exact README wiring for downstream repos.
 - Updated development and release docs to use the smoke consumer through
   `pnpm smoke:consumer` and `pnpm verify`.
 - Updated CI to run the same `pnpm verify` gate used for local pre-PR checks,
   with pnpm caching for both the root package and smoke consumer lockfiles.
+- Documented ESLint 9.x as the only supported ESLint major after an ESLint
+  8.57.1 audit found that the package CLI fails under ESLint 8, and renamed the
+  smoke script path to `pnpm smoke:eslint9`.
 
 ## 0.1.0
 

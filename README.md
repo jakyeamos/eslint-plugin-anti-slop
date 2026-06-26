@@ -4,6 +4,20 @@ Config-driven ESLint rules that catch high-confidence UI and code quality proble
 
 The plugin is intentionally opinionated. It focuses on issues that make product interfaces feel unfinished or codebases feel vibe-coded: unjustified client components, placeholder text, generic marketing copy, demo data in primary routes, weak empty states, generic stat labels, defensive guard sprawl, and low-value memoization.
 
+## Compatibility
+
+Supported runtime:
+
+- Node.js 20 or newer.
+- ESLint 9.x with flat config.
+
+ESLint 8 is not supported. A local compatibility audit showed that ESLint
+8.57.1 can load the flat-config rule preset in a narrow lint smoke, but the
+package CLI fails under ESLint 8 because that major rejects the ESLint 9
+`overrideConfigFile: true` option used by `anti-slop check` and
+`anti-slop gate`. Consumers should upgrade to ESLint 9 before adopting the
+plugin or CLI.
+
 ## Install
 
 For local sibling-project development:
@@ -267,7 +281,7 @@ function assertUserPayload(input) {
 pnpm install
 pnpm test
 pnpm test:coverage
-pnpm smoke:consumer
+pnpm smoke:eslint9
 pnpm verify
 ```
 
@@ -279,10 +293,10 @@ coverage gate.
 suite, coverage, the smoke consumer, Pre-CR changed-line readiness, and an npm
 tarball smoke pack.
 
-`pnpm smoke:consumer` installs `eslint-plugin-anti-slop` into `smoke-consumer/`
-as a local `file:..` dependency with pnpm, then runs ESLint against a small JSX
-fixture. Use it when you need to confirm the package works from a real consumer
-project instead of only through direct source imports.
+`pnpm smoke:eslint9` installs `eslint-plugin-anti-slop` into `smoke-consumer/`
+as a local `file:..` dependency with pnpm, then runs ESLint 9 against a small
+JSX fixture, the `anti-slop` CLI, and the audit formatter. `pnpm smoke:consumer`
+is kept as an alias for the same supported-major smoke.
 
 ## Quality Gate CLI
 
@@ -364,13 +378,83 @@ adapter:
 
 ## Gate Audit Output
 
-Anti-Slop ESLint runners can emit AIOS-compatible audit artifacts with the package formatter:
+Anti-Slop ESLint runners can emit AIOS-compatible audit artifacts with the
+package formatter. For a repo that does not already have Anti-Slop in its ESLint
+config, add the package config and keep the formatter in a dedicated script.
+
+Install in the consumer repo:
 
 ```bash
-pnpm exec eslint . --format eslint-plugin-anti-slop/audit-formatter
+pnpm add -D eslint eslint-plugin-anti-slop @typescript-eslint/parser
 ```
 
-The formatter records branch-aware `anti-slop/*` findings in `.aios/audit/gate-events.jsonl` and refreshes `.aios/audit/gate-summary.md` plus `.aios/audit/learning-lessons.md`. Findings are recorded as blocks on `main`, `master`, `dev`, `develop`, `development`, or when `AIOS_DEV_ENVIRONMENT`, `AIOS_DEV_ENV`, `QUALITY_GATE_DEV_ENV`, or `GATE_CONNECTED_DEV_ENV` is set; detected unprotected feature branches are recorded as warnings. ESLint process exit behavior still depends on the runner's rule severity and CLI settings.
+Add `eslint.aios-audit.config.mjs`:
+
+```js
+import antiSlopAiosAuditConfig from "eslint-plugin-anti-slop/aios-audit-config";
+
+export default antiSlopAiosAuditConfig;
+```
+
+Add the package script:
+
+```json
+{
+  "scripts": {
+    "audit:anti-slop": "eslint . --config eslint.aios-audit.config.mjs --format ./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs"
+  }
+}
+```
+
+Use the `./node_modules/.../audit-formatter.mjs` file path in `--format`;
+ESLint's formatter loader treats package subpaths as local filesystem paths.
+
+Run it with pnpm:
+
+```bash
+pnpm audit:anti-slop
+```
+
+If the repo already has an ESLint config with `anti-slop/*` rules enabled, keep
+that config and add only the formatter script:
+
+```json
+{
+  "scripts": {
+    "audit:anti-slop": "eslint . --format ./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs"
+  }
+}
+```
+
+The packaged config covers JavaScript, JSX, TypeScript, and TSX files and
+ignores `.next`, `build`, `coverage`, `dist`, and `node_modules` output. To add
+repo-specific ignores:
+
+```js
+import { antiSlopAiosAuditConfig } from "eslint-plugin-anti-slop/aios-audit-config";
+
+export default antiSlopAiosAuditConfig({
+  ignores: ["generated/**"],
+});
+```
+
+The formatter records severity-2 `anti-slop/*` findings in
+`.aios/audit/gate-events.jsonl` and refreshes `.aios/audit/gate-summary.md` plus
+`.aios/audit/learning-lessons.md`. Each JSONL event uses the current AIOS gate
+event envelope: `schema_version`, `event_id`, `timestamp`, `repo`, `branch`,
+`commit_sha`, `run_id`, `actor_type`, `gate`, `gate_version`, `event_type`,
+`severity`, `category`, `rule_id`, `rule_name`, `decision`, `summary`,
+`evidence`, `failure_pattern`, `root_cause_hypothesis`, `required_fix`,
+`actual_fix`, `learning_lesson`, `dedupe_fingerprint`, `related_event_ids`,
+`blocked_duration_seconds`, `tokens_wasted_estimate`, and `notes`.
+
+Findings are recorded as blocks on `main`, `master`, `dev`, `develop`,
+`development`, or when `AIOS_DEV_ENVIRONMENT`, `AIOS_DEV_ENV`,
+`QUALITY_GATE_DEV_ENV`, or `GATE_CONNECTED_DEV_ENV` is set; detected unprotected
+feature branches are recorded as warnings. `AIOS_BRANCH` and `AIOS_RUN_ID` are
+used when present, and otherwise the formatter falls back to the current git
+branch. ESLint process exit behavior still depends on the runner's rule severity
+and CLI settings.
 
 ## Release Checklist
 

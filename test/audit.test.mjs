@@ -3,6 +3,11 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import aiosAuditConfig, {
+  aiosAuditArtifacts,
+  antiSlopAiosAuditConfig,
+  antiSlopAuditFormatter,
+} from "../src/aios-audit-config.mjs";
 import {
   appendAuditEvents,
   auditEventsFromEslintResults,
@@ -10,6 +15,47 @@ import {
   redactSecrets,
 } from "../src/audit.mjs";
 import formatAuditResults from "../src/audit-formatter.mjs";
+
+describe("AIOS audit integration surface", () => {
+  it("exports a packaged formatter name, artifact paths, and consumer flat config", () => {
+    const config = antiSlopAiosAuditConfig({ ignores: ["vendor/**"] });
+
+    assert.equal(antiSlopAuditFormatter, "./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs");
+    assert.deepEqual(aiosAuditArtifacts, [
+      ".aios/audit/gate-events.jsonl",
+      ".aios/audit/gate-summary.md",
+      ".aios/audit/learning-lessons.md",
+    ]);
+    assert.equal(Array.isArray(aiosAuditConfig), true);
+    assert.deepEqual(config[0].ignores, [
+      "**/.next/**",
+      "**/build/**",
+      "**/coverage/**",
+      "**/dist/**",
+      "**/node_modules/**",
+      "vendor/**",
+    ]);
+    assert.deepEqual(config[1].files, ["**/*.{js,jsx,mjs,cjs}"]);
+    assert.deepEqual(config[2].files, ["**/*.{ts,tsx,mts,cts}"]);
+    assert.equal(config[1].rules["anti-slop/no-placeholder-copy"], "error");
+    assert.equal(config[2].rules["anti-slop/no-placeholder-copy"], "error");
+  });
+
+  it("declares the reusable audit config as a package export", () => {
+    const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+
+    assert.equal(packageJson.exports["./aios-audit-config"], "./src/aios-audit-config.mjs");
+  });
+
+  it("ships a root formatter file for ESLint CLI path loading", async () => {
+    const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+    const formatterModule = await import("../audit-formatter.mjs");
+
+    assert.equal(packageJson.exports["./audit-formatter.mjs"], "./audit-formatter.mjs");
+    assert.equal(packageJson.files.includes("audit-formatter.mjs"), true);
+    assert.equal(formatterModule.default, formatAuditResults);
+  });
+});
 
 describe("auditEventsFromEslintResults", () => {
   it("creates Anti-Slop events for blocking ESLint messages", () => {
@@ -216,7 +262,12 @@ describe("formatAuditResults", () => {
 
       assert.match(output, /Anti-Slop audit events: 1/);
       const eventText = readFileSync(join(repoRoot, ".aios", "audit", "gate-events.jsonl"), "utf8");
-      assert.match(eventText, /anti-slop\/no-placeholder-copy/);
+      const event = JSON.parse(eventText);
+      assert.equal(event.schema_version, "1.0");
+      assert.equal(event.gate, "Anti-Slop");
+      assert.equal(event.event_type, "commit_blocked");
+      assert.equal(event.rule_id, "anti-slop/no-placeholder-copy");
+      assert.deepEqual(Object.keys(event.evidence[0]).sort(), ["file", "line_end", "line_start", "reason"]);
     } finally {
       rmSync(repoRoot, { recursive: true, force: true });
     }

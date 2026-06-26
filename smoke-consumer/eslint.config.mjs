@@ -1,17 +1,3 @@
-import antiSlop from "eslint-plugin-anti-slop";
+import antiSlopAiosAuditConfig from "eslint-plugin-anti-slop/aios-audit-config";
 
-export default [
-  {
-    files: ["fixture.jsx"],
-    languageOptions: {
-      ecmaVersion: 2024,
-      sourceType: "module",
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
-    ...antiSlop.configs.recommended,
-  },
-];
+export default antiSlopAiosAuditConfig;
