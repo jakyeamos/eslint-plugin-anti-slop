@@ -43,6 +43,7 @@ Recent decisions affecting current work:
 - [Bootstrap]: Initialized GSD planning state for this brownfield repo
 - [Product hardening]: Added RuleTester coverage, flat-config presets, pnpm-based docs, CI, changelog, MIT license, package metadata, package smoke verification, and Pre-CR coverage gating.
 - [Workflow hardening]: Added repo-local `AGENTS.md`, `CONTRIBUTING.md`, `docs/rule-authoring.md`, PR template, and a single `pnpm verify` command for local pre-PR verification.
+- [CI verification]: GitHub Actions now runs the same `pnpm verify` gate as local pre-PR development, with pnpm caching keyed by both the root and smoke-consumer lockfiles.
 - [Consumer rollout]: Narrowed user-facing JSX attribute detection to copy-bearing attributes after installation in local apps surfaced className false positives.
 - [Consumer smoke]: Added `smoke-consumer/` as a pnpm-managed local file dependency check and included it in `pnpm verify`.
 - [Coverage hardening]: Focused `pnpm test` and `pnpm test:coverage` on the RuleTester suite, with source LCOV output for the Pre-CR coverage gate.
