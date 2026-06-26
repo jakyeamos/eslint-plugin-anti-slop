@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** Product hardening baseline plus reliable Anti-Slop quality gate CLI complete
+**Current focus:** AIOS audit formatter integration packaged for downstream repos
 
 ## Current Position
 
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-06-25 - Added standalone Anti-Slop CLI scanning for adoption/backfill quality gates
+Last activity: 2026-06-26 - Packaged the AIOS audit formatter with reusable consumer config, formatter path, smoke coverage, and exact downstream wiring
 
 Progress: [██████████] 100%
 
@@ -48,8 +48,10 @@ Recent decisions affecting current work:
 - [Consumer smoke]: Added `smoke-consumer/` as a pnpm-managed local file dependency check and included it in `pnpm verify`.
 - [Coverage hardening]: Focused `pnpm test` and `pnpm test:coverage` on the RuleTester suite, with source LCOV output for the Pre-CR coverage gate.
 - [Gate audit]: Added `eslint-plugin-anti-slop/audit` and `eslint-plugin-anti-slop/audit-formatter` so Anti-Slop ESLint results can write branch-aware `.aios/audit/` JSONL, summary, and learning artifacts.
+- [Audit formatter packaging]: Added `eslint-plugin-anti-slop/aios-audit-config`, a root `audit-formatter.mjs` shim for ESLint CLI path loading, repo-local and smoke-consumer audit scripts, README consumer wiring, and tests that pin the AIOS JSONL event envelope.
 - [Guard sprawl]: Added `anti-slop/no-defensive-guard-sprawl` as a code-structure slop signal for repeated nullish or `isRecord(...)` guards outside centralized validation helpers.
 - [Quality gate CLI]: Added the `anti-slop` binary with `check` and `gate` commands, stable policy modes, changed-file support, baselines, JSON/JSONL/Pre-CR/SARIF output, optional `anti-slop.config.json`, built-in JavaScript/TypeScript CLI scanning for backfill adoption, and smoke-consumer coverage through `pnpm verify`.
+- [ESLint compatibility]: Active sibling consumers include both ESLint 8.57.1 and ESLint 9.39.4 installs. ESLint 8.57.1 can run the flat-config smoke fixture, but the installed `anti-slop` CLI fails under ESLint 8 because that major rejects the ESLint 9 `overrideConfigFile: true` option. The package contract is therefore explicit ESLint 9.x support only, with the smoke path named `pnpm smoke:eslint9`.
 
 ### Pending Todos
 
