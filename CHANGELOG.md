@@ -21,6 +21,8 @@
   Anti-Slop findings.
 - Updated development and release docs to use the smoke consumer through
   `pnpm smoke:consumer` and `pnpm verify`.
+- Updated CI to run the same `pnpm verify` gate used for local pre-PR checks,
+  with pnpm caching for both the root package and smoke consumer lockfiles.
 
 ## 0.1.0
 

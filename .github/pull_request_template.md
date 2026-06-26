@@ -4,10 +4,7 @@
 
 ## Verification
 
-- [ ] `pnpm test`
-- [ ] `pnpm test:coverage`
-- [ ] `pre-cr run --workspace .`
-- [ ] `pnpm pack --pack-destination /private/tmp`
+- [ ] `pnpm verify`
 
 ## Rule Quality
 

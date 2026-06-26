@@ -15,7 +15,7 @@ Use the full local gate before opening a pull request:
 pnpm verify
 ```
 
-`pnpm verify` runs the RuleTester suite, emits LCOV coverage for Pre-CR, checks changed-line coverage, and smoke-packs the npm tarball.
+`pnpm verify` runs the RuleTester suite, emits LCOV coverage for Pre-CR, checks changed-line coverage, verifies the smoke consumer, and smoke-packs the npm tarball. CI runs this same gate on pull requests and pushes to `main`.
 
 ## Rule Quality Bar
 

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Config-driven anti-slop ESLint rules for React/TypeScript projects.",
+  "packageManager": "pnpm@11.7.0",
   "main": "src/index.mjs",
   "exports": {
     ".": "./src/index.mjs",
@@ -26,7 +27,7 @@
     "smoke:consumer": "pnpm --dir smoke-consumer install --frozen-lockfile && pnpm --dir smoke-consumer lint && pnpm --dir smoke-consumer quality:anti-slop",
     "secret:scan": "node scripts/secret-scan.mjs",
     "dependency:security": "pnpm audit --audit-level high",
-    "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pre-cr run --workspace . && pnpm pack --pack-destination /private/tmp"
+    "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pre-cr run --workspace . && pnpm pack --pack-destination /tmp"
   },
   "keywords": [
     "eslint",
