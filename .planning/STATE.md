@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** Publish-realistic package smoke verification
+**Current focus:** 0.2.0 release candidate prepared
 
 ## Current Position
 
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-07-02 - Added packed-tarball smoke verification for the CLI, audit, gate, and AIOS audit config package entrypoints
+Last activity: 2026-07-02 - Prepared the unpublished 0.2.0 release candidate with main reconciled, package version bumped, changelog released, release docs updated, and `pnpm verify` passing
 
 Progress: [██████████] 100%
 
@@ -54,6 +54,7 @@ Recent decisions affecting current work:
 - [ESLint compatibility]: Active sibling consumers include both ESLint 8.57.1 and ESLint 9.39.4 installs. ESLint 8.57.1 can run the flat-config smoke fixture, but the installed `anti-slop` CLI fails under ESLint 8 because that major rejects the ESLint 9 `overrideConfigFile: true` option. The package contract is therefore explicit ESLint 9.x support only, with the smoke path named `pnpm smoke:eslint9`.
 - [Structural UI rules]: Added Impeccable-derived deterministic UI rules to the recommended and strict presets while keeping subjective design judgment out of ESLint.
 - [Published smoke]: Added a temp-fixture smoke test that installs the packed tarball, exercises the installed `anti-slop` binary, imports the `audit`, `gate`, and `aios-audit-config` subpath exports, verifies the audit formatter path through ESLint, and runs from `pnpm verify`.
+- [0.2.0 release prep]: Reconciled `codex/tier-one-product-hardening` with `origin/main`, bumped `package.json` to 0.2.0, moved `CHANGELOG.md` out of Unreleased, updated release-facing docs, and verified without publishing.
 
 ### Pending Todos
 
