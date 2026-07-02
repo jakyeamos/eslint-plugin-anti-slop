@@ -20,6 +20,8 @@
   `anti-slop/no-hidden-reveal-default`, and `anti-slop/no-nested-cards`.
 - Added a pnpm-based smoke consumer that installs the plugin through `file:..`
   and lints a small JSX fixture.
+- Added a publish-realistic smoke test that installs the packed tarball in an
+  isolated fixture and verifies the CLI plus audit-related package entrypoints.
 - Expanded the RuleTester suite to cover every current rule and source-focused
   LCOV generation for the Pre-CR coverage gate.
 - Added an AIOS-compatible audit helper and ESLint formatter for branch-aware

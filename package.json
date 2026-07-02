@@ -31,9 +31,10 @@
     "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include=src/**/*.mjs --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.test.mjs",
     "smoke:eslint9": "pnpm --dir smoke-consumer install --frozen-lockfile --force && pnpm --dir smoke-consumer lint && pnpm --dir smoke-consumer quality:anti-slop && pnpm --dir smoke-consumer audit:anti-slop",
     "smoke:consumer": "pnpm smoke:eslint9",
+    "smoke:published": "node scripts/smoke-published.mjs",
     "secret:scan": "node scripts/secret-scan.mjs",
     "dependency:security": "pnpm audit --audit-level high",
-    "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pre-cr run --workspace . && pnpm pack --pack-destination /tmp"
+    "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pnpm smoke:published && pre-cr run --workspace ."
   },
   "keywords": [
     "eslint",
