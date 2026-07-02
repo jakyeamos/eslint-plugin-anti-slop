@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 - Added the `anti-slop` CLI quality gate with `check` and `gate` commands,
   stable `block`/`warn`/`audit` policy modes, changed-file mode, baseline

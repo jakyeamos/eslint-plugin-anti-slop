@@ -463,8 +463,8 @@ test:coverage` writes source LCOV to `coverage/lcov.info` for the repo's Pre-CR
 coverage gate.
 
 `pnpm verify` is the local pre-PR gate and the CI gate. It runs the RuleTester
-suite, coverage, the smoke consumer, Pre-CR changed-line readiness, and an npm
-tarball smoke pack.
+suite, coverage, the smoke consumer, a packed-tarball install smoke, and Pre-CR
+changed-line readiness.
 
 `pnpm smoke:eslint9` installs `eslint-plugin-anti-slop` into `smoke-consumer/`
 as a local `file:..` dependency with pnpm, then runs ESLint 9 against a small
@@ -645,4 +645,4 @@ and CLI settings.
 2. Run `pnpm verify`.
 3. Update `CHANGELOG.md`.
 4. Confirm `package.json` version and package metadata.
-5. Publish with `pnpm publish` when ready.
+5. Publish with `pnpm publish` only from the final release step.
