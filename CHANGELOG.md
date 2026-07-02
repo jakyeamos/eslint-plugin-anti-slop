@@ -13,6 +13,11 @@
 - Added `anti-slop/no-defensive-guard-sprawl` to flag ordinary functions that
   stack repeated nullish or `isRecord(...)` guards instead of centralizing shape
   validation.
+- Added structural UI rules from the Impeccable quality pass:
+  `anti-slop/no-gradient-text`, `anti-slop/no-decorative-grid-background`,
+  `anti-slop/no-side-stripe-accent`, `anti-slop/no-excessive-radius`,
+  `anti-slop/no-arbitrary-z-index`, `anti-slop/require-reduced-motion`,
+  `anti-slop/no-hidden-reveal-default`, and `anti-slop/no-nested-cards`.
 - Added a pnpm-based smoke consumer that installs the plugin through `file:..`
   and lints a small JSX fixture.
 - Expanded the RuleTester suite to cover every current rule and source-focused

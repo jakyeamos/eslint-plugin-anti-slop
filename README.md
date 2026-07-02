@@ -2,7 +2,7 @@
 
 Config-driven ESLint rules that catch high-confidence UI and code quality problems in React and TypeScript products.
 
-The plugin is intentionally opinionated. It focuses on issues that make product interfaces feel unfinished or codebases feel vibe-coded: unjustified client components, placeholder text, generic marketing copy, demo data in primary routes, weak empty states, generic stat labels, defensive guard sprawl, and low-value memoization.
+The plugin is intentionally opinionated. It focuses on issues that make product interfaces feel unfinished or codebases feel vibe-coded: unjustified client components, placeholder text, generic marketing copy, demo data in primary routes, weak empty states, generic stat labels, defensive guard sprawl, low-value memoization, and deterministic structural UI tells such as gradient text, decorative grid backgrounds, side-stripe accents, excessive radii, arbitrary z-index values, missing reduced-motion fallbacks, hidden reveal defaults, and nested cards.
 
 ## Compatibility
 
@@ -80,6 +80,14 @@ export default [
       "anti-slop/no-demo-data-primary-path": "error",
       "anti-slop/no-defensive-guard-sprawl": "warn",
       "anti-slop/no-generic-stat-label": "warn",
+      "anti-slop/no-gradient-text": "warn",
+      "anti-slop/no-decorative-grid-background": "warn",
+      "anti-slop/no-side-stripe-accent": "warn",
+      "anti-slop/no-excessive-radius": "warn",
+      "anti-slop/no-arbitrary-z-index": "warn",
+      "anti-slop/require-reduced-motion": "warn",
+      "anti-slop/no-hidden-reveal-default": "warn",
+      "anti-slop/no-nested-cards": "warn",
     },
   },
 ];
@@ -273,6 +281,140 @@ function assertUserPayload(input) {
   if (input.id == null) throw new Error("Invalid user");
   if (input.email == null) throw new Error("Invalid user");
 }
+```
+
+### `anti-slop/no-gradient-text`
+
+Discourages gradient-clipped text from static JSX class names and style objects.
+
+Invalid:
+
+```tsx
+<h1 className="bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent">
+  Revenue
+</h1>
+```
+
+Valid:
+
+```tsx
+<h1 className="text-brand">Revenue</h1>
+```
+
+### `anti-slop/no-decorative-grid-background`
+
+Flags two-axis one-pixel CSS gradient backgrounds used as decoration.
+
+Invalid:
+
+```tsx
+<div style={{ backgroundImage: "linear-gradient(#eee 1px, transparent 1px), linear-gradient(90deg, #eee 1px, transparent 1px)" }} />
+```
+
+Valid:
+
+```tsx
+<div className="grid grid-cols-2 gap-4" />
+```
+
+### `anti-slop/no-side-stripe-accent`
+
+Flags thick left/right border accents such as `border-l-4` or `borderLeftWidth: 6`.
+
+Invalid:
+
+```tsx
+<aside className="border-l-4 border-red-500" />
+```
+
+Valid:
+
+```tsx
+<aside className="border border-red-200 bg-red-50" />
+```
+
+### `anti-slop/no-excessive-radius`
+
+Flags static radius values of 32px or larger on framed surfaces.
+
+Invalid:
+
+```tsx
+<section className="rounded-[40px]" />
+```
+
+Valid:
+
+```tsx
+<section className="rounded-xl" />
+```
+
+### `anti-slop/no-arbitrary-z-index`
+
+Flags arbitrary z-index values of 999 or higher.
+
+Invalid:
+
+```tsx
+<div className="z-[9999]" />
+```
+
+Valid:
+
+```tsx
+<div className="z-50" />
+```
+
+### `anti-slop/require-reduced-motion`
+
+Requires a reduced-motion fallback when static JSX/CSS-in-JS code declares transitions or animations.
+
+Invalid:
+
+```tsx
+<button className="transition-opacity">Save</button>
+```
+
+Valid:
+
+```tsx
+<button className="transition-opacity motion-reduce:transition-none">Save</button>
+```
+
+### `anti-slop/no-hidden-reveal-default`
+
+Flags reveal patterns that combine hidden default content with static motion.
+
+Invalid:
+
+```tsx
+<section className="opacity-0 transition-opacity">Hidden until reveal</section>
+```
+
+Valid:
+
+```tsx
+<section className="opacity-100 transition-opacity">Visible content</section>
+```
+
+### `anti-slop/no-nested-cards`
+
+Flags nested `Card` components or nested containers with a `card` class.
+
+Invalid:
+
+```tsx
+<Card>
+  <MetricCard />
+</Card>
+```
+
+Valid:
+
+```tsx
+<Card>
+  <section>Details</section>
+</Card>
 ```
 
 ## Development

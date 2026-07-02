@@ -42,6 +42,10 @@ tester.run("plugin exports", {
         if (plugin.configs?.strict?.rules?.["anti-slop/no-useless-memo"] !== "error") {
           context.report({ node, message: "missing strict config" });
         }
+
+        if (plugin.configs?.recommended?.rules?.["anti-slop/no-gradient-text"] !== "warn") {
+          context.report({ node, message: "missing structural UI config" });
+        }
       },
     };
   },
@@ -306,6 +310,143 @@ tester.run("no-defensive-guard-sprawl", plugin.rules["no-defensive-guard-sprawl"
     {
       code: "const normalizeUser = (input) => { if (input == null) return null; if (input.id == null) return null; if (typeof input.name === 'undefined') return null; return input; };",
       errors: [{ messageId: "guardSprawl" }],
+    },
+  ],
+});
+
+tester.run("no-gradient-text", plugin.rules["no-gradient-text"], {
+  valid: [
+    "export function View() { return <h1 className=\"text-brand\">Revenue</h1>; }",
+    "export function View() { return <h1 style={{ color: '#234' }}>Revenue</h1>; }",
+  ],
+  invalid: [
+    {
+      code: "export function View() { return <h1 className=\"bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent\">Revenue</h1>; }",
+      errors: [{ messageId: "gradientText" }],
+    },
+    {
+      code: "export function View() { return <h1 style={{ backgroundImage: 'linear-gradient(red, blue)', backgroundClip: 'text' }}>Revenue</h1>; }",
+      errors: [{ messageId: "gradientText" }],
+    },
+  ],
+});
+
+tester.run("no-decorative-grid-background", plugin.rules["no-decorative-grid-background"], {
+  valid: [
+    "export function View() { return <div className=\"grid grid-cols-2 gap-4\" />; }",
+    "const blueprintBackground = 'linear-gradient(#eee, #fff)';",
+  ],
+  invalid: [
+    {
+      code: "export function View() { return <div style={{ backgroundImage: 'linear-gradient(#eee 1px, transparent 1px), linear-gradient(90deg, #eee 1px, transparent 1px)' }} />; }",
+      errors: [{ messageId: "decorativeGrid" }],
+    },
+    {
+      code: "const background = `linear-gradient(#eee 1px, transparent 1px), linear-gradient(90deg, #eee 1px, transparent 1px)`;",
+      errors: [{ messageId: "decorativeGrid" }],
+    },
+  ],
+});
+
+tester.run("no-side-stripe-accent", plugin.rules["no-side-stripe-accent"], {
+  valid: [
+    "export function View() { return <aside className=\"border-l border-slate-300\" />; }",
+    "export function View() { return <aside style={{ borderLeft: '1px solid red' }} />; }",
+  ],
+  invalid: [
+    {
+      code: "export function View() { return <aside className=\"border-l-4 border-red-500\" />; }",
+      errors: [{ messageId: "sideStripe" }],
+    },
+    {
+      code: "export function View() { return <aside style={{ borderLeftWidth: 6 }} />; }",
+      errors: [{ messageId: "sideStripe" }],
+    },
+  ],
+});
+
+tester.run("no-excessive-radius", plugin.rules["no-excessive-radius"], {
+  valid: [
+    "export function View() { return <button className=\"rounded-full\">Save</button>; }",
+    "export function View() { return <section style={{ borderRadius: 16 }} />; }",
+  ],
+  invalid: [
+    {
+      code: "export function View() { return <section className=\"rounded-[40px]\" />; }",
+      errors: [{ messageId: "excessiveRadius" }],
+    },
+    {
+      code: "export function View() { return <section style={{ borderRadius: '2rem' }} />; }",
+      errors: [{ messageId: "excessiveRadius" }],
+    },
+  ],
+});
+
+tester.run("no-arbitrary-z-index", plugin.rules["no-arbitrary-z-index"], {
+  valid: [
+    "export function View() { return <div className=\"z-50\" />; }",
+    "export function View() { return <div style={{ zIndex: 20 }} />; }",
+  ],
+  invalid: [
+    {
+      code: "export function View() { return <div className=\"z-[9999]\" />; }",
+      errors: [{ messageId: "arbitraryZIndex" }],
+    },
+    {
+      code: "export function View() { return <div style={{ zIndex: 1000 }} />; }",
+      errors: [{ messageId: "arbitraryZIndex" }],
+    },
+  ],
+});
+
+tester.run("require-reduced-motion", plugin.rules["require-reduced-motion"], {
+  valid: [
+    "export function View() { return <button className=\"px-3\">Save</button>; }",
+    "export function View() { return <button className=\"transition-colors motion-reduce:transition-none\">Save</button>; }",
+    "const css = '@media (prefers-reduced-motion: reduce) { * { transition: none } } .item { transition: opacity .2s; }';",
+  ],
+  invalid: [
+    {
+      code: "export function View() { return <button className=\"transition-opacity\">Save</button>; }",
+      errors: [{ messageId: "reducedMotion" }],
+    },
+    {
+      code: "const css = '.item { animation: fade-in .2s ease-out; }';",
+      errors: [{ messageId: "reducedMotion" }],
+    },
+  ],
+});
+
+tester.run("no-hidden-reveal-default", plugin.rules["no-hidden-reveal-default"], {
+  valid: [
+    "export function View() { return <section className=\"opacity-0\">Draft</section>; }",
+    "export function View() { return <section className=\"opacity-100 transition-opacity\">Visible</section>; }",
+  ],
+  invalid: [
+    {
+      code: "export function View() { return <section className=\"opacity-0 transition-opacity\">Hidden</section>; }",
+      errors: [{ messageId: "hiddenReveal" }],
+    },
+    {
+      code: "export function View() { return <section style={{ opacity: 0, transition: 'opacity .2s' }}>Hidden</section>; }",
+      errors: [{ messageId: "hiddenReveal" }],
+    },
+  ],
+});
+
+tester.run("no-nested-cards", plugin.rules["no-nested-cards"], {
+  valid: [
+    "export function View() { return <Card><section>Details</section></Card>; }",
+    "export function View() { return <div className=\"panel\"><div className=\"card\">Details</div></div>; }",
+  ],
+  invalid: [
+    {
+      code: "export function View() { return <div className=\"card\"><div className=\"card\">Nested</div></div>; }",
+      errors: [{ messageId: "nestedCard" }],
+    },
+    {
+      code: "export function View() { return <Card><MetricCard /></Card>; }",
+      errors: [{ messageId: "nestedCard" }],
     },
   ],
 });
