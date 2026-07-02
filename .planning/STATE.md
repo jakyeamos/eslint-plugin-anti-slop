@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** AIOS audit formatter integration packaged for downstream repos
+**Current focus:** Impeccable-derived structural UI rules added to the anti-slop preset
 
 ## Current Position
 
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-06-26 - Packaged the AIOS audit formatter with reusable consumer config, formatter path, smoke coverage, and exact downstream wiring
+Last activity: 2026-07-02 - Added deterministic structural UI rules for gradient text, decorative grids, side stripes, excessive radius, arbitrary z-index, reduced motion, hidden reveal defaults, and nested cards
 
 Progress: [██████████] 100%
 
@@ -52,6 +52,7 @@ Recent decisions affecting current work:
 - [Guard sprawl]: Added `anti-slop/no-defensive-guard-sprawl` as a code-structure slop signal for repeated nullish or `isRecord(...)` guards outside centralized validation helpers.
 - [Quality gate CLI]: Added the `anti-slop` binary with `check` and `gate` commands, stable policy modes, changed-file support, baselines, JSON/JSONL/Pre-CR/SARIF output, optional `anti-slop.config.json`, built-in JavaScript/TypeScript CLI scanning for backfill adoption, and smoke-consumer coverage through `pnpm verify`.
 - [ESLint compatibility]: Active sibling consumers include both ESLint 8.57.1 and ESLint 9.39.4 installs. ESLint 8.57.1 can run the flat-config smoke fixture, but the installed `anti-slop` CLI fails under ESLint 8 because that major rejects the ESLint 9 `overrideConfigFile: true` option. The package contract is therefore explicit ESLint 9.x support only, with the smoke path named `pnpm smoke:eslint9`.
+- [Structural UI rules]: Added Impeccable-derived deterministic UI rules to the recommended and strict presets while keeping subjective design judgment out of ESLint.
 
 ### Pending Todos
 
