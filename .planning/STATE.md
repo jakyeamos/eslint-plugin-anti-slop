@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** 0.2.0 release candidate prepared
+**Current focus:** QR capability gates added; broad structural debt classified
 
 ## Current Position
 
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-07-02 - Prepared the unpublished 0.2.0 release candidate with main reconciled, package version bumped, changelog released, release docs updated, and `pnpm verify` passing
+Last activity: 2026-07-03 - Added canonical QR package-script gates for format, typecheck, build, dead-code, and smoke checks; added `.tracker/PROJECT_TRUTH.md`; verified all executable QR gates pass while final QR status remains blocked by broad structural findings
 
 Progress: [██████████] 100%
 
@@ -55,10 +55,11 @@ Recent decisions affecting current work:
 - [Structural UI rules]: Added Impeccable-derived deterministic UI rules to the recommended and strict presets while keeping subjective design judgment out of ESLint.
 - [Published smoke]: Added a temp-fixture smoke test that installs the packed tarball, exercises the installed `anti-slop` binary, imports the `audit`, `gate`, and `aios-audit-config` subpath exports, verifies the audit formatter path through ESLint, and runs from `pnpm verify`.
 - [0.2.0 release prep]: Reconciled `codex/tier-one-product-hardening` with `origin/main`, bumped `package.json` to 0.2.0, moved `CHANGELOG.md` out of Unreleased, updated release-facing docs, and verified without publishing.
+- [QR capability gates]: Added dependency-free local `format`, `typecheck`, `build`, `audit:dead-code`, and `smoke` package-script gates plus `.tracker/PROJECT_TRUTH.md`; Quality Runner now reports no missing repo-owned gates and all executable gates pass.
 
 ### Pending Todos
 
-None.
+Quality Runner final status remains blocked by broad structural debt: 135 structural findings in the final stress run, concentrated in simplify/deep-nesting, nested-ternary scanner precision, deduplicate, harden, and ponytail buckets.
 
 ### Blockers/Concerns
 
