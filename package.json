@@ -27,8 +27,13 @@
   ],
   "scripts": {
     "audit:anti-slop": "eslint . --config eslint.aios-audit.config.mjs --format ./audit-formatter.mjs",
+    "format": "node scripts/format-check.mjs",
+    "typecheck": "node scripts/check-js-syntax.mjs typecheck",
+    "build": "pnpm pack --dry-run",
     "test": "node --test test/*.test.mjs",
     "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include=src/**/*.mjs --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.test.mjs",
+    "audit:dead-code": "node scripts/dead-code-check.mjs",
+    "smoke": "pnpm smoke:consumer",
     "smoke:eslint9": "pnpm --dir smoke-consumer install --frozen-lockfile --force && pnpm --dir smoke-consumer lint && pnpm --dir smoke-consumer quality:anti-slop && pnpm --dir smoke-consumer audit:anti-slop",
     "smoke:consumer": "pnpm smoke:eslint9",
     "smoke:published": "node scripts/smoke-published.mjs",
