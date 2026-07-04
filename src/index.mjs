@@ -19,7 +19,7 @@ import { ruleMetadata } from "./rule-metadata.mjs";
 const plugin = {
   meta: {
     name: "eslint-plugin-anti-slop",
-    version: "0.1.0",
+    version: "0.2.0",
   },
   rules: {
     "no-unjustified-use-client": noUnjustifiedUseClientRule,

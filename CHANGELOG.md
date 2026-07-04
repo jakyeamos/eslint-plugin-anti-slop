@@ -22,6 +22,8 @@
   and lints a small JSX fixture.
 - Added a publish-realistic smoke test that installs the packed tarball in an
   isolated fixture and verifies the CLI plus audit-related package entrypoints.
+- Synced the exported plugin metadata version with the package version and
+  pinned it in the RuleTester export coverage.
 - Expanded the RuleTester suite to cover every current rule and source-focused
   LCOV generation for the Pre-CR coverage gate.
 - Added an AIOS-compatible audit helper and ESLint formatter for branch-aware

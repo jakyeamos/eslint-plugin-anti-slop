@@ -1,10 +1,13 @@
 import { RuleTester } from "eslint";
 import { describe, it } from "node:test";
+import { readFileSync } from "node:fs";
 import plugin from "../src/index.mjs";
 
 RuleTester.afterAll = undefined;
 RuleTester.describe = describe;
 RuleTester.it = it;
+
+const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 
 const tester = new RuleTester({
   languageOptions: {
@@ -45,6 +48,10 @@ tester.run("plugin exports", {
 
         if (plugin.configs?.recommended?.rules?.["anti-slop/no-gradient-text"] !== "warn") {
           context.report({ node, message: "missing structural UI config" });
+        }
+
+        if (plugin.meta?.version !== packageJson.version) {
+          context.report({ node, message: "plugin metadata version must match package version" });
         }
       },
     };
