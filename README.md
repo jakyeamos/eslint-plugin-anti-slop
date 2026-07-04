@@ -28,16 +28,18 @@ plugin or CLI.
 
 ## Install
 
+From npm:
+
+```bash
+pnpm add -D eslint-plugin-anti-slop
+```
+
+Package page: [eslint-plugin-anti-slop on npm](https://www.npmjs.com/package/eslint-plugin-anti-slop).
+
 Local sibling-project development:
 
 ```bash
 pnpm add -D file:/Users/jakyeamos/projects/eslint-plugin-anti-slop
-```
-
-Registry usage after publishing:
-
-```bash
-pnpm add -D eslint-plugin-anti-slop
 ```
 
 ## Quick Start
