@@ -43,3 +43,6 @@
 ---
 *Requirements defined: 2026-04-10*
 *Last updated: 2026-04-10 after initial GSD bootstrap*
+## QR Remediation Requirements
+
+- [ ] **QR-ESLINT-PLUGIN-ANTI-SLOP**: Resolve the Quality Runner advisory clusters from run qr-fleet-continue-20260704-eslint-plugin-anti-slop for eslint-plugin-anti-slop without changing intended behavior, then verify with focused repo checks and a post-remediation QR comparison.

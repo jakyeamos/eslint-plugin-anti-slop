@@ -35,6 +35,9 @@ Progress: [██████████] 100%
 
 ## Accumulated Context
 
+
+### Roadmap Evolution
+- 2026-07-04: Phase 4 planned: QR remediation: eslint-plugin-anti-slop from QR run qr-fleet-continue-20260704-eslint-plugin-anti-slop.
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.

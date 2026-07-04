@@ -16,3 +16,7 @@
 - `.planning/STATE.md` remains the detailed planning state file for session continuity.
 - The plugin intentionally supports ESLint 9.x only.
 - 2026-07-04: `pnpm verify` passed after the README install documentation update.
+
+## QR Remediation Planning
+
+- 2026-07-04: Added GSD Phase 4 for QR remediation from qr-fleet-continue-20260704-eslint-plugin-anti-slop; 2 plan(s) created from eslint-plugin-anti-slop.md. Execution has not started.

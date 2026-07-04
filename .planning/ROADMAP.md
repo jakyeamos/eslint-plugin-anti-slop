@@ -70,3 +70,19 @@ Phases execute in numeric order: 1 → 2 → 3
 | 1. Bootstrap Repository Discipline | 0/2 | Not started | - |
 | 2. Verify Consumer Integration | 0/2 | Not started | - |
 | 3. Plan Rule Hardening | 0/2 | Not started | - |
+
+### Phase 4: QR remediation: eslint-plugin-anti-slop
+
+
+
+**Goal:** Resolve Quality Runner findings for eslint-plugin-anti-slop using cluster-oriented, behavior-preserving remediation from run qr-fleet-continue-20260704-eslint-plugin-anti-slop.
+**Requirements**: QR-ESLINT-PLUGIN-ANTI-SLOP
+**Depends on:** Phase 3
+**Plans:** 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md - Primary QR cluster remediation
+- [ ] 04-02-PLAN.md - Additional QR cluster remediation
+
+**Cross-cutting constraints:**
+- The post-remediation QR run records no unresolved regression for this plan scope.
