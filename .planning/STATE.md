@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-04-10)
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-07-04 - Synced exported plugin metadata with the 0.2.0 package version and pinned the version contract in RuleTester coverage during local npm release prep.
+Last activity: 2026-07-04 - Ignored generated `.quality-runner/` artifacts so npm publish git checks can run from a clean tracked tree.
 
 Progress: [██████████] 100%
 
@@ -57,6 +57,7 @@ Recent decisions affecting current work:
 - [0.2.0 release prep]: Reconciled `codex/tier-one-product-hardening` with `origin/main`, bumped `package.json` to 0.2.0, moved `CHANGELOG.md` out of Unreleased, updated release-facing docs, and verified without publishing.
 - [QR capability gates]: Added dependency-free local `format`, `typecheck`, `build`, `audit:dead-code`, and `smoke` package-script gates plus `.tracker/PROJECT_TRUTH.md`; Quality Runner now reports no missing repo-owned gates and all executable gates pass.
 - [Release metadata]: Synced the exported ESLint plugin metadata version with package `0.2.0` and added RuleTester export coverage so future version bumps do not leave stale consumer-visible metadata.
+- [Release hygiene]: Ignored generated `.quality-runner/` artifacts to keep publish git checks focused on tracked release files.
 
 ### Pending Todos
 

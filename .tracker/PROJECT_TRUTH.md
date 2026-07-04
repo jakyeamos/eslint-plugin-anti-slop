@@ -11,6 +11,6 @@
 
 ## Operating Notes
 
-- `.quality-runner/` contains generated local audit artifacts and is not committed.
+- `.quality-runner/` contains generated local audit artifacts and is ignored.
 - `.planning/STATE.md` remains the detailed planning state file for session continuity.
 - The plugin intentionally supports ESLint 9.x only.
