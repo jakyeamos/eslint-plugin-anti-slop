@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-04-10)
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-07-03 - Added canonical QR package-script gates for format, typecheck, build, dead-code, and smoke checks; added `.tracker/PROJECT_TRUTH.md`; verified all executable QR gates pass while final QR status remains blocked by broad structural findings
+Last activity: 2026-07-04 - Synced exported plugin metadata with the 0.2.0 package version and pinned the version contract in RuleTester coverage during local npm release prep.
 
 Progress: [██████████] 100%
 
@@ -56,6 +56,7 @@ Recent decisions affecting current work:
 - [Published smoke]: Added a temp-fixture smoke test that installs the packed tarball, exercises the installed `anti-slop` binary, imports the `audit`, `gate`, and `aios-audit-config` subpath exports, verifies the audit formatter path through ESLint, and runs from `pnpm verify`.
 - [0.2.0 release prep]: Reconciled `codex/tier-one-product-hardening` with `origin/main`, bumped `package.json` to 0.2.0, moved `CHANGELOG.md` out of Unreleased, updated release-facing docs, and verified without publishing.
 - [QR capability gates]: Added dependency-free local `format`, `typecheck`, `build`, `audit:dead-code`, and `smoke` package-script gates plus `.tracker/PROJECT_TRUTH.md`; Quality Runner now reports no missing repo-owned gates and all executable gates pass.
+- [Release metadata]: Synced the exported ESLint plugin metadata version with package `0.2.0` and added RuleTester export coverage so future version bumps do not leave stale consumer-visible metadata.
 
 ### Pending Todos
 
