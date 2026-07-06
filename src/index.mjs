@@ -45,6 +45,10 @@ const plugin = {
   },
 };
 
+for (const [ruleName, rule] of Object.entries(plugin.rules)) {
+  rule.meta.docs.url = `https://github.com/jakyeamos/eslint-plugin-anti-slop/blob/main/docs/rules/${ruleName}.md`;
+}
+
 plugin.configs = {
   recommended: {
     plugins: {

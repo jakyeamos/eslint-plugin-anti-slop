@@ -36,12 +36,6 @@ pnpm add -D eslint-plugin-anti-slop
 
 Package page: [eslint-plugin-anti-slop on npm](https://www.npmjs.com/package/eslint-plugin-anti-slop).
 
-Local sibling-project development:
-
-```bash
-pnpm add -D file:/Users/jakyeamos/projects/eslint-plugin-anti-slop
-```
-
 ## Quick Start
 
 ```javascript
@@ -111,6 +105,9 @@ export default [
 | `antiSlop.configs.strict` | Escalates every rule to `error`. |
 
 ## Rules
+
+Each rule has a full docs page with rationale, examples, and options under
+[`docs/rules/`](docs/rules), linked from editor tooltips via `meta.docs.url`.
 
 | Rule | What it catches |
 | --- | --- |
@@ -449,6 +446,12 @@ Valid:
 ```
 
 ## Development
+
+For local sibling-project development, install the checkout directly:
+
+```bash
+pnpm add -D file:../eslint-plugin-anti-slop
+```
 
 ```bash
 pnpm install

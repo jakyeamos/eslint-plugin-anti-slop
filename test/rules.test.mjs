@@ -1,6 +1,6 @@
 import { RuleTester } from "eslint";
 import { describe, it } from "node:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import plugin from "../src/index.mjs";
 
 RuleTester.afterAll = undefined;
@@ -60,6 +60,17 @@ tester.run("plugin exports", {
 
         if (plugin.meta?.namespace !== "anti-slop") {
           context.report({ node, message: "plugin metadata namespace must be anti-slop" });
+        }
+
+        for (const [ruleName, rule] of Object.entries(plugin.rules)) {
+          const expectedUrl = `https://github.com/jakyeamos/eslint-plugin-anti-slop/blob/main/docs/rules/${ruleName}.md`;
+          if (rule.meta?.docs?.url !== expectedUrl) {
+            context.report({ node, message: `rule ${ruleName} must declare docs url ${expectedUrl}` });
+          }
+
+          if (!existsSync(new URL(`../docs/rules/${ruleName}.md`, import.meta.url))) {
+            context.report({ node, message: `rule ${ruleName} is missing docs/rules/${ruleName}.md` });
+          }
         }
       },
     };
