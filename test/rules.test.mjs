@@ -117,6 +117,18 @@ tester.run("no-unjustified-use-client", plugin.rules["no-unjustified-use-client"
       settings,
       errors: [{ messageId: "unjustified" }],
     },
+    {
+      code: '"use client";\nimport { useState } from "react";\nexport function View() { return <section>Static</section>; }',
+      output: 'import { useState } from "react";\nexport function View() { return <section>Static</section>; }',
+      settings,
+      errors: [{ messageId: "unjustified" }],
+    },
+    {
+      code: '"use client";\nexport function View() { return <p online="yes">Status</p>; }',
+      output: 'export function View() { return <p online="yes">Status</p>; }',
+      settings,
+      errors: [{ messageId: "unjustified" }],
+    },
   ],
 });
 

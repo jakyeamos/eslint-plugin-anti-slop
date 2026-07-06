@@ -31,11 +31,20 @@ export const noUnjustifiedUseClientRule = {
     const config = getAntiSlopConfig(context);
     let useClientDirective = null;
     let hasClientSignal = false;
-    const importedHookNames = new Set();
+    const clientHookLocalNames = new Set();
     const reactNamespaceNames = new Set();
 
     function markClientSignal() {
       hasClientSignal = true;
+    }
+
+    function isImportBinding(node) {
+      const parentType = node.parent?.type;
+      return (
+        parentType === "ImportSpecifier" ||
+        parentType === "ImportDefaultSpecifier" ||
+        parentType === "ImportNamespaceSpecifier"
+      );
     }
 
     return {
@@ -63,7 +72,9 @@ export const noUnjustifiedUseClientRule = {
         if (source === "react") {
           for (const specifier of node.specifiers) {
             if (specifier.type === "ImportSpecifier") {
-              importedHookNames.add(specifier.imported.name);
+              if (CLIENT_HOOKS.has(specifier.imported.name)) {
+                clientHookLocalNames.add(specifier.local.name);
+              }
             } else if (specifier.type === "ImportNamespaceSpecifier") {
               reactNamespaceNames.add(specifier.local.name);
             } else if (specifier.type === "ImportDefaultSpecifier") {
@@ -73,7 +84,7 @@ export const noUnjustifiedUseClientRule = {
         }
       },
       Identifier(node) {
-        if (!useClientDirective) {
+        if (!useClientDirective || isImportBinding(node)) {
           return;
         }
 
@@ -82,7 +93,7 @@ export const noUnjustifiedUseClientRule = {
           return;
         }
 
-        if (importedHookNames.has(node.name) && CLIENT_HOOKS.has(node.name)) {
+        if (clientHookLocalNames.has(node.name)) {
           markClientSignal();
         }
       },
@@ -107,7 +118,7 @@ export const noUnjustifiedUseClientRule = {
           return;
         }
 
-        if (node.name?.type === "JSXIdentifier" && node.name.name.startsWith("on")) {
+        if (node.name?.type === "JSXIdentifier" && /^on[A-Z]/.test(node.name.name)) {
           markClientSignal();
         }
       },
