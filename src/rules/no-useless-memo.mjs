@@ -42,20 +42,75 @@ export const noUselessMemoRule = {
     },
   },
   create(context) {
-    return {
-      CallExpression(node) {
-        if (node.callee.type !== "Identifier") {
-          return;
+    function resolveVariable(node, name) {
+      for (let scope = context.sourceCode.getScope(node); scope; scope = scope.upper) {
+        const variable = scope.variables.find((item) => item.name === name);
+        if (variable) {
+          return variable;
+        }
+      }
+      return null;
+    }
+
+    function reactImportedName(variable) {
+      const def = variable?.defs[0];
+      if (!def || def.type !== "ImportBinding" || def.parent.source.value !== "react") {
+        return null;
+      }
+
+      if (def.node.type === "ImportSpecifier") {
+        return def.node.imported.name;
+      }
+
+      return "*";
+    }
+
+    function resolveHookName(node) {
+      if (node.callee.type === "Identifier") {
+        const variable = resolveVariable(node, node.callee.name);
+        if (!variable) {
+          return ["useMemo", "useCallback"].includes(node.callee.name) ? node.callee.name : null;
         }
 
-        if (node.callee.name === "useMemo") {
+        const imported = reactImportedName(variable);
+        return imported && imported !== "*" ? imported : null;
+      }
+
+      if (node.callee.type === "MemberExpression" && node.callee.object.type === "Identifier") {
+        const property = node.callee.property;
+        const propertyName =
+          property.type === "Identifier" && !node.callee.computed
+            ? property.name
+            : property.type === "Literal" && typeof property.value === "string"
+              ? property.value
+              : null;
+        if (!["useMemo", "useCallback"].includes(propertyName)) {
+          return null;
+        }
+
+        const variable = resolveVariable(node, node.callee.object.name);
+        if (!variable) {
+          return node.callee.object.name === "React" ? propertyName : null;
+        }
+
+        return reactImportedName(variable) === "*" ? propertyName : null;
+      }
+
+      return null;
+    }
+
+    return {
+      CallExpression(node) {
+        const hookName = resolveHookName(node);
+
+        if (hookName === "useMemo") {
           const expr = getReturnedExpression(node.arguments[0]);
           if (expr && isTrivialExpression(expr)) {
             context.report({ node, messageId: "uselessMemo" });
           }
         }
 
-        if (node.callee.name === "useCallback") {
+        if (hookName === "useCallback") {
           const callback = node.arguments[0];
           if (!callback || (callback.type !== "ArrowFunctionExpression" && callback.type !== "FunctionExpression")) {
             return;

@@ -138,6 +138,9 @@ tester.run("no-useless-memo", plugin.rules["no-useless-memo"], {
     "const filtered = useMemo(() => items.filter((item) => item.active), [items]);",
     "const saved = useCallback(() => { submit(); }, []);",
     "const unknown = memoFactory(() => 1, []);",
+    "import { useMemo } from 'proxy-memoize';\nconst value = useMemo(() => 1, []);",
+    "function useMemo(factory) { return factory(); }\nconst value = useMemo(() => 1, []);",
+    "import { useMemo } from 'react';\nconst filtered = useMemo(() => items.filter((item) => item.active), [items]);",
   ],
   invalid: [
     {
@@ -155,6 +158,26 @@ tester.run("no-useless-memo", plugin.rules["no-useless-memo"], {
     {
       code: "const onClick = useCallback(function () { return submit; }, []);",
       errors: [{ messageId: "uselessCallback" }],
+    },
+    {
+      code: "import { useMemo } from 'react';\nconst value = useMemo(() => 1, []);",
+      errors: [{ messageId: "uselessMemo" }],
+    },
+    {
+      code: "import { useMemo as memoize } from 'react';\nconst value = memoize(() => 1, []);",
+      errors: [{ messageId: "uselessMemo" }],
+    },
+    {
+      code: "import * as React from 'react';\nconst value = React.useMemo(() => 1, []);",
+      errors: [{ messageId: "uselessMemo" }],
+    },
+    {
+      code: "import React from 'react';\nconst onClick = React.useCallback(() => submit(), []);",
+      errors: [{ messageId: "uselessCallback" }],
+    },
+    {
+      code: "const value = React.useMemo(() => 1, []);",
+      errors: [{ messageId: "uselessMemo" }],
     },
   ],
 });
