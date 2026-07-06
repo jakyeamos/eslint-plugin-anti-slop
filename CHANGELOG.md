@@ -1,5 +1,44 @@
 # Changelog
 
+## Unreleased
+
+- Plugin metadata now reads `name`/`version` from `package.json` at load time
+  and declares `namespace: "anti-slop"`.
+- `pnpm verify` no longer depends on the unpublished global `pre-cr` tool;
+  `pnpm verify:local` layers Pre-CR readiness for machines that have it.
+- CLI `ignores` now use real glob semantics via picomatch (`**/generated/**`,
+  `*.stories.tsx`, `src/**/*.fixture.ts`), matching ESLint expectations.
+- CLI `--mode auto` resolves the current branch from CI env vars or git when
+  `--branch` is omitted, so local feature branches warn instead of blocking.
+- Gate finding fingerprints now include the trimmed source line, so separate
+  violations of one rule in the same file baseline independently. Existing
+  baselines must be regenerated with `--update-baseline`.
+- `no-unjustified-use-client` no longer counts unused react hook imports or
+  props like `online` as client signals, and tracks aliased hooks correctly.
+- `no-useless-memo` resolves callees through scope analysis: react imports
+  (aliased included), `React.useMemo` member calls, and unresolved globals are
+  checked; local functions and other modules' `useMemo` are ignored.
+- `no-demo-data-primary-path` covers `app/page.tsx`, `src/app/**`, layout and
+  route files, and root `pages/**`; real-data indicators must be actual call
+  roots or import path segments instead of any identifier.
+- Added a shared static class extractor so className-based UI rules see
+  classes inside `clsx`/`classnames`/`cn`/`cx`/`cva`/`twMerge`/`twJoin` calls,
+  arrays, object keys, conditionals, and template literals.
+- `require-reduced-motion` checks fallbacks in proximity (same class string or
+  CSS string) instead of file-wide, detects variant-prefixed motion such as
+  `hover:transition` and `md:animate-spin`, and treats `motion-safe:` motion
+  as guarded.
+- Added per-rule options with schemas: `maxGuards`
+  (`no-defensive-guard-sprawl`), `maxRadiusPx` (`no-excessive-radius`), and
+  `maxZIndex` (`no-arbitrary-z-index`).
+- Added `docs/rules/<rule>.md` pages for all 16 rules and wired
+  `meta.docs.url` for editor integration.
+- Added a release-triggered publish workflow using npm trusted publishing
+  (OIDC) with provenance, and expanded CI to Node 20/22/24 plus an ESLint
+  9.0.0 floor job.
+- Shipped TypeScript declarations for the plugin, gate, audit, CLI, audit
+  config, rule metadata, and audit formatter entry points.
+
 ## 0.2.0
 
 - Added the `anti-slop` CLI quality gate with `check` and `gate` commands,
