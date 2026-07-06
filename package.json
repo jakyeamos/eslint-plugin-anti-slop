@@ -38,7 +38,7 @@
     "smoke:consumer": "pnpm smoke:eslint9",
     "smoke:published": "node scripts/smoke-published.mjs",
     "secret:scan": "node scripts/secret-scan.mjs",
-    "dependency:security": "pnpm audit --audit-level high",
+    "dependency:security": "node scripts/dependency-security.mjs",
     "verify": "pnpm test && pnpm test:coverage && pnpm smoke:consumer && pnpm smoke:published && pre-cr run --workspace ."
   },
   "keywords": [
