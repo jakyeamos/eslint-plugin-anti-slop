@@ -295,6 +295,16 @@ tester.run("no-demo-data-primary-path", plugin.rules["no-demo-data-primary-path"
       code: "import { rows } from '@/fixtures/rows';\nexport function Page() { const records = db.report.findMany(); return records ?? rows; }",
       settings,
     },
+    {
+      filename: "/repo/app/page.tsx",
+      code: "import { rows } from '@/fixtures/rows';\nimport { db } from '@/lib/db';\nexport async function Page() { const records = await db.report.findMany(); return records ?? rows; }",
+      settings,
+    },
+    {
+      filename: "/repo/app/dashboard/page.tsx",
+      code: "import { rows } from '@/fixtures/rows';\nexport function Page() { const data = trpc.rows.list.useQuery(); return data ?? rows; }",
+      settings,
+    },
   ],
   invalid: [
     {
@@ -306,6 +316,24 @@ tester.run("no-demo-data-primary-path", plugin.rules["no-demo-data-primary-path"
     {
       filename: "/repo/src/pages/reports.tsx",
       code: "import rows from '@/demo';\nexport function Page() { return rows; }",
+      settings,
+      errors: [{ messageId: "demoDataPrimary" }],
+    },
+    {
+      filename: "/repo/app/page.tsx",
+      code: "import { rows } from '@/fixtures/rows';\nexport function Page() { return rows; }",
+      settings,
+      errors: [{ messageId: "demoDataPrimary" }],
+    },
+    {
+      filename: "/repo/src/app/dashboard/layout.tsx",
+      code: "import { rows } from '@/mocks/rows';\nexport default function Layout({ children }) { return <div data-rows={rows.length}>{children}</div>; }",
+      settings,
+      errors: [{ messageId: "demoDataPrimary" }],
+    },
+    {
+      filename: "/repo/app/page.tsx",
+      code: "import { rows } from '@/fixtures/rows';\nconst flags = { fetch: false };\nexport function Page() { return rows; }",
       settings,
       errors: [{ messageId: "demoDataPrimary" }],
     },
