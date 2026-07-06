@@ -68,6 +68,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@typescript-eslint/parser": "^8.62.0"
+    "@typescript-eslint/parser": "^8.62.0",
+    "picomatch": "^4.0.5"
   }
 }

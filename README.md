@@ -523,6 +523,15 @@ Optional `anti-slop.config.json`:
 }
 ```
 
+`ignores` entries use standard glob semantics (via picomatch), matching what
+ESLint accepts: `dist/**`, `**/generated/**`, `src/**/*.fixture.ts`, and
+basename patterns such as `*.stories.tsx` all work.
+
+In `--mode auto` without an explicit `--branch`, the CLI resolves the current
+branch from CI environment variables (`GITHUB_REF_NAME`, `GITHUB_HEAD_REF`,
+`BRANCH_NAME`, `VERCEL_GIT_COMMIT_REF`, `AIOS_BRANCH`) or `git rev-parse`, the
+same way audit events do, so feature branches warn instead of blocking.
+
 Use changed-file mode for fast local gates:
 
 ```bash

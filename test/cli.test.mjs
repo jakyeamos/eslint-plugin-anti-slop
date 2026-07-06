@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -154,6 +155,92 @@ describe("runCli", () => {
 
       assert.deepEqual(seen.files, ["src/app.ts"]);
     } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("applies glob ignore patterns beyond exact paths and trailing /**", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-glob-"));
+    const io = capture();
+    const seen = {};
+
+    try {
+      writeFileSync(
+        join(repoRoot, "anti-slop.config.json"),
+        JSON.stringify({ ignores: ["**/generated/**", "*.stories.tsx", "src/**/*.fixture.ts"] }),
+        "utf8",
+      );
+
+      await runCli([
+        "check",
+        "--files",
+        "src/app.ts,src/generated/api.ts,components/Button.stories.tsx,src/lib/user.fixture.ts",
+      ], {
+        cwd: repoRoot,
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async (files) => {
+          seen.files = files;
+          return [];
+        },
+      });
+
+      assert.deepEqual(seen.files, ["src/app.ts"]);
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("detects the current git branch in auto mode when --branch is not passed", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-branch-"));
+    const io = capture();
+
+    const branchEnvKeys = [
+      "AIOS_BRANCH",
+      "GITHUB_REF_NAME",
+      "GITHUB_HEAD_REF",
+      "BRANCH_NAME",
+      "VERCEL_GIT_COMMIT_REF",
+      "AIOS_QUALITY_GATE_MODE",
+      "QUALITY_GATE_MODE",
+      "AIOS_DEV_ENVIRONMENT",
+      "AIOS_DEV_ENV",
+      "QUALITY_GATE_DEV_ENV",
+      "GATE_CONNECTED_DEV_ENV",
+      "VERCEL_ENV",
+    ];
+    const savedEnv = new Map(branchEnvKeys.map((key) => [key, process.env[key]]));
+
+    try {
+      for (const key of branchEnvKeys) {
+        delete process.env[key];
+      }
+      execFileSync("git", ["init", "--initial-branch", "feature/glob-cli"], { cwd: repoRoot, stdio: "ignore" });
+      execFileSync(
+        "git",
+        ["-c", "user.email=test@example.com", "-c", "user.name=test", "commit", "--allow-empty", "-m", "init"],
+        { cwd: repoRoot, stdio: "ignore" },
+      );
+
+      const exitCode = await runCli(["check", "--format", "json"], {
+        cwd: repoRoot,
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async () => eslintResults,
+      });
+
+      const output = JSON.parse(io.read().stdout);
+      assert.equal(output.branch, "feature/glob-cli");
+      assert.equal(output.effectiveMode, "warn");
+      assert.equal(exitCode, 0);
+    } finally {
+      for (const [key, value] of savedEnv) {
+        if (value === undefined) {
+          delete process.env[key];
+        } else {
+          process.env[key] = value;
+        }
+      }
       rmSync(repoRoot, { recursive: true, force: true });
     }
   });

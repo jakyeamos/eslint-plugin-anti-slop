@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import picomatch from "picomatch";
 import { antiSlopAiosAuditConfig } from "./aios-audit-config.mjs";
+import { currentBranch } from "./audit.mjs";
 import {
   antiSlopFindingsFromResults,
   buildGateReport,
@@ -42,7 +44,7 @@ export async function runCli(argv, dependencies = {}) {
   const report = buildGateReport({
     findings,
     mode: mode === "audit" ? "warn" : mode,
-    branch: parsed.options.branch ?? null,
+    branch: parsed.options.branch ?? currentBranch(cwd),
     baseline,
     repoRoot: cwd,
   });
@@ -139,15 +141,17 @@ function applyIgnores(files, ignores) {
     return files;
   }
 
-  return files.filter((file) => !ignores.some((pattern) => matchesIgnore(file, pattern)));
-}
-
-function matchesIgnore(file, pattern) {
-  if (pattern.endsWith("/**")) {
-    return file.startsWith(pattern.slice(0, -3));
+  const pathPatterns = ignores.filter((pattern) => pattern.includes("/"));
+  const basenamePatterns = ignores.filter((pattern) => !pattern.includes("/"));
+  const matchers = [];
+  if (pathPatterns.length > 0) {
+    matchers.push(picomatch(pathPatterns, { dot: true }));
+  }
+  if (basenamePatterns.length > 0) {
+    matchers.push(picomatch(basenamePatterns, { dot: true, basename: true }));
   }
 
-  return file === pattern;
+  return files.filter((file) => !matchers.some((isIgnored) => isIgnored(file)));
 }
 
 function defaultChangedFiles(cwd) {

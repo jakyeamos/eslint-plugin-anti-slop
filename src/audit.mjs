@@ -108,7 +108,7 @@ export function qualityGateDecision(branch) {
   return branch ? "warn" : "block";
 }
 
-function currentBranch(repoRoot) {
+export function currentBranch(repoRoot) {
   const envBranch = firstEnv(BRANCH_ENV_KEYS);
   if (envBranch) {
     return normalizeBranch(envBranch);
