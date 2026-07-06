@@ -464,9 +464,11 @@ Rule tests use ESLint `RuleTester` through Node's built-in test runner. `pnpm
 test:coverage` writes source LCOV to `coverage/lcov.info` for the repo's Pre-CR
 coverage gate.
 
-`pnpm verify` is the local pre-PR gate and the CI gate. It runs the RuleTester
-suite, coverage, the smoke consumer, a packed-tarball install smoke, and Pre-CR
-changed-line readiness.
+`pnpm verify` is the reproducible pre-PR gate and the CI gate. It runs the
+RuleTester suite, coverage, the smoke consumer, and a packed-tarball install
+smoke using only declared dependencies. `pnpm verify:local` additionally runs
+Pre-CR changed-line readiness and requires a globally installed `pre-cr`; it is
+not part of CI.
 
 `pnpm smoke:eslint9` installs `eslint-plugin-anti-slop` into `smoke-consumer/`
 as a local `file:..` dependency with pnpm, then runs ESLint 9 against a small
