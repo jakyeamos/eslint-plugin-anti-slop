@@ -4,6 +4,7 @@
 
 - Package: `eslint-plugin-anti-slop`
 - Package manager: `pnpm`
+- `dependency:security` runs `scripts/dependency-security.mjs`: fails only on real high/critical advisories, skips (exit 0) on registry/network errors so the offline AIOS commit gate no longer false-blocks.
 - Current release candidate: `0.2.0`
 - Exported ESLint plugin metadata reports version `0.2.0`.
 - Primary verification command: `pnpm verify`
