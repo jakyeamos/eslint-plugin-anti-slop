@@ -1,4 +1,4 @@
-import { getStaticJSXAttributeValue, splitClasses } from "./_ui-structural.mjs";
+import { getStaticClassValue, splitClasses } from "./_ui-structural.mjs";
 
 function openingElementName(opening) {
   if (opening.name.type === "JSXIdentifier") {
@@ -16,7 +16,7 @@ function hasCardClass(opening) {
   const className = opening.attributes.find(
     (attr) => attr.type === "JSXAttribute" && attr.name?.type === "JSXIdentifier" && attr.name.name === "className",
   );
-  const value = getStaticJSXAttributeValue(className);
+  const value = getStaticClassValue(className);
   return value ? splitClasses(value).some((item) => /^card(?:$|-|_)/.test(item)) : false;
 }
 

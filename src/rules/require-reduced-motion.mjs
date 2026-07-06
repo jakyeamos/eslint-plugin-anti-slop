@@ -1,7 +1,7 @@
 import {
   getJSXExpression,
   getPropertyName,
-  getStaticJSXAttributeValue,
+  getStaticClassValue,
   isInsideJSXAttributeValue,
   isJSXAttributeNamed,
   splitClasses,
@@ -52,7 +52,7 @@ export const requireReducedMotionRule = {
     return {
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
-          const value = getStaticJSXAttributeValue(node);
+          const value = getStaticClassValue(node);
           if (value && classHasMotion(value)) {
             report(node);
           }

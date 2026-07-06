@@ -474,6 +474,14 @@ tester.run("no-arbitrary-z-index", plugin.rules["no-arbitrary-z-index"], {
       code: "export function View() { return <div style={{ zIndex: 1000 }} />; }",
       errors: [{ messageId: "arbitraryZIndex" }],
     },
+    {
+      code: "export function View() { return <div className={cn('fixed', open && 'z-[9999]')} />; }",
+      errors: [{ messageId: "arbitraryZIndex" }],
+    },
+    {
+      code: "export function View() { return <div className={`fixed z-[9999] ${extra}`} />; }",
+      errors: [{ messageId: "arbitraryZIndex" }],
+    },
   ],
 });
 
@@ -499,6 +507,7 @@ tester.run("no-hidden-reveal-default", plugin.rules["no-hidden-reveal-default"],
   valid: [
     "export function View() { return <section className=\"opacity-0\">Draft</section>; }",
     "export function View() { return <section className=\"opacity-100 transition-opacity\">Visible</section>; }",
+    "export function View() { return <section className={cn('opacity-100', isOpen && 'transition-opacity')}>Visible</section>; }",
   ],
   invalid: [
     {
@@ -507,6 +516,18 @@ tester.run("no-hidden-reveal-default", plugin.rules["no-hidden-reveal-default"],
     },
     {
       code: "export function View() { return <section style={{ opacity: 0, transition: 'opacity .2s' }}>Hidden</section>; }",
+      errors: [{ messageId: "hiddenReveal" }],
+    },
+    {
+      code: "export function View() { return <section className={cn('opacity-0', isOpen && 'transition-opacity')}>Hidden</section>; }",
+      errors: [{ messageId: "hiddenReveal" }],
+    },
+    {
+      code: "export function View() { return <section className={clsx(['opacity-0', 'transition-opacity'])}>Hidden</section>; }",
+      errors: [{ messageId: "hiddenReveal" }],
+    },
+    {
+      code: "export function View() { return <section className={cx({ 'opacity-0': true, 'transition-opacity': isOpen })}>Hidden</section>; }",
       errors: [{ messageId: "hiddenReveal" }],
     },
   ],

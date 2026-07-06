@@ -2,7 +2,7 @@ import {
   getJSXExpression,
   getPropertyName,
   getPropertyValue,
-  getStaticJSXAttributeValue,
+  getStaticClassValue,
   isJSXAttributeNamed,
   parseCssLengthPx,
   splitClasses,
@@ -48,7 +48,7 @@ export const noExcessiveRadiusRule = {
     return {
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
-          const value = getStaticJSXAttributeValue(node);
+          const value = getStaticClassValue(node);
           if (value && classHasExcessiveRadius(value)) {
             report(node);
           }

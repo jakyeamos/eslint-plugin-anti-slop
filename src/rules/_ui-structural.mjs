@@ -1,6 +1,108 @@
-import { getLiteralString } from "./_shared.mjs";
+const CLASS_BUILDER_NAMES = new Set(["clsx", "classnames", "classNames", "cn", "cx", "cva", "twMerge", "twJoin"]);
 
-export function getStaticJSXAttributeValue(node) {
+function classBuilderName(callee) {
+  if (callee.type === "Identifier") {
+    return callee.name;
+  }
+
+  if (callee.type === "MemberExpression" && !callee.computed && callee.property.type === "Identifier") {
+    return callee.property.name;
+  }
+
+  return null;
+}
+
+export function staticClassFragments(expression) {
+  const fragments = [];
+
+  function walk(node) {
+    if (!node || typeof node !== "object") {
+      return;
+    }
+
+    if (node.type === "Literal") {
+      if (typeof node.value === "string") {
+        fragments.push(node.value);
+      }
+      return;
+    }
+
+    if (node.type === "TemplateLiteral") {
+      if (node.expressions.length === 0) {
+        fragments.push(node.quasis.map((part) => part.value.cooked ?? "").join(""));
+        return;
+      }
+
+      for (const [index, quasi] of node.quasis.entries()) {
+        let text = quasi.value.cooked ?? "";
+        if (index > 0) {
+          text = text.replace(/^\S+/, "");
+        }
+        if (index < node.expressions.length) {
+          text = text.replace(/\S+$/, "");
+        }
+        if (text.trim()) {
+          fragments.push(text);
+        }
+      }
+      return;
+    }
+
+    if (node.type === "ArrayExpression") {
+      for (const element of node.elements) {
+        walk(element);
+      }
+      return;
+    }
+
+    if (node.type === "ObjectExpression") {
+      for (const property of node.properties) {
+        if (property.type !== "Property" || property.computed) {
+          continue;
+        }
+        if (property.key.type === "Literal" && typeof property.key.value === "string") {
+          fragments.push(property.key.value);
+        } else if (property.key.type === "Identifier") {
+          fragments.push(property.key.name);
+        }
+      }
+      return;
+    }
+
+    if (node.type === "ConditionalExpression") {
+      walk(node.consequent);
+      walk(node.alternate);
+      return;
+    }
+
+    if (node.type === "LogicalExpression") {
+      walk(node.right);
+      if (node.operator === "||" || node.operator === "??") {
+        walk(node.left);
+      }
+      return;
+    }
+
+    if (node.type === "ChainExpression") {
+      walk(node.expression);
+      return;
+    }
+
+    if (node.type === "CallExpression") {
+      const name = classBuilderName(node.callee);
+      if (name && CLASS_BUILDER_NAMES.has(name)) {
+        for (const argument of node.arguments) {
+          walk(argument);
+        }
+      }
+    }
+  }
+
+  walk(expression);
+  return fragments;
+}
+
+export function getStaticClassValue(node) {
   if (!node?.value) {
     return null;
   }
@@ -10,7 +112,8 @@ export function getStaticJSXAttributeValue(node) {
   }
 
   if (node.value.type === "JSXExpressionContainer") {
-    return getLiteralString(node.value.expression);
+    const fragments = staticClassFragments(node.value.expression);
+    return fragments.length > 0 ? fragments.join(" ") : null;
   }
 
   return null;
