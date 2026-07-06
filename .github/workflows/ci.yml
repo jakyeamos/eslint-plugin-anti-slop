@@ -10,6 +10,37 @@ jobs:
   verify:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            smoke-consumer/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run verification gate
+        run: pnpm verify
+
+  eslint-floor:
+    name: eslint 9.0.0 floor
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,12 +53,13 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            smoke-consumer/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run verification gate
-        run: pnpm verify
+      - name: Pin oldest supported ESLint
+        run: pnpm add -D eslint@9.0.0
+
+      - name: Run rule test suite
+        run: pnpm test

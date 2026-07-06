@@ -1,0 +1,43 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  # Required for npm trusted publishing (OIDC) and provenance.
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            smoke-consumer/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run verification gate
+        run: pnpm verify
+
+      # Requires this repository to be configured as a trusted publisher for
+      # eslint-plugin-anti-slop on npmjs.com (no NPM_TOKEN needed). pnpm >= 10.9
+      # exchanges the workflow OIDC token automatically.
+      - name: Publish with provenance
+        run: pnpm publish --provenance --access public --no-git-checks

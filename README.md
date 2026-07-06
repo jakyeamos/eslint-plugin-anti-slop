@@ -658,7 +658,10 @@ and CLI settings.
 ## Release Checklist
 
 1. Run `pnpm install --frozen-lockfile`.
-2. Run `pnpm verify`.
+2. Run `pnpm verify` (and `pnpm verify:local` on machines with `pre-cr`).
 3. Update `CHANGELOG.md`.
 4. Confirm `package.json` version and package metadata.
-5. Publish with `pnpm publish` only from the final release step.
+5. Publish by creating a GitHub release; `.github/workflows/publish.yml`
+   re-runs the verification gate and publishes with npm provenance through
+   trusted publishing (the repo must be configured as a trusted publisher for
+   the package on npmjs.com — no long-lived npm token).
