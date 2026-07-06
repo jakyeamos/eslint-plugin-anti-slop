@@ -29,6 +29,7 @@ export function antiSlopFindingsFromResults({ repoRoot, results }) {
 
   for (const result of results) {
     const file = relative(repoRoot, result.filePath);
+    const sourceLines = sourceLinesForResult(result);
     for (const message of result.messages ?? []) {
       if (!message.ruleId?.startsWith("anti-slop/")) {
         continue;
@@ -36,6 +37,7 @@ export function antiSlopFindingsFromResults({ repoRoot, results }) {
 
       const metadata = metadataForRule(message.ruleId);
       const failurePattern = antiSlopPattern(message.ruleId);
+      const snippet = findingSnippet(sourceLines, message.line ?? 1);
       findings.push({
         ruleId: message.ruleId,
         ruleName: message.ruleId.replace("anti-slop/", ""),
@@ -49,7 +51,12 @@ export function antiSlopFindingsFromResults({ repoRoot, results }) {
         message: redactSecrets(message.message),
         requiredFix: metadata.requiredFix,
         failurePattern,
-        fingerprint: dedupeFingerprint("Anti-Slop", message.ruleId, [file], failurePattern),
+        fingerprint: dedupeFingerprint(
+          "Anti-Slop",
+          message.ruleId,
+          [file],
+          `${failurePattern}\n${snippet ?? `line:${message.line ?? 1}`}`,
+        ),
       });
     }
   }
@@ -212,4 +219,21 @@ function textFromGateReport(report) {
 function antiSlopPattern(ruleId) {
   const normalized = ruleId.replace("anti-slop/", "").replaceAll("-", " ");
   return `anti-slop ${normalized}`;
+}
+
+function sourceLinesForResult(result) {
+  if (typeof result.source === "string") {
+    return result.source.split("\n");
+  }
+
+  try {
+    return readFileSync(result.filePath, "utf8").split("\n");
+  } catch {
+    return null;
+  }
+}
+
+function findingSnippet(sourceLines, line) {
+  const text = sourceLines?.[line - 1]?.trim();
+  return text || null;
 }

@@ -66,6 +66,50 @@ describe("antiSlopFindingsFromResults", () => {
     assert.match(findings[0].fingerprint, /^[a-f0-9]{24}$/);
     assert.equal(findings[1].severity, "warning");
   });
+
+  it("gives distinct fingerprints to separate findings of the same rule in one file", () => {
+    const source = [
+      "export function Page() {",
+      "  return (",
+      "    <section>",
+      "      <p>Coming soon</p>",
+      "      <p>Lorem ipsum</p>",
+      "    </section>",
+      "  );",
+      "}",
+    ].join("\n");
+    const findings = antiSlopFindingsFromResults({
+      repoRoot: "/repo",
+      results: [
+        {
+          filePath: "/repo/app/page.tsx",
+          source,
+          messages: [
+            { ruleId: "anti-slop/no-placeholder-copy", severity: 2, message: "Placeholder copy detected.", line: 4, column: 7 },
+            { ruleId: "anti-slop/no-placeholder-copy", severity: 2, message: "Placeholder copy detected.", line: 5, column: 7 },
+          ],
+        },
+      ],
+    });
+
+    assert.equal(findings.length, 2);
+    assert.notEqual(findings[0].fingerprint, findings[1].fingerprint);
+  });
+
+  it("keeps fingerprints stable when a finding's line shifts but its code does not change", () => {
+    const makeResult = (line, leadingLines) => ({
+      filePath: "/repo/app/page.tsx",
+      source: [...Array.from({ length: leadingLines }, (_, i) => `// filler ${i}`), "      <p>Coming soon</p>"].join("\n"),
+      messages: [
+        { ruleId: "anti-slop/no-placeholder-copy", severity: 2, message: "Placeholder copy detected.", line, column: 7 },
+      ],
+    });
+
+    const [before] = antiSlopFindingsFromResults({ repoRoot: "/repo", results: [makeResult(3, 2)] });
+    const [after] = antiSlopFindingsFromResults({ repoRoot: "/repo", results: [makeResult(6, 5)] });
+
+    assert.equal(before.fingerprint, after.fingerprint);
+  });
 });
 
 describe("buildGateReport", () => {
