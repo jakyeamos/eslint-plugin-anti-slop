@@ -389,7 +389,22 @@ tester.run("no-defensive-guard-sprawl", plugin.rules["no-defensive-guard-sprawl"
       code: "const normalizeUser = (input) => { if (input == null) return null; if (input.id == null) return null; if (typeof input.name === 'undefined') return null; return input; };",
       errors: [{ messageId: "guardSprawl" }],
     },
+    {
+      code: "function parseUser(input) { if (!isRecord(input)) return null; if (input.id == null) return null; return input; }",
+      options: [{ maxGuards: 1 }],
+      errors: [{ messageId: "guardSprawl" }],
+    },
   ],
+});
+
+tester.run("no-defensive-guard-sprawl maxGuards option", plugin.rules["no-defensive-guard-sprawl"], {
+  valid: [
+    {
+      code: "function parseUser(input) { if (!isRecord(input)) return null; if (input.id == null) return null; if (input.email == null) return null; return input; }",
+      options: [{ maxGuards: 3 }],
+    },
+  ],
+  invalid: [],
 });
 
 tester.run("no-gradient-text", plugin.rules["no-gradient-text"], {
@@ -457,7 +472,22 @@ tester.run("no-excessive-radius", plugin.rules["no-excessive-radius"], {
       code: "export function View() { return <section style={{ borderRadius: '2rem' }} />; }",
       errors: [{ messageId: "excessiveRadius" }],
     },
+    {
+      code: "export function View() { return <section className=\"rounded-[20px]\" />; }",
+      options: [{ maxRadiusPx: 16 }],
+      errors: [{ messageId: "excessiveRadius" }],
+    },
   ],
+});
+
+tester.run("no-excessive-radius maxRadiusPx option", plugin.rules["no-excessive-radius"], {
+  valid: [
+    {
+      code: "export function View() { return <section className=\"rounded-[40px]\" />; }",
+      options: [{ maxRadiusPx: 48 }],
+    },
+  ],
+  invalid: [],
 });
 
 tester.run("no-arbitrary-z-index", plugin.rules["no-arbitrary-z-index"], {
@@ -482,7 +512,22 @@ tester.run("no-arbitrary-z-index", plugin.rules["no-arbitrary-z-index"], {
       code: "export function View() { return <div className={`fixed z-[9999] ${extra}`} />; }",
       errors: [{ messageId: "arbitraryZIndex" }],
     },
+    {
+      code: "export function View() { return <div style={{ zIndex: 120 }} />; }",
+      options: [{ maxZIndex: 100 }],
+      errors: [{ messageId: "arbitraryZIndex" }],
+    },
   ],
+});
+
+tester.run("no-arbitrary-z-index maxZIndex option", plugin.rules["no-arbitrary-z-index"], {
+  valid: [
+    {
+      code: "export function View() { return <div style={{ zIndex: 5000 }} />; }",
+      options: [{ maxZIndex: 9999 }],
+    },
+  ],
+  invalid: [],
 });
 
 tester.run("require-reduced-motion", plugin.rules["require-reduced-motion"], {

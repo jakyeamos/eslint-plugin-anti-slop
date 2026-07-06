@@ -8,21 +8,21 @@ import {
   styleObjectProperties,
 } from "./_ui-structural.mjs";
 
-const MAX_SCALE_Z_INDEX = 998;
+const DEFAULT_MAX_Z_INDEX = 998;
 
-function classHasArbitraryZIndex(value) {
+function classHasArbitraryZIndex(value, maxZIndex) {
   return splitClasses(value).some((item) => {
     const arbitrary = /^z-\[(\d+)]$/.exec(item);
     if (arbitrary) {
-      return Number(arbitrary[1]) > MAX_SCALE_Z_INDEX;
+      return Number(arbitrary[1]) > maxZIndex;
     }
 
     const direct = /^z-(\d{3,})$/.exec(item);
-    return direct ? Number(direct[1]) > MAX_SCALE_Z_INDEX : false;
+    return direct ? Number(direct[1]) > maxZIndex : false;
   });
 }
 
-function styleHasArbitraryZIndex(expression) {
+function styleHasArbitraryZIndex(expression, maxZIndex) {
   return styleObjectProperties(expression).some((property) => {
     const name = getPropertyName(property);
     if (name !== "zIndex") {
@@ -30,7 +30,7 @@ function styleHasArbitraryZIndex(expression) {
     }
 
     const value = Number(getPropertyValue(property));
-    return Number.isFinite(value) && value > MAX_SCALE_Z_INDEX;
+    return Number.isFinite(value) && value > maxZIndex;
   });
 }
 
@@ -40,12 +40,25 @@ export const noArbitraryZIndexRule = {
     docs: {
       description: "Discourage arbitrary z-index values outside a semantic stacking scale.",
     },
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          maxZIndex: {
+            type: "integer",
+            minimum: 0,
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       arbitraryZIndex: "Avoid arbitrary high z-index values. Use a semantic stacking token or scale.",
     },
   },
   create(context) {
+    const maxZIndex = context.options[0]?.maxZIndex ?? DEFAULT_MAX_Z_INDEX;
+
     function report(node) {
       context.report({ node, messageId: "arbitraryZIndex" });
     }
@@ -54,12 +67,12 @@ export const noArbitraryZIndexRule = {
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
           const value = getStaticClassValue(node);
-          if (value && classHasArbitraryZIndex(value)) {
+          if (value && classHasArbitraryZIndex(value, maxZIndex)) {
             report(node);
           }
         }
 
-        if (isJSXAttributeNamed(node, "style") && styleHasArbitraryZIndex(getJSXExpression(node))) {
+        if (isJSXAttributeNamed(node, "style") && styleHasArbitraryZIndex(getJSXExpression(node), maxZIndex)) {
           report(node);
         }
       },

@@ -1,4 +1,4 @@
-const MAX_GUARDS = 2;
+const DEFAULT_MAX_GUARDS = 2;
 const VALIDATOR_NAME_RE = /^(?:is|has|can|should|assert|ensure|validate)[A-Z_]/;
 
 function functionName(node) {
@@ -120,20 +120,33 @@ export const noDefensiveGuardSprawlRule = {
     docs: {
       description: "Discourage repeated defensive null and record guards in ordinary functions.",
     },
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          maxGuards: {
+            type: "integer",
+            minimum: 0,
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       guardSprawl:
         "This function stacks {{count}} defensive null/record guards. Centralize shape validation in a small helper instead.",
     },
   },
   create(context) {
+    const maxGuards = context.options[0]?.maxGuards ?? DEFAULT_MAX_GUARDS;
+
     function checkFunction(node) {
       if (isValidatorFunction(node) || node.body.type !== "BlockStatement") {
         return;
       }
 
       const guardCount = countLeadingDefensiveGuards(node.body.body);
-      if (guardCount <= MAX_GUARDS) {
+      if (guardCount <= maxGuards) {
         return;
       }
 
