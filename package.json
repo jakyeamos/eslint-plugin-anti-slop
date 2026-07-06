@@ -20,6 +20,7 @@
   },
   "files": [
     "audit-formatter.mjs",
+    "audit-formatter.d.mts",
     "bin",
     "eslint.aios-audit.config.mjs",
     "src",
