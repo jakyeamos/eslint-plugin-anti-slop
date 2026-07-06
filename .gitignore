@@ -4,3 +4,10 @@ coverage/
 .quality-runner/
 .DS_Store
 *.log
+
+# Generated / cache / audit output
+.aios/
+.turbo/
+.firecrawl/
+.pytest_cache/
+__pycache__/
