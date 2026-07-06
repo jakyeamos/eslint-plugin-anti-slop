@@ -15,11 +15,15 @@ import { noUselessMemoRule } from "./rules/no-useless-memo.mjs";
 import { requireEmptyStateActionRule } from "./rules/require-empty-state-action.mjs";
 import { requireReducedMotionRule } from "./rules/require-reduced-motion.mjs";
 import { ruleMetadata } from "./rule-metadata.mjs";
+import { readFileSync } from "node:fs";
+
+const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 
 const plugin = {
   meta: {
-    name: "eslint-plugin-anti-slop",
-    version: "0.2.0",
+    name: packageJson.name,
+    version: packageJson.version,
+    namespace: "anti-slop",
   },
   rules: {
     "no-unjustified-use-client": noUnjustifiedUseClientRule,

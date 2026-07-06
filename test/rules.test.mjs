@@ -53,6 +53,14 @@ tester.run("plugin exports", {
         if (plugin.meta?.version !== packageJson.version) {
           context.report({ node, message: "plugin metadata version must match package version" });
         }
+
+        if (plugin.meta?.name !== packageJson.name) {
+          context.report({ node, message: "plugin metadata name must match package name" });
+        }
+
+        if (plugin.meta?.namespace !== "anti-slop") {
+          context.report({ node, message: "plugin metadata namespace must be anti-slop" });
+        }
       },
     };
   },
