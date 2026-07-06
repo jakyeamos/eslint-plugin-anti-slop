@@ -9,12 +9,33 @@ import {
   styleObjectProperties,
 } from "./_ui-structural.mjs";
 
-function hasReducedMotionFallback(sourceText) {
-  return /prefers-reduced-motion|motion-reduce:|useReducedMotion/.test(sourceText);
+const MOTION_BASE_RE = /^(?:animate-|transition(?:-|$))/;
+
+function classToken(item) {
+  const segments = item.split(":");
+  return {
+    variants: segments.slice(0, -1),
+    base: segments.at(-1),
+  };
 }
 
-function classHasMotion(value) {
-  return splitClasses(value).some((item) => /^(?:animate-|transition(?:-|$))/.test(item));
+function classMotionState(value) {
+  let hasMotion = false;
+  let hasFallback = false;
+
+  for (const item of splitClasses(value)) {
+    const { variants, base } = classToken(item);
+    if (variants.includes("motion-reduce")) {
+      hasFallback = true;
+      continue;
+    }
+
+    if (MOTION_BASE_RE.test(base) && !variants.includes("motion-safe")) {
+      hasMotion = true;
+    }
+  }
+
+  return { hasMotion, hasFallback };
 }
 
 function styleHasMotion(expression) {
@@ -26,6 +47,10 @@ function styleHasMotion(expression) {
 
 function cssStringHasMotion(value) {
   return /\b(?:animation|transition)\s*:/.test(String(value));
+}
+
+function cssStringHasFallback(value) {
+  return /prefers-reduced-motion/.test(String(value));
 }
 
 export const requireReducedMotionRule = {
@@ -40,26 +65,37 @@ export const requireReducedMotionRule = {
     },
   },
   create(context) {
-    const sourceText = context.sourceCode.getText();
-    const hasFallback = hasReducedMotionFallback(sourceText);
+    let usesReducedMotionHook = false;
+    const candidates = [];
 
-    function report(node) {
-      if (!hasFallback) {
-        context.report({ node, messageId: "reducedMotion" });
-      }
+    function isImportBinding(node) {
+      const parentType = node.parent?.type;
+      return (
+        parentType === "ImportSpecifier" ||
+        parentType === "ImportDefaultSpecifier" ||
+        parentType === "ImportNamespaceSpecifier"
+      );
     }
 
     return {
+      Identifier(node) {
+        if (node.name === "useReducedMotion" && !isImportBinding(node)) {
+          usesReducedMotionHook = true;
+        }
+      },
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
           const value = getStaticClassValue(node);
-          if (value && classHasMotion(value)) {
-            report(node);
+          if (value) {
+            const { hasMotion, hasFallback } = classMotionState(value);
+            if (hasMotion && !hasFallback) {
+              candidates.push(node);
+            }
           }
         }
 
         if (isJSXAttributeNamed(node, "style") && styleHasMotion(getJSXExpression(node))) {
-          report(node);
+          candidates.push(node);
         }
       },
       Literal(node) {
@@ -67,8 +103,8 @@ export const requireReducedMotionRule = {
           return;
         }
 
-        if (typeof node.value === "string" && cssStringHasMotion(node.value)) {
-          report(node);
+        if (typeof node.value === "string" && cssStringHasMotion(node.value) && !cssStringHasFallback(node.value)) {
+          candidates.push(node);
         }
       },
       TemplateLiteral(node) {
@@ -77,8 +113,17 @@ export const requireReducedMotionRule = {
         }
 
         const value = staticTemplateValue(node);
-        if (value && cssStringHasMotion(value)) {
-          report(node);
+        if (value && cssStringHasMotion(value) && !cssStringHasFallback(value)) {
+          candidates.push(node);
+        }
+      },
+      "Program:exit"() {
+        if (usesReducedMotionHook) {
+          return;
+        }
+
+        for (const node of candidates) {
+          context.report({ node, messageId: "reducedMotion" });
         }
       },
     };

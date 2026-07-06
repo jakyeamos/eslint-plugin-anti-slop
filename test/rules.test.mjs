@@ -490,6 +490,9 @@ tester.run("require-reduced-motion", plugin.rules["require-reduced-motion"], {
     "export function View() { return <button className=\"px-3\">Save</button>; }",
     "export function View() { return <button className=\"transition-colors motion-reduce:transition-none\">Save</button>; }",
     "const css = '@media (prefers-reduced-motion: reduce) { * { transition: none } } .item { transition: opacity .2s; }';",
+    "export function View() { return <button className=\"motion-safe:animate-pulse\">Save</button>; }",
+    "export function View() { return <button className=\"hover:transition-transform motion-reduce:transition-none\">Save</button>; }",
+    "import { useReducedMotion } from 'framer-motion';\nexport function View() { const reduced = useReducedMotion(); return <button className={reduced ? '' : 'animate-pulse'}>Save</button>; }",
   ],
   invalid: [
     {
@@ -498,6 +501,22 @@ tester.run("require-reduced-motion", plugin.rules["require-reduced-motion"], {
     },
     {
       code: "const css = '.item { animation: fade-in .2s ease-out; }';",
+      errors: [{ messageId: "reducedMotion" }],
+    },
+    {
+      code: "export function View() { return <button className=\"hover:transition-transform\">Save</button>; }",
+      errors: [{ messageId: "reducedMotion" }],
+    },
+    {
+      code: "export function View() { return <button className=\"md:animate-spin\">Load</button>; }",
+      errors: [{ messageId: "reducedMotion" }],
+    },
+    {
+      code: "const note = 'motion-reduce: is a Tailwind variant';\nexport function View() { return <button className=\"transition-opacity\">Save</button>; }",
+      errors: [{ messageId: "reducedMotion" }],
+    },
+    {
+      code: "export function View() { return <div><p className=\"transition-colors motion-reduce:transition-none\">Safe</p><p className=\"animate-pulse\">Unsafe</p></div>; }",
       errors: [{ messageId: "reducedMotion" }],
     },
   ],
