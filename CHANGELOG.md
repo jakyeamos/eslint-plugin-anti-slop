@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 - 2026-07-09
 
 - Plugin metadata now reads `name`/`version` from `package.json` at load time
   and declares `namespace: "anti-slop"`.
