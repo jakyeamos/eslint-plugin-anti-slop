@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-10)
+See: docs/modernization/AUDIT.md, TARGET.md, and EXEC_PLAN.md (audited 2026-07-10)
 
 **Core value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
-**Current focus:** QR capability gates added; broad structural debt classified
+**Current focus:** Modernization audit complete; public-contract hardening is planned before internal refactoring.
 
 ## Current Position
 
-Phase: Product hardening follow-up
-Plan: Tier-one readiness improvements
-Status: Complete
-Last activity: 2026-07-09 - Prepared the 0.3.0 release metadata and passed the full verification and packed-consumer smoke suite.
+Phase: Modernization audit
+Plan: Target design and execution plan
+Status: Awaiting target approval
+Last activity: 2026-07-10 - Audited v0.3.0 and committed the modernization target plus vertical milestone plan on `codex/gpt56-modernization-audit`.
 
-Progress: [██████████] 100%
+Progress: [██□□□□□□□□] Audit complete; implementation not started
 
 ## Performance Metrics
 
@@ -54,18 +54,20 @@ Recent decisions affecting current work:
 - [Audit formatter packaging]: Added `eslint-plugin-anti-slop/aios-audit-config`, a root `audit-formatter.mjs` shim for ESLint CLI path loading, repo-local and smoke-consumer audit scripts, README consumer wiring, and tests that pin the AIOS JSONL event envelope.
 - [Guard sprawl]: Added `anti-slop/no-defensive-guard-sprawl` as a code-structure slop signal for repeated nullish or `isRecord(...)` guards outside centralized validation helpers.
 - [Quality gate CLI]: Added the `anti-slop` binary with `check` and `gate` commands, stable policy modes, changed-file support, baselines, JSON/JSONL/Pre-CR/SARIF output, optional `anti-slop.config.json`, built-in JavaScript/TypeScript CLI scanning for backfill adoption, and smoke-consumer coverage…
+- [Modernization audit]: v0.3.0 is a strong in-place-refactor candidate, not a rewrite; M0 freezes public contracts and corrects state before gate/rule behavior changes.
 _(truncated)_
 
 ### Pending Todos
 
-Quality Runner final status remains blocked by broad structural debt: 135 structural findings in the final stress run, concentrated in simplify/deep-nesting, nested-ternary scanner precision, deduplicate, harden, and ponytail buckets.
+- Approve and execute M0 from `docs/modernization/EXEC_PLAN.md`: freeze public-contract fixtures, reconcile documentation/state truth, and add packed declaration validation.
+- Reconcile the legacy QR Phase 4 plan with the approved modernization sequence before executing overlapping rule work.
 
 ### Blockers/Concerns
 
-None.
+- Target approval is required before changing published CLI/rule behavior or semver policy.
 
 ## Session Continuity
 
-Last session: 2026-06-23 00:00
-Stopped at: Product hardening complete on codex/tier-one-product-hardening
-Resume file: None
+Last session: 2026-07-10
+Stopped at: Modernization audit committed; implementation intentionally deferred pending target review.
+Resume file: docs/modernization/EXEC_PLAN.md
