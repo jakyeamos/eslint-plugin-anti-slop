@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-04-10)
 Phase: Product hardening follow-up
 Plan: Tier-one readiness improvements
 Status: Complete
-Last activity: 2026-07-04 - Ignored generated `.quality-runner/` artifacts so npm publish git checks can run from a clean tracked tree.
+Last activity: 2026-07-09 - Prepared the 0.3.0 release metadata and passed the full verification and packed-consumer smoke suite.
 
 Progress: [██████████] 100%
 
@@ -53,14 +53,8 @@ Recent decisions affecting current work:
 - [Gate audit]: Added `eslint-plugin-anti-slop/audit` and `eslint-plugin-anti-slop/audit-formatter` so Anti-Slop ESLint results can write branch-aware `.aios/audit/` JSONL, summary, and learning artifacts.
 - [Audit formatter packaging]: Added `eslint-plugin-anti-slop/aios-audit-config`, a root `audit-formatter.mjs` shim for ESLint CLI path loading, repo-local and smoke-consumer audit scripts, README consumer wiring, and tests that pin the AIOS JSONL event envelope.
 - [Guard sprawl]: Added `anti-slop/no-defensive-guard-sprawl` as a code-structure slop signal for repeated nullish or `isRecord(...)` guards outside centralized validation helpers.
-- [Quality gate CLI]: Added the `anti-slop` binary with `check` and `gate` commands, stable policy modes, changed-file support, baselines, JSON/JSONL/Pre-CR/SARIF output, optional `anti-slop.config.json`, built-in JavaScript/TypeScript CLI scanning for backfill adoption, and smoke-consumer coverage through `pnpm verify`.
-- [ESLint compatibility]: Active sibling consumers include both ESLint 8.57.1 and ESLint 9.39.4 installs. ESLint 8.57.1 can run the flat-config smoke fixture, but the installed `anti-slop` CLI fails under ESLint 8 because that major rejects the ESLint 9 `overrideConfigFile: true` option. The package contract is therefore explicit ESLint 9.x support only, with the smoke path named `pnpm smoke:eslint9`.
-- [Structural UI rules]: Added Impeccable-derived deterministic UI rules to the recommended and strict presets while keeping subjective design judgment out of ESLint.
-- [Published smoke]: Added a temp-fixture smoke test that installs the packed tarball, exercises the installed `anti-slop` binary, imports the `audit`, `gate`, and `aios-audit-config` subpath exports, verifies the audit formatter path through ESLint, and runs from `pnpm verify`.
-- [0.2.0 release prep]: Reconciled `codex/tier-one-product-hardening` with `origin/main`, bumped `package.json` to 0.2.0, moved `CHANGELOG.md` out of Unreleased, updated release-facing docs, and verified without publishing.
-- [QR capability gates]: Added dependency-free local `format`, `typecheck`, `build`, `audit:dead-code`, and `smoke` package-script gates plus `.tracker/PROJECT_TRUTH.md`; Quality Runner now reports no missing repo-owned gates and all executable gates pass.
-- [Release metadata]: Synced the exported ESLint plugin metadata version with package `0.2.0` and added RuleTester export coverage so future version bumps do not leave stale consumer-visible metadata.
-- [Release hygiene]: Ignored generated `.quality-runner/` artifacts to keep publish git checks focused on tracked release files.
+- [Quality gate CLI]: Added the `anti-slop` binary with `check` and `gate` commands, stable policy modes, changed-file support, baselines, JSON/JSONL/Pre-CR/SARIF output, optional `anti-slop.config.json`, built-in JavaScript/TypeScript CLI scanning for backfill adoption, and smoke-consumer coverage…
+_(truncated)_
 
 ### Pending Todos
 
