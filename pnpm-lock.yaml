@@ -18,6 +18,9 @@ importers:
       eslint:
         specifier: ^9.29.0
         version: 9.39.4
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
 
 packages:
 

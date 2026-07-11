@@ -9,13 +9,13 @@ pnpm install
 pnpm test
 ```
 
-Use the full local gate before opening a pull request:
+Use the standard verification gate before opening a pull request:
 
 ```bash
 pnpm verify
 ```
 
-`pnpm verify` runs the RuleTester suite, emits LCOV coverage for Pre-CR, verifies the smoke consumer, installs the packed tarball in an isolated fixture, and checks changed-line coverage. CI runs this same gate on pull requests and pushes to `main`.
+`pnpm verify` runs the Node test suite (including RuleTester), writes source LCOV coverage, verifies the local file-dependency smoke consumer, and installs the packed tarball in an isolated fixture. `pnpm verify:local` additionally runs Pre-CR changed-line readiness and requires a globally installed `pre-cr`. CI runs `pnpm verify` on pull requests and pushes to `main`.
 
 ## Rule Quality Bar
 
@@ -44,4 +44,4 @@ Update docs when changing:
 2. Run `pnpm verify`.
 3. Confirm `CHANGELOG.md` describes user-visible changes.
 4. Confirm `package.json` version and metadata are correct.
-5. Publish with `pnpm publish` only from the final release step.
+5. Create a GitHub release; the publish workflow reruns verification and publishes through npm trusted publishing with provenance.
