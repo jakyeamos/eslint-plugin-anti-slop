@@ -1,48 +1,46 @@
 # Requirements: eslint-plugin-anti-slop
 
-**Defined:** 2026-04-10
-**Core Value:** Teams should be able to enforce anti-slop rules directly in ESLint with a simple, local integration path.
+**Core value:** Teams should be able to enforce anti-slop rules directly in
+ESLint with a simple, trustworthy integration path.
 
-## v1 Requirements
+## Baseline Complete at v0.3.0
 
-### Plugin Baseline
+- [x] **ESL-01**: A developer can install the plugin locally and resolve it
+  from a consumer project.
+- [x] **ESL-02**: A developer can load the rule set in an ESLint flat-config
+  setup.
+- [x] **ESL-03**: README and rule documentation describe the supported
+  integration path and rule inventory.
+- [x] **ESL-04**: The repository has Git and planning state for structured
+  follow-up work.
+- [x] **ESL-05**: Rule behavior is backed by tests and consumer examples.
+- [x] **ESL-06**: Packaging and release steps are documented and automated.
 
-- [ ] **ESL-01**: Developer can install the plugin locally and resolve it from a consumer project.
-- [ ] **ESL-02**: Developer can load the rule set in an ESLint flat-config setup.
-- [ ] **ESL-03**: README documents the current integration path and rule inventory.
-- [ ] **ESL-04**: The repo has git and GSD planning state for structured follow-up work.
+## Active Modernization Requirements
 
-## v2 Requirements
+- [x] **MOD-01**: Every published package entrypoint, preset, rule/document
+  relationship, CLI mode/format, baseline, and audit artifact has executable
+  contract coverage.
+- [x] **MOD-02**: A packed consumer compiles the complete public declaration
+  surface with TypeScript and no source-private imports.
+- [x] **MOD-03**: Contributor, planning, and truth documents describe the
+  released baseline and the commands that actually run.
 
-### Hardening
+## Deferred
 
-- **ESL-05**: Rule behavior is backed by consumer examples or tests.
-- **ESL-06**: Packaging and release steps are documented for broader reuse.
-
-## Out of Scope
-
-| Feature | Reason |
-|---------|--------|
-| Growing the rule catalog without validating the current rules in real consumers | The plugin should harden its current promise first. |
-| Publishing automation before repo basics are in place | The repo needed git and planning state before broader release work. |
+- **QR-ESLINT-PLUGIN-ANTI-SLOP**: The legacy Quality Runner remediation plan
+  remains deferred until it is reconciled with the approved modernization
+  sequence. It must not run in parallel with overlapping rule work.
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| ESL-01 | Phase 1 | Pending |
-| ESL-02 | Phase 1 | Pending |
-| ESL-03 | Phase 2 | Pending |
-| ESL-04 | Phase 2 | Pending |
-
-**Coverage:**
-- v1 requirements: 4 total
-- Mapped to phases: 4
-- Unmapped: 0
+| Requirement group | Milestone | Status |
+| --- | --- | --- |
+| ESL-01 through ESL-06 | v0.3.0 baseline | Complete |
+| MOD-01 through MOD-03 | M0: contract freeze and truth reconciliation | Complete |
+| Gate correctness | M2 | Planned |
+| Rule-confidence calibration | M3 | Planned |
+| Internal ownership consolidation | M4 | Planned |
 
 ---
-*Requirements defined: 2026-04-10*
-*Last updated: 2026-04-10 after initial GSD bootstrap*
-## QR Remediation Requirements
-
-- [ ] **QR-ESLINT-PLUGIN-ANTI-SLOP**: Resolve the Quality Runner advisory clusters from run qr-fleet-continue-20260704-eslint-plugin-anti-slop for eslint-plugin-anti-slop without changing intended behavior, then verify with focused repo checks and a post-remediation QR comparison.
+*Last updated: 2026-07-10*

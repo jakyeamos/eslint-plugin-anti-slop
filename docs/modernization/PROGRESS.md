@@ -2,10 +2,10 @@
 
 ## Current Position
 
-**Phase:** audit and target design complete
+**Phase:** M0 — public-contract freeze and truth reconciliation complete
 **Branch:** `codex/gpt56-modernization-audit`
 **Baseline:** `v0.3.0`
-**Application code changed:** no
+**Application behavior changed:** no
 
 ## Completed
 
@@ -14,6 +14,11 @@
   release, declarations, documentation, and project-state files.
 - Created `AUDIT.md`, `TARGET.md`, and `EXEC_PLAN.md` with an in-place
   modernization strategy.
+- Added runtime contract coverage for every package export, presets, rule docs,
+  CLI formats/modes, baselines, and audit artifacts.
+- Added a packed TypeScript consumer that compiles every public declaration
+  subpath with `--noEmit`.
+- Reconciled contributor and project-state documents with the v0.3.0 baseline.
 - Identified no data, authentication, billing, or infrastructure migration.
 - Preserved user-owned untracked `.agents/` and `skills/` directories.
 
@@ -26,10 +31,9 @@
 
 ## Next Milestone
 
-Begin M0 after review of the target: freeze executable public-contract
-fixtures, reconcile documentation/state truth, and add packed declaration
-validation. Do not begin externally observable rule or CLI changes until those
-contracts are in place.
+After M0 verification and its state commit, begin M1: define an authoritative
+deterministic verification gate and an explicit release policy for
+network-dependent supply-chain checks.
 
 ## Known Risks
 
