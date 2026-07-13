@@ -77,13 +77,16 @@
 - Added release-tag ancestry enforcement before publish, repository secret-file
   ignores, a security-reporting policy, and verified private GitHub
   vulnerability reporting.
-- M5 passed `pnpm verify` (349 tests, 87.87% line coverage), `pnpm verify:ci`,
-  the ESLint 9.0.0 published-package floor smoke, and release-tag/version
-  assertion for `v0.4.0`; final adversarial reviews found no P0, P1, or P2.
+- M5 passed `pnpm verify` (349 tests, 87.98% line coverage), `pnpm verify:ci`,
+  the ESLint 9.0.0 published-package floor smoke, and
+  `GITHUB_REF_NAME=v0.4.0 pnpm verify:release`; final adversarial reviews found
+  no P0, P1, or P2.
 - Replaced the 1,247-nonblank-line RuleTester fixture with one shared harness
   and focused foundation, UX, and interface suites. All 24 suite titles and
   fixtures are preserved, and Pre-CR no longer emits an oversized-source
   advisory.
+- Made blocking audit-artifact fixtures explicit about their protected policy,
+  preventing the release tag environment from changing their expected output.
 
 ## Risks and Deferred Work
 

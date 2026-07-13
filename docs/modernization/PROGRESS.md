@@ -111,14 +111,16 @@ are stricter; public package entrypoints and report formats remain preserved
 - Added release-tag ancestry validation before installation or publication,
   repository secret-file ignores, and `SECURITY.md`; private GitHub
   vulnerability reporting is enabled.
-- M5 passed `pnpm verify` (349 tests, 87.87% line coverage), `pnpm verify:ci`,
+- M5 passed `pnpm verify` (349 tests, 87.98% line coverage), `pnpm verify:ci`,
   `pnpm smoke:published:eslint9-floor`, and
-  `GITHUB_REF_NAME=v0.4.0 pnpm release:assert-version`.
+  `GITHUB_REF_NAME=v0.4.0 pnpm verify:release`.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
 - Replaced the oversized legacy RuleTester fixture with one shared harness and
   focused foundation, UX, and interface suites; all 24 suite titles and
   fixtures remain unchanged, and Pre-CR is advisory-free.
+- Made audit-artifact fixtures select their protected policy explicitly, so the
+  release tag environment cannot change their expected event semantics.
 
 ## Release Handoff
 
