@@ -5,11 +5,12 @@
 - Package: `eslint-plugin-anti-slop` `0.3.0` (`v0.3.0` tag).
 - Package manager: `pnpm`; declared runtime is Node
   `^20.19.0 || ^22.13.0 || >=24` with ESLint 9 flat config.
-- M0 through M2 are complete on `codex/gpt56-modernization-audit`.
+- M0 through M3 are complete on `codex/gpt56-modernization-audit`.
 - The package publishes a plugin, quality-gate CLI, audit integration, and
   documented ESM subpaths. M0 established executable proof before public
   behavior changes begin; M1 hardened verification/release policy; M2 hardened
-  gate analysis and audit migration semantics.
+  gate analysis and audit migration semantics; M3 calibrated rule evidence
+  without changing rule IDs or public package entrypoints.
 - `pnpm verify` is deterministic and includes source checks, coverage, package
   dry run, and a linked local-consumer smoke. `pnpm verify:ci` additionally
   requires a fresh packed-consumer install and registry dependency audit;
@@ -28,7 +29,7 @@
 - OIDC trusted publishing with npm provenance, immutable action pins, and the
   Node 20.19/22.13/24 CI matrix are retained release constraints.
 
-## Modernization Complete Through M2
+## Modernization Complete Through M3
 
 - Added executable runtime coverage for every package export, rule/preset/doc
   parity, CLI policy/format behavior, baseline persistence, and audit artifacts.
@@ -44,13 +45,18 @@
   mode, and replaced stale audit artifacts with explicit failure events.
 - Versioned audit fingerprints/history and switched local smoke to `link:..`;
   packed consumer verification remains the artifact-isolation proof.
+- Replaced flattened static class evidence with possible render paths and added
+  conservative static-value handling for rule consumers.
+- Calibrated fixture fallback, client-signal, empty-state action, and
+  reduced-motion CSS evidence with documented RuleTester boundary fixtures.
+- Closed final parser/path boundary cases and passed `pnpm verify`,
+  `pnpm verify:ci`, and the published ESLint 9.0.0 floor smoke (336 tests,
+  87.60% line coverage in deterministic verification).
 
 ## Risks and Deferred Work
 
-- M3 must calibrate high-severity rule false-positive boundaries and autofix
-  safety without changing rule IDs.
-- M4 must consolidate catalog and finding ownership after M3 fixtures establish
-  the required behavioral parity.
+- M4 must consolidate catalog and finding ownership while retaining M3's
+  behavior fixtures and public contract parity.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
 - User-owned untracked `.agents/` and `skills/` directories remain untouched.

@@ -47,7 +47,7 @@ ESLint with a simple, trustworthy integration path.
 | MOD-01 through MOD-03 | M0: contract freeze and truth reconciliation | Complete |
 | MOD-04 through MOD-05 | M1: verification and release gate | Complete |
 | Gate correctness | M2 | Complete |
-| Rule-confidence calibration | M3 | Planned |
+| Rule-confidence calibration | M3 | Complete |
 | Internal ownership consolidation | M4 | Planned |
 
 ---

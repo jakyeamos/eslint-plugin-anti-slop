@@ -2,10 +2,11 @@
 
 ## Current Position
 
-**Phase:** M2 — CLI and gate fail-closed semantics complete
+**Phase:** M3 — high-severity rule evidence calibration complete
 **Branch:** `codex/gpt56-modernization-audit`
 **Baseline:** `v0.3.0`
-**Application behavior changed:** gate/audit semantics and local smoke wiring
+**Application behavior changed:** rule evidence, static-path handling, and
+reduced-motion/empty-state boundaries
 
 ## Completed
 
@@ -41,6 +42,12 @@
   downstream consumers.
 - Linked the deterministic local smoke directly to the current checkout;
   packed-artifact isolation remains an independent online check.
+- Replaced flattened static class evidence with possible class/render paths and
+  updated all structural rule consumers to inspect each path.
+- Calibrated demo-data, use-client, empty-state, and reduced-motion evidence
+  with runtime-reference, condition, CSS-scope, and accessibility boundaries.
+- Preserved rule IDs and deliberately retained manual review for
+  `no-unjustified-use-client` rather than adding an unsafe fixer.
 - Identified no data, authentication, billing, or infrastructure migration.
 - Preserved user-owned untracked `.agents/` and `skills/` directories.
 
@@ -64,16 +71,24 @@
 - Public declaration compilation and the final adversarial review passed with
   no confirmed P0, P1, or P2 findings.
 
+## M3 Results
+
+- `pnpm verify`: passed (336 tests, 87.60% line coverage, package dry-run, and
+  linked local-consumer smoke).
+- `pnpm verify:ci`: passed with the online packed-consumer smoke and required
+  registry dependency audit.
+- `pnpm smoke:published:eslint9-floor`: passed against ESLint 9.0.0.
+- Final adversarial reviews found and closed static-path and CSS quote/parser
+  boundary cases; no confirmed P0, P1, or P2 finding remains.
+
 ## Next Milestone
 
-Begin M3: calibrate high-severity rule evidence, false-positive boundaries, and
-autofix safety before expanding the catalog.
+Begin M4: consolidate catalog and finding ownership behind one internal source
+of truth without changing public entrypoints, rule IDs, or report formats.
 
 ## Known Risks
 
-- M3 must retain existing rule IDs while characterizing class paths,
-  reduced-motion fallbacks, fixture semantics, and empty-state action scope.
-- Rule catalog ownership remains split across modules; M4 consolidates it only
-  after M3 parity fixtures exist.
+- Rule catalog ownership remains split across modules; M4 must preserve M3's
+  parity fixtures while eliminating duplicate registry/metadata ownership.
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.

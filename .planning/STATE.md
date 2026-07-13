@@ -12,23 +12,26 @@ ESLint with a simple, trustworthy integration path.
 
 ## Current Position
 
-- Phase: M2 — CLI and gate fail-closed semantics
+- Phase: M3 — high-severity rule evidence calibration
 - Status: Complete
 - Baseline: `v0.3.0`
 - Branch: `codex/gpt56-modernization-audit`
 
-M2 makes invalid configuration, malformed baselines, and failed ESLint analysis
-unambiguously non-successful. It also introduces gate report schema `1.1` and
-versioned audit event output without changing the supported baseline envelope.
+M3 keeps rule IDs and public package entrypoints stable while making rule
+evidence path-sensitive and conservative: class utilities evaluate possible
+static paths, runtime fixture/client signals resolve actual references, local
+empty-state actions preserve usable sibling wording, and reduced-motion CSS
+requires a scoped, cascade-valid static fallback.
 
 ## Current Evidence
 
-- `pnpm verify` passed with 180 tests, 93.44% line coverage, a package dry run,
+- `pnpm verify` passed with 336 tests, 87.60% line coverage, a package dry run,
   and a linked local-consumer smoke.
-- `pnpm verify:ci` passed with the online packed-consumer smoke and a required
-  registry audit reporting no high-or-higher advisories.
-- The packed runtime surface passed at current ESLint 9 and at the 9.0.0 floor;
-  public declarations compile, and the M2 adversarial review found no P0–P2.
+- `pnpm verify:ci` passed with the online packed-consumer smoke and required
+  registry dependency audit.
+- `pnpm smoke:published:eslint9-floor` passed against ESLint 9.0.0.
+- Final adversarial reviews closed the rule boundary cases with no remaining
+  confirmed P0, P1, or P2 finding.
 
 ## Current Decisions
 
@@ -43,24 +46,25 @@ versioned audit event output without changing the supported baseline envelope.
   fingerprints; downstream consumers can archive the old JSONL before upgrade.
 - Use `link:..` for current-checkout smoke and retain the packed consumer as
   the artifact-isolation proof.
+- Keep high-severity rules conservative when static path, CSS cascade, or
+  runtime-reference evidence cannot be proven.
 - Keep the legacy QR remediation work deferred until its overlap with M2–M4 is
   resolved.
 
 ## Next Step
 
-Begin M3: characterize and calibrate high-severity rule behavior before any
-catalog expansion or ownership consolidation.
+Begin M4: consolidate catalog and finding ownership behind one internal source
+of truth while preserving every public entrypoint and report contract.
 
 ## Blockers and Risks
 
 - No external blocker.
-- M3 must keep high-severity rule changes backed by valid, invalid, and
-  false-positive RuleTester fixtures.
-- M4 remains responsible for consolidating catalog and finding ownership.
+- M4 must retain M3's rule fixtures while removing duplicate registry,
+  metadata, and finding-identity ownership.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — M2 fail-closed gate semantics committed as
-`acb4ca5` after deterministic, online CI, and ESLint-floor validation.
+Last activity: 2026-07-13 — M3 evidence calibration committed as `80d1797`
+after deterministic, online CI, and ESLint-floor validation.

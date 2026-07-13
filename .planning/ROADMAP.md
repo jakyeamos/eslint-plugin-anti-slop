@@ -14,7 +14,7 @@ criteria.
 | M0 | Freeze public contracts and reconcile truth | Complete |
 | M1 | Establish authoritative verification and release gates | Complete |
 | M2 | Make CLI and gate analysis fail closed | Complete |
-| M3 | Calibrate high-severity rule evidence | Planned |
+| M3 | Calibrate high-severity rule evidence | Complete |
 | M4 | Consolidate catalog and finding ownership | Planned |
 | M5 | Cut over, release, and remove migration debris | Planned |
 
