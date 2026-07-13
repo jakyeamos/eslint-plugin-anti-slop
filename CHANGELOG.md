@@ -1,11 +1,19 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 - 2026-07-13
 
 - Consolidated rule registration, presets, metadata, documentation URLs, and
   SARIF rule descriptors behind one internal catalog without changing public
   package imports or report formats. `pnpm verify` now also rejects circular
   local imports.
+- Fixed `no-demo-data-primary-path` so a computed object key that evaluates a
+  fixture binding is reported rather than treated as a static property name.
+- Restricted configured gate baseline and report paths to the project root,
+  expanded the tracked-file secret scan beyond filename extensions and across
+  staged plus working-tree content, and documented a confidential
+  vulnerability-reporting route.
+- Require a publish release tag to resolve to a commit reachable from `main`
+  before dependencies are installed or provenance publishing begins.
 - `no-unjustified-use-client` now reports for manual review instead of removing
   directives automatically, and recognizes referenced conventional imported
   hooks plus unshadowed browser APIs accessed through `globalThis`; type-only

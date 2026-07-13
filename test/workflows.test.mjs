@@ -30,12 +30,23 @@ describe("GitHub workflows", () => {
     assert.match(ciWorkflow, /persist-credentials: false/);
   });
 
-  it("serializes a minimally privileged release and verifies its tag before publishing", () => {
+  it("serializes a minimally privileged release and verifies its tag, version, and main ancestry before publishing", () => {
     assertActionPins(publishWorkflow);
     assert.match(publishWorkflow, /permissions:\n  contents: read\n  # Required for npm trusted publishing \(OIDC\) and provenance\.\n  id-token: write/);
     assert.match(publishWorkflow, /group: publish-\$\{\{ github\.repository \}\}/);
     assert.match(publishWorkflow, /cancel-in-progress: false/);
-    assert.match(publishWorkflow, /ref: \$\{\{ github\.event\.release\.tag_name \}\}/);
+    assert.match(
+      publishWorkflow,
+      /ref: \$\{\{ github\.event\.release\.tag_name \}\}\n          fetch-depth: 0\n          persist-credentials: false/,
+    );
+    assert.match(publishWorkflow, /name: Verify release tag is reachable from main/);
+    assert.match(publishWorkflow, /RELEASE_TAG: \$\{\{ github\.event\.release\.tag_name \}\}/);
+    assert.match(publishWorkflow, /git rev-parse --verify "refs\/tags\/\$\{RELEASE_TAG\}\^\{commit\}"/);
+    assert.match(publishWorkflow, /git merge-base --is-ancestor "\$release_commit" refs\/remotes\/origin\/main/);
+    assert.ok(
+      publishWorkflow.indexOf('git merge-base --is-ancestor "$release_commit" refs/remotes/origin/main')
+        < publishWorkflow.indexOf("run: pnpm install --frozen-lockfile"),
+    );
     assert.match(publishWorkflow, /GITHUB_REF_NAME: \$\{\{ github\.event\.release\.tag_name \}\}/);
     assert.match(publishWorkflow, /run: pnpm verify:release/);
     assert.match(publishWorkflow, /run: pnpm publish --provenance --access public --no-git-checks/);

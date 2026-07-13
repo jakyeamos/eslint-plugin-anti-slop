@@ -5,6 +5,15 @@ coverage/
 .DS_Store
 *.log
 
+# Local credentials (the tracked-file scanner still protects staged secrets)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+
 # Generated / cache / audit output
 .aios/
 .turbo/

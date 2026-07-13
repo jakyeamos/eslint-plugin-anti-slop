@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -326,7 +326,11 @@ describe("readAntiSlopConfig", () => {
       { value: { files: [] }, pattern: /files/ },
       { value: { ignores: ["dist/**", 1] }, pattern: /ignores/ },
       { value: { baselinePath: "" }, pattern: /baselinePath/ },
+      { value: { baselinePath: "reports/../../outside.json" }, pattern: /baselinePath.*project root/ },
+      { value: { baselinePath: join(tmpdir(), "anti-slop-outside.json") }, pattern: /baselinePath.*project root/ },
       { value: { outputPath: 42 }, pattern: /outputPath/ },
+      { value: { outputPath: "reports/../../outside.json" }, pattern: /outputPath.*project root/ },
+      { value: { outputPath: join(tmpdir(), "anti-slop-outside.json") }, pattern: /outputPath.*project root/ },
     ];
 
     try {
@@ -345,6 +349,36 @@ describe("readAntiSlopConfig", () => {
       });
     } finally {
       rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects configured paths that escape through symlinks", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-config-symlink-"));
+    const outsideRoot = mkdtempSync(join(tmpdir(), "anti-slop-config-outside-"));
+    const configPath = join(repoRoot, "anti-slop.config.json");
+
+    try {
+      symlinkSync(outsideRoot, join(repoRoot, "reports"), "dir");
+
+      for (const value of [
+        { outputPath: "reports/gate.json" },
+        { baselinePath: "reports/baseline.json" },
+      ]) {
+        writeFileSync(configPath, JSON.stringify(value), "utf8");
+        assert.throws(() => readAntiSlopConfig(repoRoot), /project root/);
+      }
+
+      mkdirSync(join(repoRoot, "files"));
+      symlinkSync(join(outsideRoot, "gate.json"), join(repoRoot, "files", "gate.json"));
+      writeFileSync(configPath, JSON.stringify({ outputPath: "files/gate.json" }), "utf8");
+      assert.throws(() => readAntiSlopConfig(repoRoot), /outputPath.*project root/);
+
+      rmSync(configPath, { force: true });
+      symlinkSync(join(outsideRoot, "baseline.json"), join(repoRoot, ".anti-slop-baseline.json"));
+      assert.throws(() => readAntiSlopConfig(repoRoot), /baselinePath.*project root/);
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+      rmSync(outsideRoot, { recursive: true, force: true });
     }
   });
 });

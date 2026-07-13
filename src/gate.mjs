@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, lstatSync, readFileSync, realpathSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { normalizeAntiSlopFindings } from "./finding-core.mjs";
 import { qualityGateDecision } from "./gate-policy.mjs";
 import { sarifRuleDescriptors } from "./internal/rules/catalog.mjs";
@@ -18,7 +18,7 @@ const CONFIG_KEYS = new Set(Object.keys(DEFAULT_CONFIG));
 export function readAntiSlopConfig(repoRoot) {
   const configPath = join(repoRoot, "anti-slop.config.json");
   if (!existsSync(configPath)) {
-    return defaultConfig();
+    return validateConfig({}, configPath, repoRoot);
   }
 
   let parsed;
@@ -28,7 +28,7 @@ export function readAntiSlopConfig(repoRoot) {
     throw new AntiSlopInputError("configuration", configPath, "must contain valid JSON.");
   }
 
-  return validateConfig(parsed, configPath);
+  return validateConfig(parsed, configPath, repoRoot);
 }
 
 export function antiSlopFindingsFromResults(input) {
@@ -199,7 +199,7 @@ function defaultConfig() {
   };
 }
 
-function validateConfig(parsed, configPath) {
+function validateConfig(parsed, configPath, repoRoot) {
   if (!isPlainObject(parsed)) {
     throw new AntiSlopInputError("configuration", configPath, "must contain an object.");
   }
@@ -211,6 +211,7 @@ function validateConfig(parsed, configPath) {
   }
 
   const config = defaultConfig();
+  config.baselinePath = projectPath(config.baselinePath, "baselinePath", configPath, repoRoot);
   if ("files" in parsed) {
     config.files = stringArray(parsed.files, "files", configPath);
     if (config.files.length === 0) {
@@ -227,15 +228,87 @@ function validateConfig(parsed, configPath) {
     config.mode = parsed.mode;
   }
   if ("baselinePath" in parsed) {
-    config.baselinePath = nonEmptyString(parsed.baselinePath, "baselinePath", configPath);
+    config.baselinePath = projectPath(parsed.baselinePath, "baselinePath", configPath, repoRoot);
   }
   if ("outputPath" in parsed) {
     if (parsed.outputPath !== null) {
-      config.outputPath = nonEmptyString(parsed.outputPath, "outputPath", configPath);
+      config.outputPath = projectPath(parsed.outputPath, "outputPath", configPath, repoRoot);
     }
   }
 
   return config;
+}
+
+function projectPath(value, field, configPath, repoRoot) {
+  const configuredPath = nonEmptyString(value, field, configPath);
+  if (!existsSync(resolve(repoRoot))) {
+    return configuredPath;
+  }
+  const projectRoot = realProjectRoot(repoRoot, configPath);
+  const candidate = resolve(projectRoot, configuredPath);
+
+  if (isAbsolute(configuredPath) || !isPathWithin(projectRoot, candidate)) {
+    throw projectPathError(field, configPath);
+  }
+
+  let ancestor = candidate;
+  while (true) {
+    try {
+      lstatSync(ancestor);
+      let realAncestor;
+      try {
+        realAncestor = realpathSync(ancestor);
+      } catch {
+        throw projectPathError(field, configPath);
+      }
+      if (!isPathWithinOrEqual(projectRoot, realAncestor)) {
+        throw projectPathError(field, configPath);
+      }
+      return configuredPath;
+    } catch (error) {
+      if (error instanceof AntiSlopInputError) {
+        throw error;
+      }
+      if (error?.code !== "ENOENT") {
+        throw projectPathError(field, configPath);
+      }
+      const parent = dirname(ancestor);
+      if (parent === ancestor) {
+        throw projectPathError(field, configPath);
+      }
+      ancestor = parent;
+    }
+  }
+}
+
+function realProjectRoot(repoRoot, configPath) {
+  try {
+    return realpathSync(resolve(repoRoot));
+  } catch {
+    throw new AntiSlopInputError("configuration", configPath, "project root must be accessible.");
+  }
+}
+
+function isPathWithin(root, path) {
+  const pathFromRoot = relative(root, path);
+  return (
+    pathFromRoot.length > 0 &&
+    pathFromRoot !== ".." &&
+    !pathFromRoot.startsWith(`..${sep}`) &&
+    !isAbsolute(pathFromRoot)
+  );
+}
+
+function isPathWithinOrEqual(root, path) {
+  return path === root || isPathWithin(root, path);
+}
+
+function projectPathError(field, configPath) {
+  return new AntiSlopInputError(
+    "configuration",
+    configPath,
+    `\"${field}\" must stay within the project root and must not traverse outside it through a symlink.`,
+  );
 }
 
 function stringArray(value, field, configPath) {

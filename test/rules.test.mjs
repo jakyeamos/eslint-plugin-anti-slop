@@ -704,11 +704,22 @@ tester.run("no-demo-data-primary-path", plugin.rules["no-demo-data-primary-path"
       code: "import { rows } from '@/fixtures/rows';\nexport function Page() { return <main>Live data only</main>; }",
       settings,
     },
+    {
+      filename: "/repo/app/page.tsx",
+      code: "import { rows } from '@/fixtures/rows';\nexport function Page() { return { rows: true }; }",
+      settings,
+    },
   ],
   invalid: [
     {
       filename: "/repo/app/dashboard/page.tsx",
       code: "import { rows } from '@/fixtures/rows';\nexport function Page() { return rows; }",
+      settings,
+      errors: [{ messageId: "demoDataPrimary" }],
+    },
+    {
+      filename: "/repo/app/page.tsx",
+      code: "import { rows } from '@/fixtures/rows';\nexport function Page() { return { [rows]: true }; }",
       settings,
       errors: [{ messageId: "demoDataPrimary" }],
     },

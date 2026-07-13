@@ -47,7 +47,7 @@ function isTypeOnlyImport(declaration, specifier) {
 function isStaticPropertyKey(node) {
   const parent = node.parent;
   return (
-    (parent?.type === "Property" && parent.key === node && !parent.shorthand) ||
+    (parent?.type === "Property" && parent.key === node && !parent.computed && !parent.shorthand) ||
     (parent?.type === "MemberExpression" && parent.property === node && !parent.computed)
   );
 }

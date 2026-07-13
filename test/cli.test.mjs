@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { runCli } from "../src/cli.mjs";
@@ -323,6 +323,78 @@ describe("runCli", () => {
       assert.equal(runnerCalled, false);
     } finally {
       rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects report output outside the project before analysis or writes", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-output-path-"));
+    const outsideReportPath = `${repoRoot}.report.json`;
+    const io = capture();
+    let runnerCalled = false;
+
+    try {
+      writeFileSync(
+        join(repoRoot, "anti-slop.config.json"),
+        JSON.stringify({ outputPath: outsideReportPath }),
+        "utf8",
+      );
+
+      const exitCode = await runCli(["check"], {
+        cwd: repoRoot,
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async () => {
+          runnerCalled = true;
+          return [];
+        },
+      });
+
+      assert.equal(exitCode, 2);
+      assert.equal(io.read().stdout, "");
+      assert.match(io.read().stderr, /Anti-Slop configuration error/);
+      assert.match(io.read().stderr, /outputPath/);
+      assert.equal(runnerCalled, false);
+      assert.equal(existsSync(outsideReportPath), false);
+    } finally {
+      rmSync(outsideReportPath, { force: true });
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects report output through a symlink before analysis or writes", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-output-symlink-"));
+    const outsideRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-output-outside-"));
+    const outsideReportPath = join(outsideRoot, "report.json");
+    const io = capture();
+    let runnerCalled = false;
+
+    try {
+      symlinkSync(outsideRoot, join(repoRoot, "reports"), "dir");
+      writeFileSync(
+        join(repoRoot, "anti-slop.config.json"),
+        JSON.stringify({ outputPath: "reports/report.json" }),
+        "utf8",
+      );
+
+      const exitCode = await runCli(["check"], {
+        cwd: repoRoot,
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async () => {
+          runnerCalled = true;
+          return [];
+        },
+      });
+
+      assert.equal(exitCode, 2);
+      assert.equal(io.read().stdout, "");
+      assert.match(io.read().stderr, /Anti-Slop configuration error/);
+      assert.match(io.read().stderr, /outputPath/);
+      assert.equal(runnerCalled, false);
+      assert.equal(existsSync(outsideReportPath), false);
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+      rmSync(outsideRoot, { recursive: true, force: true });
     }
   });
 

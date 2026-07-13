@@ -50,5 +50,6 @@ Update docs when changing:
 2. Run `pnpm verify:ci`.
 3. Confirm `CHANGELOG.md` describes user-visible changes.
 4. Confirm `package.json` version and metadata are correct.
-5. Create a `v<package-version>` GitHub release; the publish workflow verifies
-   that tag before publishing through npm trusted publishing with provenance.
+5. Create a `v<package-version>` GitHub release tag on a reviewed commit
+   reachable from `main`; the publish workflow verifies the tag/version and
+   ancestry before publishing through npm trusted publishing with provenance.

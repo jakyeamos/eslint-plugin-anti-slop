@@ -26,6 +26,24 @@ package CLI fails under ESLint 8 because that major rejects the ESLint 9
 `anti-slop gate`. Consumers should upgrade to ESLint 9 before adopting the
 plugin or CLI.
 
+## Upgrading from 0.3
+
+Version 0.4 retains the published package subpaths and rule IDs, but it is a
+hardening release with deliberate behavior changes:
+
+- Use the supported Node range above; the package no longer supports every
+  Node 20 release.
+- Gate JSON output is schema `1.1` and audit events use schema `1.1`; existing
+  baseline formats remain accepted. See the audit section for retaining a
+  single-version event log.
+- `anti-slop/no-unjustified-use-client` no longer autofixes directives. Review
+  and remove a directive manually only after confirming the boundary is safe.
+- Configured gate `baselinePath` and `outputPath` values must resolve inside
+  the project root.
+
+See [the changelog](CHANGELOG.md) for the complete behavior and migration
+notes.
+
 ## Install
 
 From npm:
@@ -35,6 +53,10 @@ pnpm add -D eslint-plugin-anti-slop
 ```
 
 Package page: [eslint-plugin-anti-slop on npm](https://www.npmjs.com/package/eslint-plugin-anti-slop).
+
+## Security
+
+Report vulnerabilities through [GitHub private vulnerability reporting](https://github.com/jakyeamos/eslint-plugin-anti-slop/security/advisories/new). Do not put exploit details or live credentials in a public issue; see the [security policy](SECURITY.md) for the reporting contract.
 
 ## Quick Start
 
@@ -475,8 +497,9 @@ fresh temporary consumer. That online ecosystem
 check verifies the CLI, flat config, formatter, all public runtime exports, and
 TypeScript declarations. `pnpm verify:ci` requires both groups plus a registry
 dependency audit; `pnpm verify:release` also requires the release tag to match
-`package.json`. `pnpm verify:local` additionally runs Pre-CR changed-line
-readiness and requires a globally installed `pre-cr`.
+`package.json`. The publish workflow separately verifies that the tag resolves
+to a commit reachable from `main`. `pnpm verify:local` additionally runs Pre-CR
+changed-line readiness and requires a globally installed `pre-cr`.
 
 `pnpm smoke:eslint9` links the current `eslint-plugin-anti-slop` checkout into
 `smoke-consumer/` with pnpm, then runs ESLint 9 against a small
@@ -558,7 +581,8 @@ The config is strict: its only supported keys are `files`, `ignores`, `mode`,
 `baselinePath`, and `outputPath`. `files` must contain at least one non-empty
 path; each ignore-list entry must also be a non-empty string. Unsupported keys
 or malformed JSON are configuration errors rather than silently ignored
-settings.
+settings. When configured, `baselinePath` and `outputPath` must be non-empty
+project-relative paths that resolve inside the project root.
 
 In `--mode auto` without an explicit `--branch`, the CLI resolves the current
 branch from CI environment variables (`GITHUB_REF_NAME`, `GITHUB_HEAD_REF`,
@@ -719,7 +743,8 @@ exit behavior still depends on the runner's rule severity and CLI settings.
 2. Run `pnpm verify:ci` (and `pnpm verify:local` on machines with `pre-cr`).
 3. Update `CHANGELOG.md`.
 4. Confirm `package.json` version and package metadata.
-5. Create a GitHub release whose tag is `v` plus the package version.
-   `.github/workflows/publish.yml` runs the release gate and publishes with npm
-   provenance through trusted publishing (the repo must be configured as a
-   trusted publisher for the package on npmjs.com — no long-lived npm token).
+5. Create a GitHub release whose `v<package-version>` tag points to a reviewed
+   commit reachable from `main`. `.github/workflows/publish.yml` validates that
+   ancestry and the tag/version match before publishing with npm provenance
+   through trusted publishing (the repo must be configured as a trusted
+   publisher for the package on npmjs.com — no long-lived npm token).
