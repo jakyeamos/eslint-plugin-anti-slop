@@ -2,10 +2,10 @@
 
 ## Current Position
 
-**Phase:** M1 — verification and release gate complete
+**Phase:** M2 — CLI and gate fail-closed semantics complete
 **Branch:** `codex/gpt56-modernization-audit`
 **Baseline:** `v0.3.0`
-**Application behavior changed:** package-development and release policy only
+**Application behavior changed:** gate/audit semantics and local smoke wiring
 
 ## Completed
 
@@ -30,6 +30,17 @@
 - Corrected the Node compatibility promise to
   `^20.19.0 || ^22.13.0 || >=24` and pinned the parser version that establishes
   that floor.
+- Validated `anti-slop.config.json` and baseline input before ESLint runs;
+  malformed input now exits non-successfully without overwriting a baseline.
+- Represented complete, skipped, and failed analysis separately from gate
+  policy, including explicit JSONL, Pre-CR, SARIF, and text outcomes.
+- Preserved requested `audit` mode, made fatal analysis fail in every policy
+  mode, and made an empty changed set a visible no-op rather than a full scan.
+- Moved audit events to schema `1.1`, separated legacy/current fingerprint
+  history, and documented the optional archive migration for single-schema
+  downstream consumers.
+- Linked the deterministic local smoke directly to the current checkout;
+  packed-artifact isolation remains an independent online check.
 - Identified no data, authentication, billing, or infrastructure migration.
 - Preserved user-owned untracked `.agents/` and `skills/` directories.
 
@@ -43,16 +54,26 @@
 - `pnpm smoke:published:eslint9-floor`: passed against ESLint 9.0.0.
 - Final adversarial M1 review found no P0, P1, or P2 issue.
 
+## M2 Results
+
+- `pnpm verify`: passed (180 tests, 93.44% line coverage, package dry-run, and
+  linked local-consumer smoke).
+- `pnpm verify:ci`: passed (including packed-consumer smoke and a required
+  registry audit with no high-or-higher advisories).
+- `pnpm smoke:published:eslint9-floor`: passed against ESLint 9.0.0.
+- Public declaration compilation and the final adversarial review passed with
+  no confirmed P0, P1, or P2 findings.
+
 ## Next Milestone
 
-Begin M2: make invalid configuration, malformed baselines, and failed analysis
-unambiguously non-successful while preserving valid v0.3 contracts.
+Begin M3: calibrate high-severity rule evidence, false-positive boundaries, and
+autofix safety before expanding the catalog.
 
 ## Known Risks
 
-- Invalid configuration and fatal parser errors can currently be represented as
-  a passing gate; M2 addresses this first among runtime changes.
-- Rule catalog and finding identity are manually represented in more than one
-  module; M4 consolidates them only after parity fixtures exist.
+- M3 must retain existing rule IDs while characterizing class paths,
+  reduced-motion fallbacks, fixture semantics, and empty-state action scope.
+- Rule catalog ownership remains split across modules; M4 consolidates it only
+  after M3 parity fixtures exist.
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.

@@ -18,8 +18,9 @@ simple, trustworthy integration path.
 The `v0.3.0` release is the baseline. The current development contract supports
 Node `^20.19.0 || ^22.13.0 || >=24` and ESLint 9 flat config, separates a
 deterministic local gate from explicit online package/supply-chain checks, and
-publishes through a hardened OIDC/provenance workflow. M0 and M1 are complete;
-M2 now hardens CLI and gate correctness before rule behavior changes.
+publishes through a hardened OIDC/provenance workflow. M0 through M2 are
+complete: M2 makes gate input and analysis failures non-successful and versions
+the audit output migration.
 
 ## Constraints
 
@@ -48,6 +49,7 @@ M2 now hardens CLI and gate correctness before rule behavior changes.
 | Modernize in place from `v0.3.0` | The package already has meaningful consumer and package coverage; a parallel rewrite adds semver risk without product value. | Active |
 | Freeze contracts before behavior changes | Rule, CLI, audit, and package changes need consumer-level proof. | M0 complete |
 | Separate deterministic and online verification | Fresh consumer installs and registry audits are valuable but must not masquerade as offline checks. | M1 complete |
+| Version audit identity when its fingerprint changes | Preserve readable legacy history without coalescing it with the current gate identity. | M2 complete |
 | Keep a one-owner model for future internals | Registry, metadata, docs URLs, and report identity must not drift independently. | Planned for M4 |
 
 ---
