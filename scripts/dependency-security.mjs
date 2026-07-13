@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 
 // Advisories at or above this severity block the commit.
 const MINIMUM_BLOCKING_SEVERITY = 'high';
+const requireRegistry = process.argv.includes('--require-registry');
 
 const SEVERITY_ORDER = ['critical', 'high', 'moderate', 'low', 'info'];
 const threshold = SEVERITY_ORDER.indexOf(MINIMUM_BLOCKING_SEVERITY);
@@ -21,6 +22,11 @@ const NETWORK_ERROR_PATTERNS = [
 ];
 
 function skip(reason) {
+  if (requireRegistry) {
+    console.error('[dependency:security] REQUIRED — ' + reason);
+    console.error('[dependency:security] Registry audit is required for this command.');
+    process.exit(1);
+  }
   console.warn('[dependency:security] SKIPPED — ' + reason);
   console.warn('[dependency:security] Registry audit is advisory-only and requires network; not blocking the commit.');
   process.exit(0);

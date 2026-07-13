@@ -3,10 +3,12 @@ import { join, relative } from 'node:path'
 
 const root = process.cwd()
 const ignoredDirs = new Set([
+  '.agents',
   '.git',
   'coverage',
   'dist',
   'node_modules',
+  'skills',
   'smoke-consumer/node_modules',
   'test',
   'tests',

@@ -3,7 +3,7 @@ import { readdirSync, statSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 
 const root = process.cwd();
-const ignoredDirs = new Set([".git", ".quality-runner", "coverage", "node_modules", "smoke-consumer/node_modules"]);
+const ignoredDirs = new Set([".agents", ".git", ".quality-runner", "coverage", "node_modules", "skills", "smoke-consumer/node_modules"]);
 const extensions = new Set([".js", ".mjs"]);
 
 function collectFiles(dir, files) {

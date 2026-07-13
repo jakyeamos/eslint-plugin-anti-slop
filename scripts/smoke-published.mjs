@@ -7,7 +7,14 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const packageJson = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
+const eslintVersionIndex = process.argv.indexOf("--eslint-version");
+const eslintVersion = eslintVersionIndex === -1 ? "^9.29.0" : process.argv[eslintVersionIndex + 1];
+const skipTypes = process.argv.includes("--skip-types");
 const workRoot = mkdtempSync(join(tmpdir(), "anti-slop-published-smoke-"));
+
+if (!eslintVersion) {
+  throw new Error("--eslint-version requires a version.");
+}
 
 try {
   const packDir = join(workRoot, "pack");
@@ -34,7 +41,7 @@ try {
           "eslint-plugin-anti-slop": `file:${tarballPath}`,
         },
         devDependencies: {
-          eslint: "^9.29.0",
+          eslint: eslintVersion,
           typescript: packageJson.devDependencies.typescript,
         },
       },
@@ -60,6 +67,16 @@ try {
     "utf8",
   );
   writeFileSync(
+    join(fixtureRoot, "fixture.tsx"),
+    [
+      "export function TypeScriptBillingEmptyState(): JSX.Element {",
+      "  return <p>TODO</p>;",
+      "}",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  writeFileSync(
     join(fixtureRoot, "eslint.config.mjs"),
     [
       'import antiSlopAiosAuditConfig from "eslint-plugin-anti-slop/aios-audit-config";',
@@ -77,18 +94,21 @@ try {
     [
       'import assert from "node:assert/strict";',
       'import antiSlop from "eslint-plugin-anti-slop";',
-      'import { auditEventsFromEslintResults } from "eslint-plugin-anti-slop/audit";',
-      'import { antiSlopFindingsFromResults, buildGateReport } from "eslint-plugin-anti-slop/gate";',
-      'import antiSlopAiosAuditConfig, { antiSlopAuditFormatter, aiosAuditArtifacts } from "eslint-plugin-anti-slop/aios-audit-config";',
+      'import * as audit from "eslint-plugin-anti-slop/audit";',
+      'import * as gate from "eslint-plugin-anti-slop/gate";',
+      'import antiSlopAiosAuditConfig, * as aiosAuditConfig from "eslint-plugin-anti-slop/aios-audit-config";',
       'import formatAuditResults from "eslint-plugin-anti-slop/audit-formatter";',
       'import formatAuditResultsByExtension from "eslint-plugin-anti-slop/audit-formatter.mjs";',
       'import { runCli } from "eslint-plugin-anti-slop/cli";',
       'import { metadataForRule, ruleMetadata } from "eslint-plugin-anti-slop/rule-metadata";',
       "",
       'assert.equal(antiSlop.meta.name, "eslint-plugin-anti-slop");',
+      'assert.deepEqual(Object.keys(audit).sort(), ["appendAuditEvents", "auditEventsFromEslintResults", "currentBranch", "dedupeFingerprint", "qualityGateDecision", "redactSecrets"]);',
+      'assert.deepEqual(Object.keys(gate).sort(), ["antiSlopFindingsFromResults", "buildGateReport", "filterBaselineFindings", "formatGateReport", "readAntiSlopConfig", "sarifFromGateReport"]);',
+      'assert.deepEqual(Object.keys(aiosAuditConfig).sort(), ["aiosAuditArtifacts", "antiSlopAiosAuditConfig", "antiSlopAuditFormatter", "default", "defaultAntiSlopAuditIgnores"]);',
       "assert.ok(Array.isArray(antiSlopAiosAuditConfig));",
-      'assert.equal(antiSlopAuditFormatter, "./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs");',
-      'assert.ok(aiosAuditArtifacts.includes(".aios/audit/gate-events.jsonl"));',
+      'assert.equal(aiosAuditConfig.antiSlopAuditFormatter, "./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs");',
+      'assert.ok(aiosAuditConfig.aiosAuditArtifacts.includes(".aios/audit/gate-events.jsonl"));',
       'assert.equal(typeof formatAuditResults, "function");',
       "assert.equal(formatAuditResults, formatAuditResultsByExtension);",
       'assert.equal(typeof runCli, "function");',
@@ -110,11 +130,11 @@ try {
       "  },",
       "];",
       "",
-      "const findings = antiSlopFindingsFromResults({ repoRoot: process.cwd(), results });",
+      "const findings = gate.antiSlopFindingsFromResults({ repoRoot: process.cwd(), results });",
       'assert.equal(findings[0].ruleId, "anti-slop/no-placeholder-copy");',
-      "const report = buildGateReport({ findings, mode: \"block\", branch: \"main\", repoRoot: process.cwd() });",
+      "const report = gate.buildGateReport({ findings, mode: \"block\", branch: \"main\", repoRoot: process.cwd() });",
       'assert.equal(report.decision, "block");',
-      "const events = auditEventsFromEslintResults({ repoRoot: process.cwd(), results, branch: \"main\" });",
+      "const events = audit.auditEventsFromEslintResults({ repoRoot: process.cwd(), results, branch: \"main\" });",
       'assert.equal(events[0].gate, "Anti-Slop");',
       'assert.equal(events[0].decision, "block");',
       "",
@@ -126,6 +146,14 @@ try {
     cwd: fixtureRoot,
     stdio: "inherit",
   });
+
+  if (eslintVersionIndex !== -1) {
+    const installedEslintVersion = execFileSync("pnpm", ["exec", "eslint", "--version"], {
+      cwd: fixtureRoot,
+      encoding: "utf8",
+    }).trim();
+    assert.equal(installedEslintVersion, `v${eslintVersion}`);
+  }
 
   const cliOutput = execFileSync(
     "pnpm",
@@ -139,20 +167,33 @@ try {
   assert.equal(cliReport.gate, "Anti-Slop");
   assert.ok(cliReport.newFindings.some((finding) => finding.ruleId === "anti-slop/no-placeholder-copy"));
 
+  const typeScriptCliOutput = execFileSync(
+    "pnpm",
+    ["exec", "anti-slop", "check", "fixture.tsx", "--mode", "audit", "--format", "json"],
+    {
+      cwd: fixtureRoot,
+      encoding: "utf8",
+    },
+  );
+  const typeScriptCliReport = JSON.parse(typeScriptCliOutput);
+  assert.ok(typeScriptCliReport.newFindings.some((finding) => finding.ruleId === "anti-slop/no-placeholder-copy"));
+
   execFileSync("node", ["verify-entrypoints.mjs"], {
     cwd: fixtureRoot,
     stdio: "inherit",
   });
 
-  execFileSync("pnpm", ["exec", "tsc", "--project", "tsconfig.json"], {
-    cwd: fixtureRoot,
-    stdio: "inherit",
-  });
+  if (!skipTypes) {
+    execFileSync("pnpm", ["exec", "tsc", "--project", "tsconfig.json"], {
+      cwd: fixtureRoot,
+      stdio: "inherit",
+    });
+  }
 
   try {
     execFileSync(
       "pnpm",
-      ["exec", "eslint", "fixture.jsx", "--format", "./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs"],
+      ["exec", "eslint", "fixture.jsx", "fixture.tsx", "--format", "./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs"],
       {
         cwd: fixtureRoot,
         encoding: "utf8",

@@ -15,7 +15,13 @@ Use the standard verification gate before opening a pull request:
 pnpm verify
 ```
 
-`pnpm verify` runs the Node test suite (including RuleTester), writes source LCOV coverage, verifies the local file-dependency smoke consumer, and installs the packed tarball in an isolated fixture. `pnpm verify:local` additionally runs Pre-CR changed-line readiness and requires a globally installed `pre-cr`. CI runs `pnpm verify` on pull requests and pushes to `main`.
+`pnpm verify` runs deterministic source checks, tests, an enforced coverage
+threshold, a pack dry run, and the local file-dependency smoke consumer.
+`pnpm verify:consumer-online` separately checks a packed tarball in a fresh
+registry-backed consumer. `pnpm verify:local` additionally runs Pre-CR
+changed-line readiness and requires a globally installed `pre-cr`. CI runs
+`pnpm verify:ci`, which requires the online consumer check and a registry
+dependency-audit report as well.
 
 ## Rule Quality Bar
 
@@ -41,7 +47,8 @@ Update docs when changing:
 ## Release Checklist
 
 1. Run `pnpm install --frozen-lockfile`.
-2. Run `pnpm verify`.
+2. Run `pnpm verify:ci`.
 3. Confirm `CHANGELOG.md` describes user-visible changes.
 4. Confirm `package.json` version and metadata are correct.
-5. Create a GitHub release; the publish workflow reruns verification and publishes through npm trusted publishing with provenance.
+5. Create a `v<package-version>` GitHub release; the publish workflow verifies
+   that tag before publishing through npm trusted publishing with provenance.

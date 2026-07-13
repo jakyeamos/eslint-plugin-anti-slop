@@ -5,7 +5,7 @@
 <p align="center">
   <img alt="Status: active ESLint plugin" src="https://img.shields.io/badge/status-active%20ESLint%20plugin-0f766e">
   <img alt="ESLint: 9" src="https://img.shields.io/badge/ESLint-9.x-4b32c3">
-  <img alt="Node: 20+" src="https://img.shields.io/badge/Node-20%2B-339933">
+  <img alt="Node: 20.19+, 22.13+, or 24+" src="https://img.shields.io/badge/Node-20.19%2B%20%7C%2022.13%2B%20%7C%2024%2B-339933">
   <img alt="Package manager: pnpm" src="https://img.shields.io/badge/package%20manager-pnpm-f59e0b">
 </p>
 
@@ -15,7 +15,7 @@ The plugin is intentionally opinionated. It focuses on rules that are specific e
 
 ## Compatibility
 
-- Node.js 20 or newer.
+- Node.js `^20.19.0 || ^22.13.0 || >=24`.
 - ESLint 9.x with flat config.
 - React/TypeScript projects using app, component, or library source paths.
 
@@ -456,27 +456,33 @@ pnpm add -D file:../eslint-plugin-anti-slop
 ```bash
 pnpm install
 pnpm test
-pnpm test:coverage
-pnpm smoke:eslint9
-pnpm secret:scan
-pnpm dependency:security
 pnpm verify
+pnpm smoke:published:eslint9-floor
 ```
 
 Rule tests use ESLint `RuleTester` through Node's built-in test runner. `pnpm
-test:coverage` writes source LCOV to `coverage/lcov.info` for the repo's Pre-CR
-coverage gate.
+coverage:report` writes source LCOV to `coverage/lcov.info`, and `pnpm
+coverage:check` enforces the repository threshold from `.pre-cr.json`.
 
-`pnpm verify` is the standard pre-PR gate and the CI gate. It runs the
-RuleTester suite, coverage, the smoke consumer, and a packed-tarball install
-smoke using only declared dependencies. `pnpm verify:local` additionally runs
-Pre-CR changed-line readiness and requires a globally installed `pre-cr`; it is
-not part of CI.
+`pnpm verify` is the deterministic pre-PR gate. It runs formatting, syntax,
+dead-code, secret, test, coverage, pack, and local-consumer checks without a
+fresh registry resolution. `pnpm verify:consumer-online` separately packs the
+artifact and installs it in a fresh temporary consumer. That online ecosystem
+check verifies the CLI, flat config, formatter, all public runtime exports, and
+TypeScript declarations. `pnpm verify:ci` requires both groups plus a registry
+dependency audit; `pnpm verify:release` also requires the release tag to match
+`package.json`. `pnpm verify:local` additionally runs Pre-CR changed-line
+readiness and requires a globally installed `pre-cr`.
 
 `pnpm smoke:eslint9` installs `eslint-plugin-anti-slop` into `smoke-consumer/`
 as a local `file:..` dependency with pnpm, then runs ESLint 9 against a small
 JSX fixture, the `anti-slop` CLI, and the audit formatter. `pnpm smoke:consumer`
 is kept as an alias for the same supported-major smoke.
+
+`pnpm smoke:published:eslint9-floor` runs the packed runtime surface against
+ESLint 9.0.0, including JavaScript and TypeScript/TSX lint paths. The ordinary
+packed smoke additionally compiles public TypeScript declarations against the
+current ESLint 9.x consumer; ESLint 9.0.0 itself does not expose declarations.
 
 ## Quality Gate CLI
 
@@ -658,10 +664,10 @@ and CLI settings.
 ## Release Checklist
 
 1. Run `pnpm install --frozen-lockfile`.
-2. Run `pnpm verify` (and `pnpm verify:local` on machines with `pre-cr`).
+2. Run `pnpm verify:ci` (and `pnpm verify:local` on machines with `pre-cr`).
 3. Update `CHANGELOG.md`.
 4. Confirm `package.json` version and package metadata.
-5. Publish by creating a GitHub release; `.github/workflows/publish.yml`
-   re-runs the verification gate and publishes with npm provenance through
-   trusted publishing (the repo must be configured as a trusted publisher for
-   the package on npmjs.com — no long-lived npm token).
+5. Create a GitHub release whose tag is `v` plus the package version.
+   `.github/workflows/publish.yml` runs the release gate and publishes with npm
+   provenance through trusted publishing (the repo must be configured as a
+   trusted publisher for the package on npmjs.com — no long-lived npm token).

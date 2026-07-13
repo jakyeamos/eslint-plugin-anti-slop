@@ -4,10 +4,12 @@ import { extname, join, relative } from "node:path";
 const root = process.cwd();
 const ignoredDirs = new Set([
   ".aios",
+  ".agents",
   ".git",
   ".quality-runner",
   "coverage",
   "node_modules",
+  "skills",
   "smoke-consumer/node_modules",
 ]);
 const ignoredFiles = new Set(["pnpm-lock.yaml", "smoke-consumer/pnpm-lock.yaml"]);

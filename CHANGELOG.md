@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Raised the declared Node support floor to the actual parser dependency range:
+  `^20.19.0 || ^22.13.0 || >=24`.
+- Added an enforced LCOV coverage threshold and a deterministic `pnpm verify`
+  gate; CI/release additionally require the online packed-consumer and registry
+  audit checks through `pnpm verify:ci` and `pnpm verify:release`.
+- Added packed runtime smoke coverage for every public export, TypeScript/TSX
+  linting, and the ESLint 9.0.0 runtime floor.
+- Hardened GitHub workflows with immutable action pins, minimum permissions,
+  concurrency, release-tag/package-version validation, and an executable
+  workflow contract test.
+
 ## 0.3.0 - 2026-07-09
 
 - Plugin metadata now reads `name`/`version` from `package.json` at load time
