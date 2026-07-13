@@ -8,6 +8,7 @@ import { describe, it } from "node:test";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 const coverageScript = join(repoRoot, "scripts", "check-coverage.mjs");
+const deadCodeScript = join(repoRoot, "scripts", "dead-code-check.mjs");
 const dependencySecurityScript = join(repoRoot, "scripts", "dependency-security.mjs");
 const releaseVersionScript = join(repoRoot, "scripts", "assert-release-version.mjs");
 const packageJson = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
@@ -30,6 +31,21 @@ function writeCoverageFixture({ threshold, lcov }) {
     "utf8",
   );
   writeFileSync(join(root, "coverage", "lcov.info"), lcov, "utf8");
+  return root;
+}
+
+function writeCircularImportFixture() {
+  const root = mkdtempSync(join(tmpdir(), "anti-slop-import-cycle-"));
+  const sourceRoot = join(root, "src");
+  mkdirSync(sourceRoot);
+  writeFileSync(
+    join(root, "package.json"),
+    JSON.stringify({ exports: { ".": "./src/entry.mjs" } }, null, 2) + "\n",
+    "utf8",
+  );
+  writeFileSync(join(sourceRoot, "entry.mjs"), 'import "./first.mjs";\n', "utf8");
+  writeFileSync(join(sourceRoot, "first.mjs"), 'import "./second.mjs";\n', "utf8");
+  writeFileSync(join(sourceRoot, "second.mjs"), 'import "./first.mjs";\n', "utf8");
   return root;
 }
 
@@ -59,6 +75,19 @@ describe("verification scripts", () => {
       const result = runNode(coverageScript, { cwd: root });
       assert.equal(result.status, 1);
       assert.match(result.stderr, /Line coverage 50\.00% is below the 80% threshold/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects circular local imports in the reachable module graph", () => {
+    const root = writeCircularImportFixture();
+
+    try {
+      const result = runNode(deadCodeScript, { cwd: root });
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /Circular local imports/);
+      assert.match(result.stderr, /src\/first\.mjs -> src\/second\.mjs -> src\/first\.mjs/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

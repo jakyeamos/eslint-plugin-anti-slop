@@ -78,6 +78,9 @@ for (const file of allFiles) {
   }
 }
 
+const dependencyGraph = new Map(
+  [...allFiles].map((file) => [file, localImportPaths(file, allFiles)]),
+);
 const reachable = new Set();
 const queue = [...roots].filter((path) => allFiles.has(path));
 
@@ -88,13 +91,9 @@ while (queue.length > 0) {
   }
 
   reachable.add(file);
-  const text = readFileSync(file, "utf8");
-  for (const pattern of importPatterns) {
-    for (const match of text.matchAll(pattern)) {
-      const imported = resolveImport(file, match[1]);
-      if (imported && allFiles.has(imported) && !reachable.has(imported)) {
-        queue.push(imported);
-      }
+  for (const imported of dependencyGraph.get(file) ?? []) {
+    if (!reachable.has(imported)) {
+      queue.push(imported);
     }
   }
 }
@@ -109,4 +108,69 @@ if (unused.length > 0) {
   process.exit(1);
 }
 
-console.log(`Checked ${allFiles.size} JavaScript files for reachable entrypoints.`);
+const cycles = circularImportPaths(reachable, dependencyGraph);
+if (cycles.length > 0) {
+  console.error(
+    `Circular local imports:\n${cycles
+      .map((cycle) => `- ${cycle.map((file) => normalize(relative(root, file))).join(" -> ")}`)
+      .join("\n")}`,
+  );
+  process.exit(1);
+}
+
+console.log(`Checked ${allFiles.size} JavaScript files for reachable entrypoints and circular local imports.`);
+
+function localImportPaths(file, files) {
+  const imports = new Set();
+  const text = readFileSync(file, "utf8");
+
+  for (const pattern of importPatterns) {
+    for (const match of text.matchAll(pattern)) {
+      const imported = resolveImport(file, match[1]);
+      if (imported && files.has(imported)) {
+        imports.add(imported);
+      }
+    }
+  }
+
+  return imports;
+}
+
+function circularImportPaths(files, dependencyGraph) {
+  const visiting = new Set();
+  const visited = new Set();
+  const stack = [];
+  const cycles = [];
+
+  function visit(file) {
+    visiting.add(file);
+    stack.push(file);
+
+    for (const imported of [...(dependencyGraph.get(file) ?? [])].sort()) {
+      if (!files.has(imported)) {
+        continue;
+      }
+
+      if (visiting.has(imported)) {
+        cycles.push([...stack.slice(stack.indexOf(imported)), imported]);
+        continue;
+      }
+
+      if (!visited.has(imported)) {
+        visit(imported);
+      }
+    }
+
+    stack.pop();
+    visiting.delete(file);
+    visited.add(file);
+  }
+
+  for (const file of [...files].sort()) {
+    if (!visited.has(file)) {
+      visit(file);
+    }
+  }
+
+  return cycles;
+}

@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { relative } from "node:path";
-import { metadataForRule } from "./rule-metadata.mjs";
+import { metadataForCatalogRule } from "./internal/rules/catalog.mjs";
 
 const SECRET_RE =
   /\b(api[_-]?key|secret|token|password|private[_-]?key|client[_-]?secret)\b\s*[:=]\s*['"][^'"\s]{8,}['"]/gi;
@@ -36,7 +36,7 @@ export function normalizeAntiSlopFindings({ repoRoot, results }) {
         continue;
       }
 
-      const metadata = metadataForRule(message.ruleId);
+      const metadata = metadataForCatalogRule(message.ruleId);
       const failurePattern = antiSlopPattern(message.ruleId);
       const snippet = findingSnippet(sourceLines, message.line ?? 1);
       findings.push({

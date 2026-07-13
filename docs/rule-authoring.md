@@ -52,9 +52,16 @@ Each rule should expose:
 
 ## Presets
 
-When adding a rule, update both presets in `src/index.mjs`:
+When adding a rule, add one entry to `src/internal/rules/catalog.mjs` with its
+rule name, rule module, and metadata:
 
-- `recommended` for balanced product defaults
-- `strict` for all-error enforcement
+- category
+- `recommendedSeverity` for balanced product defaults
+- `strictSeverity` for all-error enforcement
+- `requiredFix` guidance
+
+The catalog derives plugin registration, rule documentation URLs, both presets,
+the public metadata facade, and SARIF rule records. Do not add a second manual
+registration or metadata table elsewhere.
 
 Then update `README.md`, `CHANGELOG.md`, and tests that assert preset exports.

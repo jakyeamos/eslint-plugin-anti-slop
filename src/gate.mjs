@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeAntiSlopFindings } from "./finding-core.mjs";
 import { qualityGateDecision } from "./gate-policy.mjs";
+import { sarifRuleDescriptors } from "./internal/rules/catalog.mjs";
 import { AntiSlopInputError, VALID_MODES } from "./input.mjs";
-import { ruleMetadata } from "./rule-metadata.mjs";
 
 const GATE_SCHEMA_VERSION = "1.1";
 const DEFAULT_CONFIG = {
@@ -117,15 +117,7 @@ export function formatGateReport(report, format = "text") {
 }
 
 export function sarifFromGateReport(report) {
-  const rules = Object.entries(ruleMetadata).map(([ruleId, metadata]) => ({
-    id: ruleId,
-    name: ruleId.replace("anti-slop/", ""),
-    shortDescription: { text: metadata.requiredFix },
-    properties: {
-      category: metadata.category,
-      recommendedSeverity: metadata.recommendedSeverity,
-    },
-  }));
+  const rules = sarifRuleDescriptors();
   const results = report.newFindings.map((finding) => ({
     ruleId: finding.ruleId,
     level: finding.severity === "error" ? "error" : "warning",

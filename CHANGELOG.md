@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Consolidated rule registration, presets, metadata, documentation URLs, and
+  SARIF rule descriptors behind one internal catalog without changing public
+  package imports or report formats. `pnpm verify` now also rejects circular
+  local imports.
 - `no-unjustified-use-client` now reports for manual review instead of removing
   directives automatically, and recognizes referenced conventional imported
   hooks plus unshadowed browser APIs accessed through `globalThis`; type-only

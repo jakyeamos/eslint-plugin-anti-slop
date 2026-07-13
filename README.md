@@ -468,9 +468,10 @@ coverage:report` writes source LCOV to `coverage/lcov.info`, and `pnpm
 coverage:check` enforces the repository threshold from `.pre-cr.json`.
 
 `pnpm verify` is the deterministic pre-PR gate. It runs formatting, syntax,
-dead-code, secret, test, coverage, pack, and local-consumer checks without a
-fresh registry resolution. `pnpm verify:consumer-online` separately packs the
-artifact and installs it in a fresh temporary consumer. That online ecosystem
+dead-code and circular-import checks, secret, test, coverage, pack, and
+local-consumer checks without a fresh registry resolution. `pnpm
+verify:consumer-online` separately packs the artifact and installs it in a
+fresh temporary consumer. That online ecosystem
 check verifies the CLI, flat config, formatter, all public runtime exports, and
 TypeScript declarations. `pnpm verify:ci` requires both groups plus a registry
 dependency audit; `pnpm verify:release` also requires the release tag to match
