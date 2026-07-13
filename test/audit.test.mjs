@@ -226,6 +226,7 @@ describe("appendAuditEvents", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-audit-"));
     const events = auditEventsFromEslintResults({
       repoRoot,
+      branch: "main",
       results: [
         {
           filePath: join(repoRoot, "app", "page.tsx"),
@@ -317,8 +318,10 @@ describe("appendAuditEvents", () => {
 describe("formatAuditResults", () => {
   it("writes audit artifacts for blocking Anti-Slop results", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-audit-format-"));
+    const priorGateMode = process.env.AIOS_QUALITY_GATE_MODE;
 
     try {
+      process.env.AIOS_QUALITY_GATE_MODE = "block";
       const output = formatAuditResults(
         [
           {
@@ -345,6 +348,11 @@ describe("formatAuditResults", () => {
       assert.equal(event.rule_id, "anti-slop/no-placeholder-copy");
       assert.deepEqual(Object.keys(event.evidence[0]).sort(), ["file", "line_end", "line_start", "reason"]);
     } finally {
+      if (priorGateMode === undefined) {
+        delete process.env.AIOS_QUALITY_GATE_MODE;
+      } else {
+        process.env.AIOS_QUALITY_GATE_MODE = priorGateMode;
+      }
       rmSync(repoRoot, { recursive: true, force: true });
     }
   });
