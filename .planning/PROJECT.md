@@ -15,12 +15,11 @@ simple, trustworthy integration path.
 
 ## Current Position
 
-The `v0.3.0` release is the baseline. It supports Node 20+ and ESLint 9 flat
-config, has a local and packed consumer smoke path, and publishes through an
-OIDC/provenance workflow. Modernization M0 is complete: the published contract
-is executable and the project’s operating documents match the released
-baseline. M1 can now harden verification and release behavior before changing
-gate or rule behavior.
+The `v0.3.0` release is the baseline. The current development contract supports
+Node `^20.19.0 || ^22.13.0 || >=24` and ESLint 9 flat config, separates a
+deterministic local gate from explicit online package/supply-chain checks, and
+publishes through a hardened OIDC/provenance workflow. M0 and M1 are complete;
+M2 now hardens CLI and gate correctness before rule behavior changes.
 
 ## Constraints
 
@@ -48,7 +47,8 @@ gate or rule behavior.
 | --- | --- | --- |
 | Modernize in place from `v0.3.0` | The package already has meaningful consumer and package coverage; a parallel rewrite adds semver risk without product value. | Active |
 | Freeze contracts before behavior changes | Rule, CLI, audit, and package changes need consumer-level proof. | M0 complete |
+| Separate deterministic and online verification | Fresh consumer installs and registry audits are valuable but must not masquerade as offline checks. | M1 complete |
 | Keep a one-owner model for future internals | Registry, metadata, docs URLs, and report identity must not drift independently. | Planned for M4 |
 
 ---
-*Last updated: 2026-07-10*
+*Last updated: 2026-07-13*

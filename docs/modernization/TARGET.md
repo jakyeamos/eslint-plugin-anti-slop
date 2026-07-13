@@ -106,12 +106,13 @@ release note deliberately changes it.
 
 ## Verification and Release Target
 
-The repository should expose two honest command groups:
+The repository should expose three honest command groups:
 
 | Command group | Purpose | Expected properties |
 | --- | --- | --- |
-| deterministic verification | format/hygiene, syntax, dead-code reachability, unit/contract tests, coverage policy, package build, consumer and packed smoke, declaration compilation | required locally and in CI |
-| supply-chain verification | secret policy and dependency audit | clear online/offline behavior; required or explicitly retried in release CI |
+| deterministic verification | format/hygiene, syntax, dead-code reachability, secret policy, unit/contract tests, coverage policy, package build, locked local-consumer smoke | required locally and in CI without fresh registry resolution |
+| online package compatibility | packed-tarball smoke, declaration compilation, current ESLint compatibility | explicit fresh-consumer registry resolution in CI/release |
+| supply-chain verification | dependency audit | explicit registry requirement in CI/release |
 
 The packed consumer must compile TypeScript with `--noEmit` and import every
 declared package subpath. The ESLint 9.0 floor job must run at least one genuine

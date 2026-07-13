@@ -2,10 +2,10 @@
 
 ## Current Position
 
-**Phase:** M0 — public-contract freeze and truth reconciliation complete
+**Phase:** M1 — verification and release gate complete
 **Branch:** `codex/gpt56-modernization-audit`
 **Baseline:** `v0.3.0`
-**Application behavior changed:** no
+**Application behavior changed:** package-development and release policy only
 
 ## Completed
 
@@ -19,21 +19,34 @@
 - Added a packed TypeScript consumer that compiles every public declaration
   subpath with `--noEmit`.
 - Reconciled contributor and project-state documents with the v0.3.0 baseline.
+- Separated deterministic `pnpm verify` from the online packed-consumer and
+  supply-chain checks required by `pnpm verify:ci` and `pnpm verify:release`.
+- Added an enforced LCOV threshold, a strict registry-audit mode, release-tag
+  validation, and executable workflow contract tests.
+- Hardened CI/release workflows with exact Node floors, immutable action pins,
+  minimum permissions, serialized publishing, and credential-free checkout.
+- Exercised every public runtime export and TypeScript/TSX lint path through a
+  packed consumer at current ESLint 9 and the 9.0.0 runtime floor.
+- Corrected the Node compatibility promise to
+  `^20.19.0 || ^22.13.0 || >=24` and pinned the parser version that establishes
+  that floor.
 - Identified no data, authentication, billing, or infrastructure migration.
 - Preserved user-owned untracked `.agents/` and `skills/` directories.
 
-## Baseline Results
+## M1 Results
 
-- `pnpm verify`: passed (151 tests, consumer smoke, packed-tarball smoke).
-- `pnpm typecheck`, `pnpm format`, `pnpm audit:dead-code`,
-  `pnpm secret:scan`, and `pnpm dependency:security`: passed.
-- `pnpm build`: passed (`pnpm pack --dry-run`).
+- M0 contract freeze passed its full package verification gate.
+- `pnpm verify`: passed (164 tests, 93.17% line coverage, package dry-run, and
+  locked local-consumer smoke).
+- `pnpm verify:ci`: passed (including the online packed-consumer smoke and a
+  required registry audit with no high-or-higher advisories).
+- `pnpm smoke:published:eslint9-floor`: passed against ESLint 9.0.0.
+- Final adversarial M1 review found no P0, P1, or P2 issue.
 
 ## Next Milestone
 
-After M0 verification and its state commit, begin M1: define an authoritative
-deterministic verification gate and an explicit release policy for
-network-dependent supply-chain checks.
+Begin M2: make invalid configuration, malformed baselines, and failed analysis
+unambiguously non-successful while preserving valid v0.3 contracts.
 
 ## Known Risks
 
@@ -41,6 +54,5 @@ network-dependent supply-chain checks.
   a passing gate; M2 addresses this first among runtime changes.
 - Rule catalog and finding identity are manually represented in more than one
   module; M4 consolidates them only after parity fixtures exist.
-- Current planning/truth documentation has stale `0.2.0` and pre-git claims.
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.

@@ -53,8 +53,8 @@ explicit, runnable, and appropriately strict.
 | Depends on | M0 |
 | Preserve | pnpm workflow, Node ESM delivery, OIDC/provenance publish, local `file:..` smoke |
 | Intentionally change | Command names and docs may become more precise; CI gains missing deterministic checks |
-| Work | Rename syntax-only checking honestly; add packed TypeScript declaration compilation; compose a deterministic CI/release verification command; separately define online/offline dependency-audit policy; exercise CLI/config/formatter smoke at the ESLint 9.0 floor; assert release tag/package version; decide action-pin and permissions hardening. |
-| Verification | Full deterministic gate on Node 20/22/24, ESLint 9.0 real-consumer smoke, packaged type fixture, release-workflow static validation |
+| Work | Rename syntax-only checking honestly; add packed TypeScript declaration compilation; separate deterministic local verification from explicit online consumer and supply-chain checks; exercise CLI/config/formatter smoke at the ESLint 9.0 floor; assert release tag/package version; decide action-pin and permissions hardening. |
+| Verification | Deterministic gate on Node 20.19/22.13/24, required online packed-consumer and dependency-audit checks, ESLint 9.0 real-consumer smoke, packaged type fixture, release-workflow static validation |
 | Rollback | Retain existing script aliases during transition if consumers use them; revert CI-only changes independently |
 | Completion | CI, release workflow, README, CONTRIBUTING, and PR template name the same authoritative checks. |
 | Delete | Misleading `typecheck`/coverage claims and duplicated verification guidance. |

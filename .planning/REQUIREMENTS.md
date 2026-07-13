@@ -25,6 +25,10 @@ ESLint with a simple, trustworthy integration path.
   surface with TypeScript and no source-private imports.
 - [x] **MOD-03**: Contributor, planning, and truth documents describe the
   released baseline and the commands that actually run.
+- [x] **MOD-04**: Deterministic verification is distinct from fresh online
+  package compatibility and registry dependency-audit checks.
+- [x] **MOD-05**: CI and release enforce exact supported Node floors, immutable
+  workflow actions, a packed ESLint 9.0 consumer smoke, and tag/version parity.
 
 ## Deferred
 
@@ -38,9 +42,10 @@ ESLint with a simple, trustworthy integration path.
 | --- | --- | --- |
 | ESL-01 through ESL-06 | v0.3.0 baseline | Complete |
 | MOD-01 through MOD-03 | M0: contract freeze and truth reconciliation | Complete |
+| MOD-04 through MOD-05 | M1: verification and release gate | Complete |
 | Gate correctness | M2 | Planned |
 | Rule-confidence calibration | M3 | Planned |
 | Internal ownership consolidation | M4 | Planned |
 
 ---
-*Last updated: 2026-07-10*
+*Last updated: 2026-07-13*

@@ -12,36 +12,38 @@ ESLint with a simple, trustworthy integration path.
 
 ## Current Position
 
-- Phase: M0 — public-contract freeze and truth reconciliation
+- Phase: M1 — verification and release gate
 - Status: Complete
 - Baseline: `v0.3.0`
 - Branch: `codex/gpt56-modernization-audit`
 
-M0 added executable proof for existing behavior only. It did not change rule,
+M1 changed package-development and release policy only. It did not change rule,
 CLI, audit, or package semantics.
 
 ## Current Evidence
 
-- The v0.3.0 baseline passed `pnpm verify`, package build, syntax, formatting,
-  reachability, secret, and dependency-security checks.
-- The modernized contract suite passed with 157 tests and covers package
-  exports, rules/presets/docs, audit artifacts, CLI policy/format behavior,
-  baselines, and packed type consumption.
-- The public verification commands and release workflow remain the source of
-  truth for executable behavior; this file records only the current work state.
+- `pnpm verify` passed with 164 tests, 93.17% line coverage, a package dry run,
+  and a locked local-consumer smoke.
+- `pnpm verify:ci` passed with the online packed-consumer smoke and a required
+  registry audit reporting no high-or-higher advisories.
+- The packed runtime surface passed at current ESLint 9 and at the 9.0.0 floor;
+  workflow contract tests cover pins, permissions, concurrency, and release
+  tag/version validation.
 
 ## Current Decisions
 
 - Modernize internally in place; do not create a parallel rewrite.
 - Preserve published entrypoints and output behavior until a milestone
   explicitly documents a versioned change.
+- Keep `pnpm verify` deterministic; reserve fresh registry resolution for the
+  explicitly named CI/release checks.
 - Keep the legacy QR remediation work deferred until its overlap with M2–M4 is
   resolved.
 
 ## Next Step
 
-Begin M1: define the authoritative deterministic verification gate and the
-release policy for network-dependent supply-chain checks.
+Begin M2: make invalid configuration, malformed baselines, and failed analysis
+unable to appear as passing gate results.
 
 ## Blockers and Risks
 
@@ -53,5 +55,5 @@ release policy for network-dependent supply-chain checks.
 
 ## Session Continuity
 
-Last activity: 2026-07-10 — M0 contract tests, packed type fixture, and state
-reconciliation committed after full verification.
+Last activity: 2026-07-13 — M1 verification/release hardening committed after
+deterministic, online CI, and ESLint-floor validation.

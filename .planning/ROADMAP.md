@@ -12,7 +12,7 @@ criteria.
 | Milestone | Purpose | Status |
 | --- | --- | --- |
 | M0 | Freeze public contracts and reconcile truth | Complete |
-| M1 | Establish authoritative verification and release gates | Planned |
+| M1 | Establish authoritative verification and release gates | Complete |
 | M2 | Make CLI and gate analysis fail closed | Planned |
 | M3 | Calibrate high-severity rule evidence | Planned |
 | M4 | Consolidate catalog and finding ownership | Planned |
@@ -26,4 +26,4 @@ execution; they must not create concurrent changes to the same rules or
 helpers.
 
 ---
-*Last updated: 2026-07-10*
+*Last updated: 2026-07-13*
