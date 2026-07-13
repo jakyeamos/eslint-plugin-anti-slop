@@ -3,9 +3,10 @@
 ## Current Position
 
 **Phase:** M5 — release hardening and cutover cleanup complete
-**Branch:** `codex/ci-node20-pnpm-compat` (release-handoff corrective branch)
+**Branch:** `main`
 **Baseline:** `v0.3.0`
-**Candidate:** `0.4.0` (M0–M5 merged to `main`; not tagged or published)
+**Candidate:** `0.4.0` (annotated `v0.4.0` tag at `main` commit `9c3028a`; not
+published)
 **Application behavior changed:** configured gate paths and release defenses
 are stricter; public package entrypoints and report formats remain preserved
 
@@ -123,19 +124,24 @@ are stricter; public package entrypoints and report formats remain preserved
   construct synthetic secrets at runtime, so tag-context validation cannot
   change their expected semantics or trigger static-secret advisories.
 - Merged-main CI exposed pnpm 11.7.0 as incompatible with the declared Node
-  20.19 floor. The focused handoff branch pins pnpm 10.34.5 (Node `>=18.12`),
-  adds a workflow regression assertion, removes a Node-22-only coverage flag
-  while retaining source-only enforcement, and passes `CI=true pnpm verify`
-  (351 tests, 87.95% line coverage) with a rebuilt pnpm-10 smoke consumer.
+  20.19 floor. Main pins pnpm 10.34.5 (Node `>=18.12`), adds a workflow
+  regression assertion, removes a Node-22-only coverage flag while retaining
+  source-only enforcement, and passes `CI=true pnpm verify` (351 tests,
+  87.95% line coverage) with a rebuilt pnpm-10 smoke consumer.
+- The final `GITHUB_REF_NAME=v0.4.0 pnpm verify:release` gate passed with 351
+  tests and 87.98% source line coverage. GitHub CI passed Node 20.19, Node
+  22.13, Node 24, and the ESLint 9.0.0 floor; the annotated `v0.4.0` tag was
+  pushed from `main` commit `9c3028a`.
 
 ## Release Handoff
 
-Merge the reviewed pnpm compatibility fix to `main` and confirm the Node 20.19
-and ESLint 9.0.0-floor CI jobs before creating the `v0.4.0` tag. The workflow
-verifies that the tag commit is reachable from `main`; no tag or package
-publication occurred in this modernization work.
+The `v0.4.0` tag resolves to `main` commit `9c3028a`, after the final local
+release gate and GitHub CI passed. GitHub release creation and npm publication
+were intentionally not performed; each requires separate explicit authority.
 
 ## Known Risks
 
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.
+- The tag is intentionally unpublished; a GitHub Release or npm publication is
+  a separate external action.

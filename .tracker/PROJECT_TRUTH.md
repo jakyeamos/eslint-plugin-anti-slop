@@ -2,14 +2,14 @@
 
 ## Current State
 
-- Package: `eslint-plugin-anti-slop` `0.4.0` candidate; M0–M5 are merged to
-  `main`, while `v0.3.0` remains the released baseline and no `v0.4.0` tag or
-  publication exists yet.
+- Package: `eslint-plugin-anti-slop` `0.4.0`; M0–M5 and the final Node 20
+  compatibility fixes are merged to `main`. `v0.4.0` is an annotated tag at
+  commit `9c3028a`; `v0.3.0` is the previous published baseline, and no GitHub
+  Release or npm publication has been created for `v0.4.0`.
 - Package manager: pnpm `10.34.5`; declared runtime is Node
   `^20.19.0 || ^22.13.0 || >=24` with ESLint 9 flat config.
-- The release handoff is on `codex/ci-node20-pnpm-compat`: it corrects the
-  Node-20/pnpm-11 setup mismatch and a Node-22-only coverage flag before the
-  release tag is created.
+- The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
+  Node-22-only coverage flag before `v0.4.0` was tagged.
 - The package publishes a plugin, quality-gate CLI, audit integration, and
   documented ESM subpaths. M0 established executable proof before public
   behavior changes begin; M1 hardened verification/release policy; M2 hardened
@@ -91,15 +91,18 @@
 - Made blocking audit-artifact fixtures explicit about their protected policy
   and synthetic secrets runtime-built, preventing tag-context semantic drift or
   static-secret advisories.
-- Merged-main CI exposed pnpm 11.7.0 as incompatible with Node 20.19.0; the
-  focused corrective branch pins pnpm 10.34.5 (Node `>=18.12`) and locks that
-  compatibility with a workflow test. It also preserves source-only coverage
-  enforcement without the Node-22-only coverage include flag.
+- Merged-main CI exposed pnpm 11.7.0 as incompatible with Node 20.19.0; main
+  now pins pnpm 10.34.5 (Node `>=18.12`) and locks that compatibility with a
+  workflow test. It also preserves source-only coverage enforcement without
+  the Node-22-only coverage include flag.
+- The final release-tag gate passed with 351 tests and 87.98% source line
+  coverage, and GitHub CI passed Node 20.19, Node 22.13, Node 24, and the
+  ESLint 9.0.0 floor.
 
 ## Risks and Deferred Work
 
-- Remote confirmation of the pnpm 10 CI fix is pending before the authorized
-  `v0.4.0` tag; GitHub release and package publication remain separate actions.
+- No technical release blocker remains. GitHub release and package publication
+  are separate actions requiring explicit authority.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
 - User-owned untracked `.agents/` and `skills/` directories remain untouched.

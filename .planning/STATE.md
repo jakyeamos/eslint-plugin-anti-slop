@@ -13,10 +13,10 @@ ESLint with a simple, trustworthy integration path.
 ## Current Position
 
 - Phase: M5 — release hardening and cutover cleanup
-- Status: release handoff — CI compatibility fix pending merge
-- Released baseline: `v0.3.0`; candidate: `0.4.0` is merged to `main` but not
-  tagged or published
-- Branch: `codex/ci-node20-pnpm-compat`
+- Status: complete — tagged, intentionally unpublished
+- Previous published baseline: `v0.3.0`; `v0.4.0` is an annotated tag at
+  `main` commit `9c3028a`, with no GitHub Release or npm publication created
+- Branch: `main`
 
 M5 preserves the public package contract while containing configured
 baseline/output paths to the repository, scanning both tracked index and
@@ -35,11 +35,15 @@ and adding a private vulnerability-reporting policy.
 - `pre-cr run --workspace .` passes after the RuleTester taxonomy split without
   an oversized-source or synthetic-secret advisory.
 - The first merged-main CI run exposed pnpm `11.7.0` as incompatible with the
-  promised Node `20.19.0` floor; the corrective branch pins pnpm `10.34.5`
-  (Node `>=18.12`) and adds a workflow regression assertion.
-- The corrective branch also removes Node-22-only `--test-coverage-include`
-  usage; LCOV keeps its portable reporter path while the coverage gate counts
-  only `src/` records.
+  promised Node `20.19.0` floor; `main` now pins pnpm `10.34.5` (Node
+  `>=18.12`) and has a workflow regression assertion.
+- `main` also removes Node-22-only `--test-coverage-include` usage; LCOV keeps
+  its portable reporter path while the coverage gate counts only `src/`
+  records.
+- The final tag gate passed with 351 tests and 87.98% source line coverage;
+  GitHub CI passed Node 20.19, Node 22.13, Node 24, and the ESLint 9.0.0 floor.
+- The annotated `v0.4.0` tag is pushed and resolves to a commit reachable from
+  `origin/main`.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
 
@@ -68,22 +72,23 @@ and adding a private vulnerability-reporting policy.
 - Require a release tag to resolve to a commit reachable from `origin/main`
   before dependency installation or publication.
 - Keep private GitHub vulnerability reporting enabled and direct reports to
-  `SECURITY.md`; do not publish or tag from this branch.
+  `SECURITY.md`; do not create a GitHub Release or publish to npm without
+  separate explicit authority.
 
 ## Next Step
 
-Merge the reviewed pnpm compatibility fix to `main`, confirm the Node 20.19 and
-ESLint 9.0.0-floor CI jobs, then create the `v0.4.0` tag. A GitHub release and
-package publication remain separate external actions.
+No technical release work remains. A GitHub release and package publication are
+separate external actions that require explicit authority.
 
 ## Blockers and Risks
 
-- Pending remote CI confirmation of the pnpm 10 compatibility fix; publication
-  remains an intentional external action.
+- No technical blocker remains; GitHub release and npm publication are
+  intentionally deferred external actions.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — `7cff4a4` removes the Node-22-only coverage include
-flag and retains source-only enforcement, closing the remaining Node 20 CI gap.
+Last activity: 2026-07-13 — `v0.4.0` was annotated and pushed at `9c3028a`
+after the Node 20/22/24 and ESLint 9.0.0-floor CI matrix passed; no GitHub
+Release or npm publication was created.
