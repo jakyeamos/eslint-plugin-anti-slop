@@ -486,8 +486,8 @@ pnpm smoke:published:eslint9-floor
 ```
 
 Rule tests use ESLint `RuleTester` through Node's built-in test runner. `pnpm
-coverage:report` writes source LCOV to `coverage/lcov.info`, and `pnpm
-coverage:check` enforces the repository threshold from `.pre-cr.json`.
+coverage:report` writes LCOV to `coverage/lcov.info`, and `pnpm coverage:check`
+enforces the `.pre-cr.json` threshold against `src/` records.
 
 `pnpm verify` is the deterministic pre-PR gate. It runs formatting, syntax,
 dead-code and circular-import checks, secret, test, coverage, pack, and

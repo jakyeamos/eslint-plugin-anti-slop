@@ -58,6 +58,8 @@
   `^20.19.0 || ^22.13.0 || >=24`.
 - Pinned the repository package manager to pnpm `10.34.5` so the Node 20.19
   CI matrix and ESLint 9.0.0 floor run with a compatible client.
+- Made LCOV reporting compatible with Node 20.19 while retaining source-only
+  coverage enforcement.
 - Added an enforced LCOV coverage threshold and a deterministic `pnpm verify`
   gate; CI/release additionally require the online packed-consumer and registry
   audit checks through `pnpm verify:ci` and `pnpm verify:release`.

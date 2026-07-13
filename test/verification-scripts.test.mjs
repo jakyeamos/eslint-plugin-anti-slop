@@ -97,6 +97,32 @@ describe("verification scripts", () => {
     }
   });
 
+  it("enforces coverage from source records without Node-22-only test flags", () => {
+    const root = writeCoverageFixture({
+      threshold: 100,
+      lcov: [
+        "TN:",
+        "SF:scripts/example.mjs",
+        "DA:1,0",
+        "end_of_record",
+        "TN:",
+        "SF:src/example.mjs",
+        "DA:1,1",
+        "end_of_record",
+        "",
+      ].join("\n"),
+    });
+
+    try {
+      const result = runNode(coverageScript, { cwd: root });
+      assert.equal(result.status, 0, result.stderr);
+      assert.match(result.stdout, /Line coverage 100\.00% meets the 100% threshold/);
+      assert.doesNotMatch(packageJson.scripts["coverage:report"], /--test-coverage-include/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("rejects circular local imports in the reachable module graph", () => {
     const root = writeCircularImportFixture();
 

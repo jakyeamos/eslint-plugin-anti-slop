@@ -14,8 +14,16 @@ if (!coveragePath) {
 
 let coveredLines = 0;
 let totalLines = 0;
+let sourceFile = false;
+const sourceRoot = `${root.replaceAll("\\", "/")}/src/`;
 for (const line of readFileSync(coveragePath, "utf8").split(/\r?\n/)) {
-  if (!line.startsWith("DA:")) {
+  if (line.startsWith("SF:")) {
+    const reportedPath = line.slice(3).replaceAll("\\", "/");
+    sourceFile = reportedPath.startsWith("src/") || reportedPath.startsWith(sourceRoot);
+    continue;
+  }
+
+  if (!sourceFile || !line.startsWith("DA:")) {
     continue;
   }
 
@@ -26,7 +34,7 @@ for (const line of readFileSync(coveragePath, "utf8").split(/\r?\n/)) {
 }
 
 if (totalLines === 0) {
-  console.error(`No line coverage records were found in ${coveragePath}.`);
+  console.error(`No source line coverage records were found in ${coveragePath}.`);
   process.exit(1);
 }
 

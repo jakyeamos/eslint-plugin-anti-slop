@@ -32,7 +32,7 @@
     "check:syntax": "node scripts/check-js-syntax.mjs",
     "check:dead-code": "node scripts/dead-code-check.mjs",
     "check:secrets": "node scripts/secret-scan.mjs",
-    "coverage:report": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include=src/**/*.mjs --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.test.mjs",
+    "coverage:report": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.test.mjs",
     "coverage:check": "node scripts/check-coverage.mjs",
     "pack:check": "pnpm pack --dry-run",
     "format": "pnpm check:format",
