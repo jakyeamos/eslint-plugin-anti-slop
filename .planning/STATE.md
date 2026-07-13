@@ -25,7 +25,7 @@ and adding a private vulnerability-reporting policy.
 
 ## Current Evidence
 
-- `CI=true pnpm verify` passed under pnpm `10.34.5` with 350 tests, 87.95%
+- `CI=true pnpm verify` passed under pnpm `10.34.5` with 351 tests, 87.95%
   line coverage, a package dry run, and a rebuilt linked local-consumer smoke.
 - `pnpm verify:ci` passed with the online packed-consumer smoke and required
   registry dependency audit.
@@ -37,6 +37,9 @@ and adding a private vulnerability-reporting policy.
 - The first merged-main CI run exposed pnpm `11.7.0` as incompatible with the
   promised Node `20.19.0` floor; the corrective branch pins pnpm `10.34.5`
   (Node `>=18.12`) and adds a workflow regression assertion.
+- The corrective branch also removes Node-22-only `--test-coverage-include`
+  usage; LCOV keeps its portable reporter path while the coverage gate counts
+  only `src/` records.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
 
@@ -82,5 +85,5 @@ package publication remain separate external actions.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — main CI revealed pnpm 11 cannot run on the declared
-Node 20.19 floor. `4f3cb1e` pins pnpm 10.34.5 and guards that compatibility.
+Last activity: 2026-07-13 — `7cff4a4` removes the Node-22-only coverage include
+flag and retains source-only enforcement, closing the remaining Node 20 CI gap.

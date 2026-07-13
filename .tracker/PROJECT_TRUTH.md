@@ -7,8 +7,9 @@
   publication exists yet.
 - Package manager: pnpm `10.34.5`; declared runtime is Node
   `^20.19.0 || ^22.13.0 || >=24` with ESLint 9 flat config.
-- The release handoff is on `codex/ci-node20-pnpm-compat`: it corrects a
-  Node-20/pnpm-11 CI setup mismatch before the release tag is created.
+- The release handoff is on `codex/ci-node20-pnpm-compat`: it corrects the
+  Node-20/pnpm-11 setup mismatch and a Node-22-only coverage flag before the
+  release tag is created.
 - The package publishes a plugin, quality-gate CLI, audit integration, and
   documented ESM subpaths. M0 established executable proof before public
   behavior changes begin; M1 hardened verification/release policy; M2 hardened
@@ -92,7 +93,8 @@
   static-secret advisories.
 - Merged-main CI exposed pnpm 11.7.0 as incompatible with Node 20.19.0; the
   focused corrective branch pins pnpm 10.34.5 (Node `>=18.12`) and locks that
-  compatibility with a workflow test.
+  compatibility with a workflow test. It also preserves source-only coverage
+  enforcement without the Node-22-only coverage include flag.
 
 ## Risks and Deferred Work
 

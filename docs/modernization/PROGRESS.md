@@ -124,8 +124,9 @@ are stricter; public package entrypoints and report formats remain preserved
   change their expected semantics or trigger static-secret advisories.
 - Merged-main CI exposed pnpm 11.7.0 as incompatible with the declared Node
   20.19 floor. The focused handoff branch pins pnpm 10.34.5 (Node `>=18.12`),
-  adds a workflow regression assertion, and passes `CI=true pnpm verify`
-  (350 tests, 87.95% line coverage) with a rebuilt pnpm-10 smoke consumer.
+  adds a workflow regression assertion, removes a Node-22-only coverage flag
+  while retaining source-only enforcement, and passes `CI=true pnpm verify`
+  (351 tests, 87.95% line coverage) with a rebuilt pnpm-10 smoke consumer.
 
 ## Release Handoff
 
