@@ -56,6 +56,8 @@
   isolation remains covered by the separate online smoke.
 - Raised the declared Node support floor to the actual parser dependency range:
   `^20.19.0 || ^22.13.0 || >=24`.
+- Pinned the repository package manager to pnpm `10.34.5` so the Node 20.19
+  CI matrix and ESLint 9.0.0 floor run with a compatible client.
 - Added an enforced LCOV coverage threshold and a deterministic `pnpm verify`
   gate; CI/release additionally require the online packed-consumer and registry
   audit checks through `pnpm verify:ci` and `pnpm verify:release`.

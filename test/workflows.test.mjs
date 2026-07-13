@@ -10,6 +10,7 @@ const actionPins = {
 };
 const ciWorkflow = readFileSync(fileURLToPath(new URL("../.github/workflows/ci.yml", import.meta.url)), "utf8");
 const publishWorkflow = readFileSync(fileURLToPath(new URL("../.github/workflows/publish.yml", import.meta.url)), "utf8");
+const packageJson = JSON.parse(readFileSync(fileURLToPath(new URL("../package.json", import.meta.url)), "utf8"));
 
 function assertActionPins(workflow) {
   for (const [action, pin] of Object.entries(actionPins)) {
@@ -28,6 +29,10 @@ describe("GitHub workflows", () => {
     assert.match(ciWorkflow, /run: pnpm verify:ci/);
     assert.match(ciWorkflow, /run: pnpm smoke:published:eslint9-floor/);
     assert.match(ciWorkflow, /persist-credentials: false/);
+  });
+
+  it("pins a package manager compatible with the Node 20.19 CI floor", () => {
+    assert.equal(packageJson.packageManager, "pnpm@10.34.5");
   });
 
   it("serializes a minimally privileged release and verifies its tag, version, and main ancestry before publishing", () => {
