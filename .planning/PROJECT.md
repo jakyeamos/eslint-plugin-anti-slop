@@ -15,12 +15,14 @@ simple, trustworthy integration path.
 
 ## Current Position
 
-The `v0.3.0` release is the baseline. The current development contract supports
-Node `^20.19.0 || ^22.13.0 || >=24` and ESLint 9 flat config, separates a
-deterministic local gate from explicit online package/supply-chain checks, and
-publishes through a hardened OIDC/provenance workflow. M0 through M4 are
-complete: M4 centralizes catalog ownership while preserving every public
-entrypoint, rule ID, and report format.
+The `v0.3.0` release remains the baseline, and the branch now carries a
+verified, not-yet-published `0.4.0` candidate. The development contract
+supports Node `^20.19.0 || ^22.13.0 || >=24` and ESLint 9 flat config,
+separates a deterministic local gate from explicit online package/supply-chain
+checks, and publishes through a hardened OIDC/provenance workflow. M0 through
+M5 are complete: M5 hardens configured path containment, secret scanning,
+release ancestry, and security reporting while preserving public entrypoints,
+rule IDs, and report formats.
 
 ## Constraints
 
@@ -52,6 +54,7 @@ entrypoint, rule ID, and report format.
 | Version audit identity when its fingerprint changes | Preserve readable legacy history without coalescing it with the current gate identity. | M2 complete |
 | Calibrate static rule evidence before catalog work | Possible render/class paths and consumer-shaped fixtures prevent false confidence from flattened or guessed analysis. | M3 complete |
 | Keep a one-owner model for future internals | Registry, metadata, docs URLs, and report identity must not drift independently. | M4 complete |
+| Harden release boundaries before publication | Configured paths, repository secrets, and release-tag ancestry must be verified from authoritative project state. | M5 complete |
 
 ---
 *Last updated: 2026-07-13*

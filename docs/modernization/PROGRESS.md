@@ -2,11 +2,12 @@
 
 ## Current Position
 
-**Phase:** M4 — catalog and finding ownership consolidation complete
+**Phase:** M5 — release hardening and cutover cleanup complete
 **Branch:** `codex/gpt56-modernization-audit`
 **Baseline:** `v0.3.0`
-**Application behavior changed:** internal ownership and deterministic
-dependency validation only; public package behavior is preserved
+**Candidate:** `0.4.0` (not tagged or published)
+**Application behavior changed:** configured gate paths and release defenses
+are stricter; public package entrypoints and report formats remain preserved
 
 ## Completed
 
@@ -98,14 +99,34 @@ dependency validation only; public package behavior is preserved
   smoke also passed.
 - Final adversarial review found no confirmed P0, P1, or P2 finding.
 
-## Next Milestone
+## M5 Results
 
-Begin M5: complete cutover, release-readiness review, and cleanup against the
-`v0.3.0` baseline.
+- Corrected static computed-property handling in `no-demo-data-primary-path`
+  while retaining static object-property false-positive coverage.
+- Contained configured baseline and report paths to the real repository root,
+  including existing directory and final-file symlink escapes.
+- Reworked the secret scan to compare tracked index blobs with tracked
+  working-tree bytes, ignore untracked files, avoid leaking literals, and fail
+  closed on oversized text inputs.
+- Added release-tag ancestry validation before installation or publication,
+  repository secret-file ignores, and `SECURITY.md`; private GitHub
+  vulnerability reporting is enabled.
+- M5 passed `pnpm verify` (349 tests, 87.87% line coverage), `pnpm verify:ci`,
+  `pnpm smoke:published:eslint9-floor`, and
+  `GITHUB_REF_NAME=v0.4.0 pnpm release:assert-version`.
+- Final architecture, package, and security adversarial reviews found no
+  confirmed P0, P1, or P2 finding.
+
+## Release Handoff
+
+Merge the reviewed branch to `main` before creating a `v0.4.0` GitHub release.
+The workflow verifies that the tag commit is reachable from `main`; no tag or
+package publication occurred in this modernization work.
 
 ## Known Risks
 
-- M5 must retain M4's catalog and public-contract proof while removing any
-  release or migration debris found by the final branch review.
+- Pre-CR emits a non-blocking size advisory for the pre-existing consolidated
+  `test/rules.test.mjs` fixture file; split it only as a focused test-taxonomy
+  change.
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.

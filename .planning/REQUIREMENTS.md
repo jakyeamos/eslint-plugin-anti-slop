@@ -35,6 +35,9 @@ ESLint with a simple, trustworthy integration path.
 - [x] **MOD-07**: Rule bindings, metadata, documentation URLs, presets, and
   SARIF descriptors have one internal owner while published entrypoints and
   report formats remain stable.
+- [x] **MOD-08**: Configured gate paths stay within the repository even across
+  symlinks, secret scanning compares tracked index and working-tree contents,
+  and releases require main ancestry plus a private reporting path.
 
 ## Deferred
 
@@ -52,6 +55,7 @@ ESLint with a simple, trustworthy integration path.
 | Gate correctness | M2 | Complete |
 | Rule-confidence calibration | M3 | Complete |
 | Internal ownership consolidation | M4 | Complete |
+| Release and final security hardening | M5 | Complete |
 
 ---
 *Last updated: 2026-07-13*

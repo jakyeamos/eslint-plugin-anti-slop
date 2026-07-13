@@ -12,24 +12,26 @@ ESLint with a simple, trustworthy integration path.
 
 ## Current Position
 
-- Phase: M4 — catalog and finding ownership consolidation
+- Phase: M5 — release hardening and cutover cleanup
 - Status: Complete
-- Baseline: `v0.3.0`
+- Released baseline: `v0.3.0`; candidate: `0.4.0` (not tagged or published)
 - Branch: `codex/gpt56-modernization-audit`
 
-M4 makes `src/internal/rules/catalog.mjs` the single production owner of rule
-bindings, metadata, documentation URLs, presets, and SARIF descriptors.
-Finding normalization and fingerprinting remain in their existing canonical
-owner; every public package entrypoint and report format stays stable.
+M5 preserves the public package contract while containing configured
+baseline/output paths to the repository, scanning both tracked index and
+working-tree content for secrets, verifying release-tag ancestry from `main`,
+and adding a private vulnerability-reporting policy.
 
 ## Current Evidence
 
-- `pnpm verify` passed with 339 tests, 87.82% line coverage, a package dry run,
+- `pnpm verify` passed with 349 tests, 87.87% line coverage, a package dry run,
   and a linked local-consumer smoke.
 - `pnpm verify:ci` passed with the online packed-consumer smoke and required
   registry dependency audit.
 - `pnpm smoke:published:eslint9-floor` passed against ESLint 9.0.0.
-- Final adversarial review found no confirmed P0, P1, or P2 finding.
+- `GITHUB_REF_NAME=v0.4.0 pnpm release:assert-version` passed.
+- Final architecture, package, and security adversarial reviews found no
+  confirmed P0, P1, or P2 finding.
 
 ## Current Decisions
 
@@ -51,21 +53,29 @@ owner; every public package entrypoint and report format stays stable.
   by their existing focused modules.
 - Keep the legacy QR remediation work deferred until its overlap with M2–M4 is
   resolved.
+- Treat `anti-slop.config.json` path values as repository-scoped inputs,
+  including their real symlink targets; explicit CLI paths remain caller-owned.
+- Require a release tag to resolve to a commit reachable from `origin/main`
+  before dependency installation or publication.
+- Keep private GitHub vulnerability reporting enabled and direct reports to
+  `SECURITY.md`; do not publish or tag from this branch.
 
 ## Next Step
 
-Begin M5: complete cutover, release-readiness review, and cleanup against the
-`v0.3.0` baseline without adding migration debris.
+Review and merge the branch to `main`. With separate release authority, create
+the `v0.4.0` tag and GitHub release only after the tagged commit is reachable
+from `main` and trusted-publishing prerequisites are confirmed.
 
 ## Blockers and Risks
 
-- No external blocker.
-- M5 must retain the public compatibility proof while auditing the full branch
-  for release, package, documentation, and cleanup risks.
+- No technical blocker; publication remains an intentional external action.
+- Pre-CR emits a non-blocking size advisory for the existing consolidated
+  `test/rules.test.mjs` fixture file (1,236 nonblank lines before M5). Split it
+  only with a scoped test-taxonomy change, not as release hardening churn.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — M4 catalog consolidation committed as `b3cfce2`
-after deterministic, online CI, and ESLint-floor validation.
+Last activity: 2026-07-13 — M5 release hardening committed as `6d1eba4` after
+deterministic, online CI, and ESLint-floor validation.
