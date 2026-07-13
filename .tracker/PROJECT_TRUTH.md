@@ -85,8 +85,9 @@
   and focused foundation, UX, and interface suites. All 24 suite titles and
   fixtures are preserved, and Pre-CR no longer emits an oversized-source
   advisory.
-- Made blocking audit-artifact fixtures explicit about their protected policy,
-  preventing the release tag environment from changing their expected output.
+- Made blocking audit-artifact fixtures explicit about their protected policy
+  and synthetic secrets runtime-built, preventing tag-context semantic drift or
+  static-secret advisories.
 
 ## Risks and Deferred Work
 

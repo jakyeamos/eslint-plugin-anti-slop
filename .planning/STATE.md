@@ -32,7 +32,7 @@ and adding a private vulnerability-reporting policy.
 - `GITHUB_REF_NAME=v0.4.0 pnpm verify:release` passed, including release
   tag/version assertion, fresh packed-consumer verification, and registry audit.
 - `pre-cr run --workspace .` passes after the RuleTester taxonomy split without
-  an oversized-source advisory.
+  an oversized-source or synthetic-secret advisory.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
 
@@ -77,5 +77,6 @@ from `main` and trusted-publishing prerequisites are confirmed.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — audit fixtures now state their protected policy in
-`3bd389f`, so release-tag verification cannot leak ambient branch state.
+Last activity: 2026-07-13 — audit fixtures now state their protected policy and
+construct synthetic secrets at runtime (`332cd03`), so tag-context verification
+cannot leak ambient branch state or trigger static-secret advisories.

@@ -119,8 +119,9 @@ are stricter; public package entrypoints and report formats remain preserved
 - Replaced the oversized legacy RuleTester fixture with one shared harness and
   focused foundation, UX, and interface suites; all 24 suite titles and
   fixtures remain unchanged, and Pre-CR is advisory-free.
-- Made audit-artifact fixtures select their protected policy explicitly, so the
-  release tag environment cannot change their expected event semantics.
+- Made audit-artifact fixtures select their protected policy explicitly and
+  construct synthetic secrets at runtime, so tag-context validation cannot
+  change their expected semantics or trigger static-secret advisories.
 
 ## Release Handoff
 
