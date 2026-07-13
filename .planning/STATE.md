@@ -30,6 +30,8 @@ and adding a private vulnerability-reporting policy.
   registry dependency audit.
 - `pnpm smoke:published:eslint9-floor` passed against ESLint 9.0.0.
 - `GITHUB_REF_NAME=v0.4.0 pnpm release:assert-version` passed.
+- `pre-cr run --workspace .` passes after the RuleTester taxonomy split without
+  an oversized-source advisory.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
 
@@ -69,13 +71,10 @@ from `main` and trusted-publishing prerequisites are confirmed.
 ## Blockers and Risks
 
 - No technical blocker; publication remains an intentional external action.
-- Pre-CR emits a non-blocking size advisory for the existing consolidated
-  `test/rules.test.mjs` fixture file (1,236 nonblank lines before M5). Split it
-  only with a scoped test-taxonomy change, not as release hardening churn.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — M5 release hardening committed as `6d1eba4` after
-deterministic, online CI, and ESLint-floor validation.
+Last activity: 2026-07-13 — RuleTester fixtures split into a shared harness and
+three taxonomy suites in `30a72b1`; all 24 suite titles remain unchanged.

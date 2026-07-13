@@ -116,6 +116,9 @@ are stricter; public package entrypoints and report formats remain preserved
   `GITHUB_REF_NAME=v0.4.0 pnpm release:assert-version`.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
+- Replaced the oversized legacy RuleTester fixture with one shared harness and
+  focused foundation, UX, and interface suites; all 24 suite titles and
+  fixtures remain unchanged, and Pre-CR is advisory-free.
 
 ## Release Handoff
 
@@ -125,8 +128,5 @@ package publication occurred in this modernization work.
 
 ## Known Risks
 
-- Pre-CR emits a non-blocking size advisory for the pre-existing consolidated
-  `test/rules.test.mjs` fixture file; split it only as a focused test-taxonomy
-  change.
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.

@@ -80,13 +80,15 @@
 - M5 passed `pnpm verify` (349 tests, 87.87% line coverage), `pnpm verify:ci`,
   the ESLint 9.0.0 published-package floor smoke, and release-tag/version
   assertion for `v0.4.0`; final adversarial reviews found no P0, P1, or P2.
+- Replaced the 1,247-nonblank-line RuleTester fixture with one shared harness
+  and focused foundation, UX, and interface suites. All 24 suite titles and
+  fixtures are preserved, and Pre-CR no longer emits an oversized-source
+  advisory.
 
 ## Risks and Deferred Work
 
 - A `v0.4.0` tag, GitHub release, and package publication require explicit
   release authority after reviewed merge to `main`; none were performed here.
-- Pre-CR retains a non-blocking advisory for the long existing RuleTester
-  fixture file; address it only with a focused test-taxonomy change.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
 - User-owned untracked `.agents/` and `skills/` directories remain untouched.
