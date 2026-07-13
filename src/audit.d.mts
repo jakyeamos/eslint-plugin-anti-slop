@@ -1,7 +1,7 @@
 import type { ESLint } from "eslint";
 
-export interface AntiSlopAuditEvent {
-  schema_version: string;
+export interface AntiSlopAuditEventBase {
+  schema_version: "1.0" | "1.1";
   event_id: string;
   timestamp: string;
   repo: string;
@@ -13,11 +13,33 @@ export interface AntiSlopAuditEvent {
   gate_version: string | null;
   event_type: string;
   severity: "error" | "warning";
+  category: string | null;
+  rule_id: string | null;
+  rule_name: string | null;
+  decision: "block" | "warn" | "error";
+  summary: string;
+  evidence: Array<{
+    file: string | null;
+    line_start: number | null;
+    line_end: number | null;
+    reason: string;
+  }>;
+  failure_pattern: string | null;
+  root_cause_hypothesis: string | null;
+  required_fix: string | null;
+  actual_fix: string | null;
+  learning_lesson: string | null;
+  dedupe_fingerprint: string;
+  related_event_ids: string[];
+  blocked_duration_seconds: number | null;
+  tokens_wasted_estimate: number | null;
+  notes: string | null;
+}
+
+export interface AntiSlopAuditFindingFields {
   category: string;
   rule_id: string;
   rule_name: string;
-  decision: "block" | "warn";
-  summary: string;
   evidence: Array<{
     file: string;
     line_start: number;
@@ -27,14 +49,60 @@ export interface AntiSlopAuditEvent {
   failure_pattern: string;
   root_cause_hypothesis: string;
   required_fix: string;
-  actual_fix: string | null;
   learning_lesson: string;
-  dedupe_fingerprint: string;
-  related_event_ids: string[];
-  blocked_duration_seconds: number | null;
-  tokens_wasted_estimate: number | null;
-  notes: string | null;
 }
+
+type AntiSlopAuditFindingEventBase = Omit<
+  AntiSlopAuditEventBase,
+  | "schema_version"
+  | "event_type"
+  | "category"
+  | "rule_id"
+  | "rule_name"
+  | "decision"
+  | "evidence"
+  | "failure_pattern"
+  | "root_cause_hypothesis"
+  | "required_fix"
+  | "learning_lesson"
+>;
+
+export type AntiSlopAuditFindingEventV1 = AntiSlopAuditFindingEventBase & AntiSlopAuditFindingFields & {
+  schema_version: "1.0";
+  event_type: string;
+  decision: "block" | "warn";
+};
+
+export type AntiSlopAuditFindingEventV1_1 = AntiSlopAuditFindingEventBase & AntiSlopAuditFindingFields & {
+  schema_version: "1.1";
+  event_type: "commit_blocked" | "finding_observed";
+  decision: "block" | "warn";
+};
+
+export interface AntiSlopAuditAnalysisFailureEventV1_1 extends AntiSlopAuditEventBase {
+  schema_version: "1.1";
+  event_type: "analysis_failed";
+  severity: "error";
+  category: null;
+  rule_id: null;
+  rule_name: null;
+  decision: "error";
+  evidence: Array<{
+    file: string | null;
+    line_start: number | null;
+    line_end: number | null;
+    reason: string;
+  }>;
+  failure_pattern: null;
+  root_cause_hypothesis: null;
+  required_fix: null;
+  learning_lesson: string;
+}
+
+export type AntiSlopAuditEvent =
+  | AntiSlopAuditFindingEventV1
+  | AntiSlopAuditFindingEventV1_1
+  | AntiSlopAuditAnalysisFailureEventV1_1;
 
 export declare function redactSecrets(text: string): string;
 

@@ -1,28 +1,18 @@
-import { mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
-import { relative, join } from "node:path";
-import { createHash, randomUUID } from "node:crypto";
-import { execFileSync } from "node:child_process";
-import { metadataForRule } from "./rule-metadata.mjs";
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { randomUUID } from "node:crypto";
+import { analysisErrorsFromResults } from "./analysis.mjs";
+import {
+  dedupeFingerprint,
+  normalizeAntiSlopFindings,
+  redactSecrets,
+} from "./finding-core.mjs";
+import { currentBranch, qualityGateDecision } from "./gate-policy.mjs";
 
-const SECRET_RE =
-  /\b(api[_-]?key|secret|token|password|private[_-]?key|client[_-]?secret)\b\s*[:=]\s*['"][^'"\s]{8,}['"]/gi;
-const PROTECTED_BRANCHES = new Set(["main", "master", "dev", "develop", "development"]);
-const BRANCH_ENV_KEYS = ["AIOS_BRANCH", "GITHUB_REF_NAME", "GITHUB_HEAD_REF", "BRANCH_NAME", "VERCEL_GIT_COMMIT_REF"];
-const DEV_ENV_KEYS = ["AIOS_DEV_ENVIRONMENT", "AIOS_DEV_ENV", "QUALITY_GATE_DEV_ENV", "GATE_CONNECTED_DEV_ENV"];
+const AUDIT_SCHEMA_VERSION = "1.1";
+const SUPPORTED_AUDIT_SCHEMA_VERSIONS = new Set(["1.0", AUDIT_SCHEMA_VERSION]);
 
-export function redactSecrets(text) {
-  return String(text).replace(SECRET_RE, (_match, key) => `${key} = "[REDACTED]"`);
-}
-
-export function dedupeFingerprint(gate, ruleId, files, failurePattern) {
-  const payload = [
-    gate.trim().toLowerCase(),
-    ruleId.trim().toLowerCase(),
-    ...files.map((file) => file.trim().toLowerCase()).sort(),
-    failurePattern.trim().toLowerCase(),
-  ].join("\n");
-  return createHash("sha256").update(payload).digest("hex").slice(0, 24);
-}
+export { currentBranch, dedupeFingerprint, qualityGateDecision, redactSecrets };
 
 export function auditEventsFromEslintResults({
   repoRoot,
@@ -30,116 +20,53 @@ export function auditEventsFromEslintResults({
   runId = process.env.AIOS_RUN_ID ?? null,
   branch = currentBranch(repoRoot),
 }) {
-  const events = [];
-  const gateDecision = qualityGateDecision(branch);
-
-  for (const result of results) {
-    const file = relative(repoRoot, result.filePath);
-    for (const message of result.messages ?? []) {
-      if (!message.ruleId?.startsWith("anti-slop/") || message.severity < 2) {
-        continue;
-      }
-
-      const failurePattern = antiSlopPattern(message.ruleId);
-      const fingerprint = dedupeFingerprint("Anti-Slop", message.ruleId, [file], failurePattern);
-      const metadata = metadataForRule(message.ruleId);
-      events.push({
-        schema_version: "1.0",
-        event_id: randomUUID(),
-        timestamp: new Date().toISOString(),
-        repo: repoRoot.split("/").filter(Boolean).at(-1) ?? "unknown",
-        branch,
-        commit_sha: null,
-        run_id: runId,
-        actor_type: process.env.CI ? "ci" : "unknown",
-        gate: "Anti-Slop",
-        gate_version: null,
-        event_type: "commit_blocked",
-        severity: gateDecision === "block" ? "error" : "warning",
-        category: metadata.category,
-        rule_id: message.ruleId,
-        rule_name: message.ruleId.replace("anti-slop/", ""),
-        decision: gateDecision,
-        summary: redactSecrets(
-          `Anti-Slop ${gateDecision === "block" ? "blocked" : "warning only"} ${file}: ${message.message}`,
-        ),
-        evidence: [
-          {
-            file,
-            line_start: message.line ?? 1,
-            line_end: message.endLine ?? message.line ?? 1,
-            reason: redactSecrets(message.message),
-          },
-        ],
-        failure_pattern: failurePattern,
-        root_cause_hypothesis: "UI implementation tripped a configured anti-slop rule.",
-        required_fix: metadata.requiredFix,
-        actual_fix: null,
-        learning_lesson: `Address ${message.ruleId} before committing; anti-slop findings are product-quality defects, not lint noise.`,
-        dedupe_fingerprint: fingerprint,
-        related_event_ids: [],
-        blocked_duration_seconds: null,
-        tokens_wasted_estimate: null,
-        notes: null,
-      });
-    }
+  const analysisErrors = analysisErrorsFromResults({ repoRoot, results });
+  if (analysisErrors.length > 0) {
+    return [analysisFailureEvent({ repoRoot, runId, branch, errors: analysisErrors })];
   }
 
-  return events;
-}
-
-export function qualityGateDecision(branch) {
-  const mode = firstEnv(["AIOS_QUALITY_GATE_MODE", "QUALITY_GATE_MODE"])?.toLowerCase();
-  if (["warn", "warning", "soft"].includes(mode)) {
-    return "warn";
-  }
-  if (["block", "blocking", "hard"].includes(mode)) {
-    return "block";
-  }
-  if (branch && PROTECTED_BRANCHES.has(normalizeBranch(branch))) {
-    return "block";
-  }
-  if (DEV_ENV_KEYS.some((key) => truthy(process.env[key]))) {
-    return "block";
-  }
-  if (["production", "development"].includes(process.env.VERCEL_ENV?.trim().toLowerCase() ?? "")) {
-    return "block";
-  }
-  return branch ? "warn" : "block";
-}
-
-export function currentBranch(repoRoot) {
-  const envBranch = firstEnv(BRANCH_ENV_KEYS);
-  if (envBranch) {
-    return normalizeBranch(envBranch);
-  }
-  try {
-    return normalizeBranch(execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
-      cwd: repoRoot,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim());
-  } catch {
-    return null;
-  }
-}
-
-function firstEnv(keys) {
-  for (const key of keys) {
-    const value = process.env[key]?.trim();
-    if (value) {
-      return value;
-    }
-  }
-  return null;
-}
-
-function normalizeBranch(branch) {
-  return branch.replace(/^refs\/heads\//, "").replace(/^origin\//, "");
-}
-
-function truthy(value) {
-  return ["1", "true", "yes", "on", "block"].includes(value?.trim().toLowerCase() ?? "");
+  const decision = qualityGateDecision(branch);
+  return normalizeAntiSlopFindings({ repoRoot, results })
+    .filter((finding) => finding.severity === "error")
+    .map((finding) => ({
+      schema_version: AUDIT_SCHEMA_VERSION,
+      event_id: randomUUID(),
+      timestamp: new Date().toISOString(),
+      repo: repoName(repoRoot),
+      branch,
+      commit_sha: null,
+      run_id: runId,
+      actor_type: process.env.CI ? "ci" : "unknown",
+      gate: "Anti-Slop",
+      gate_version: null,
+      event_type: decision === "block" ? "commit_blocked" : "finding_observed",
+      severity: decision === "block" ? "error" : "warning",
+      category: finding.category,
+      rule_id: finding.ruleId,
+      rule_name: finding.ruleName,
+      decision,
+      summary: redactSecrets(
+        `Anti-Slop ${decision === "block" ? "blocked" : "warning only"} ${finding.file}: ${finding.message}`,
+      ),
+      evidence: [
+        {
+          file: finding.file,
+          line_start: finding.line,
+          line_end: finding.endLine,
+          reason: finding.message,
+        },
+      ],
+      failure_pattern: finding.failurePattern,
+      root_cause_hypothesis: "UI implementation tripped a configured anti-slop rule.",
+      required_fix: finding.requiredFix,
+      actual_fix: null,
+      learning_lesson: `Address ${finding.ruleId} before committing; anti-slop findings are product-quality defects, not lint noise.`,
+      dedupe_fingerprint: finding.fingerprint,
+      related_event_ids: [],
+      blocked_duration_seconds: null,
+      tokens_wasted_estimate: null,
+      notes: null,
+    }));
 }
 
 export function appendAuditEvents(repoRoot, events) {
@@ -150,12 +77,66 @@ export function appendAuditEvents(repoRoot, events) {
   const auditDir = join(repoRoot, ".aios", "audit");
   mkdirSync(auditDir, { recursive: true });
   const eventsPath = join(auditDir, "gate-events.jsonl");
-  for (const event of events) {
-    appendFileSync(eventsPath, `${JSON.stringify(event)}\n`, "utf8");
+  const analysisFailure = events.some((event) => event.event_type === "analysis_failed");
+  if (analysisFailure) {
+    writeFileSync(eventsPath, events.map((event) => `${JSON.stringify(event)}\n`).join(""), "utf8");
+  } else {
+    for (const event of events) {
+      appendFileSync(eventsPath, `${JSON.stringify(event)}\n`, "utf8");
+    }
   }
-  const allEvents = readAuditEvents(eventsPath);
+  const allEvents = analysisFailure ? events : readAuditEvents(eventsPath);
   writeFileSync(join(auditDir, "gate-summary.md"), renderSummary(allEvents), "utf8");
   writeFileSync(join(auditDir, "learning-lessons.md"), renderLessons(allEvents), "utf8");
+}
+
+function analysisFailureEvent({ repoRoot, runId, branch, errors }) {
+  const first = errors[0];
+  const messages = errors.map((error) => error.message).join(" ");
+  return {
+    schema_version: AUDIT_SCHEMA_VERSION,
+    event_id: randomUUID(),
+    timestamp: new Date().toISOString(),
+    repo: repoName(repoRoot),
+    branch,
+    commit_sha: null,
+    run_id: runId,
+    actor_type: process.env.CI ? "ci" : "unknown",
+    gate: "Anti-Slop",
+    gate_version: null,
+    event_type: "analysis_failed",
+    severity: "error",
+    category: null,
+    rule_id: null,
+    rule_name: null,
+    decision: "error",
+    summary: `Anti-Slop analysis failed: ${messages}`,
+    evidence: errors.map((error) => ({
+      file: error.file,
+      line_start: error.line,
+      line_end: error.line,
+      reason: error.message,
+    })),
+    failure_pattern: null,
+    root_cause_hypothesis: null,
+    required_fix: null,
+    actual_fix: null,
+    learning_lesson: `Resolve fatal ESLint analysis errors before trusting audit output: ${first.message}`,
+    dedupe_fingerprint: dedupeFingerprint(
+      "Anti-Slop",
+      "analysis-failure",
+      errors.map((error) => error.file ?? "<unknown>"),
+      messages,
+    ),
+    related_event_ids: [],
+    blocked_duration_seconds: null,
+    tokens_wasted_estimate: null,
+    notes: null,
+  };
+}
+
+function repoName(repoRoot) {
+  return repoRoot.split("/").filter(Boolean).at(-1) ?? "unknown";
 }
 
 function readAuditEvents(eventsPath) {
@@ -164,7 +145,7 @@ function readAuditEvents(eventsPath) {
       .split("\n")
       .filter(Boolean)
       .map((line) => JSON.parse(line))
-      .filter((event) => event.schema_version === "1.0");
+      .filter((event) => SUPPORTED_AUDIT_SCHEMA_VERSIONS.has(event.schema_version));
   } catch {
     return [];
   }
@@ -172,7 +153,13 @@ function readAuditEvents(eventsPath) {
 
 function renderSummary(events) {
   const latest = events.at(-1);
-  const outcome = latest?.decision === "warn" ? "warnings only" : latest ? "blocked" : "unknown";
+  const outcome = latest?.decision === "warn"
+    ? "warnings only"
+    : latest?.decision === "error"
+      ? "analysis failed"
+      : latest
+        ? "blocked"
+        : "unknown";
   const decisions = events
     .slice(-10)
     .map((event) => `- ${event.gate} ${event.decision} [${event.severity}]: ${event.summary}`)
@@ -203,7 +190,11 @@ function renderSummary(events) {
     "",
     "## Commit-readiness status",
     "",
-    latest?.decision === "warn" ? "- ready with warnings" : "- not ready to commit",
+    latest?.decision === "warn"
+      ? "- ready with warnings"
+      : latest?.decision === "error"
+        ? "- analysis failed; not ready to commit"
+        : "- not ready to commit",
     "",
   ].join("\n");
 }
@@ -234,9 +225,13 @@ function renderLessons(events) {
 function repeatedPatternLines(events) {
   const grouped = new Map();
   for (const event of events) {
-    const rows = grouped.get(event.dedupe_fingerprint) ?? [];
+    if (!event.failure_pattern) {
+      continue;
+    }
+    const fingerprintKey = `${event.schema_version}:${event.dedupe_fingerprint}`;
+    const rows = grouped.get(fingerprintKey) ?? [];
     rows.push(event);
-    grouped.set(event.dedupe_fingerprint, rows);
+    grouped.set(fingerprintKey, rows);
   }
 
   const lines = [];
@@ -255,9 +250,4 @@ function repeatedPatternLines(events) {
   }
 
   return lines.length > 0 ? lines : ["No repeated failure patterns have been recorded yet."];
-}
-
-function antiSlopPattern(ruleId) {
-  const normalized = ruleId.replace("anti-slop/", "").replaceAll("-", " ");
-  return `anti-slop ${normalized}`;
 }

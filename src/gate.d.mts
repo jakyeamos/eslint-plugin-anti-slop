@@ -2,6 +2,24 @@ import type { ESLint } from "eslint";
 
 export type AntiSlopGateMode = "auto" | "block" | "warn" | "audit";
 export type AntiSlopGateFormat = "text" | "json" | "jsonl" | "pre-cr" | "sarif";
+export type AntiSlopGateDecision = "block" | "warn" | "pass" | "skipped" | "error";
+export type AntiSlopAnalysisStatus = "complete" | "skipped" | "failed";
+export type AntiSlopAnalysisSelection = "explicit" | "configured" | "changed";
+
+export interface AntiSlopAnalysisError {
+  kind: "eslint" | "parser";
+  file: string | null;
+  line: number | null;
+  column: number | null;
+  message: string;
+}
+
+export interface AntiSlopAnalysis {
+  status: AntiSlopAnalysisStatus;
+  selection: AntiSlopAnalysisSelection;
+  files: string[];
+  errors: AntiSlopAnalysisError[];
+}
 
 export interface AntiSlopProjectConfig {
   files: string[];
@@ -34,8 +52,9 @@ export interface AntiSlopGateReport {
   branch: string | null;
   mode: AntiSlopGateMode;
   effectiveMode: "block" | "warn";
-  decision: "block" | "warn" | "pass";
+  decision: AntiSlopGateDecision;
   exitCode: number;
+  analysis: AntiSlopAnalysis;
   findings: AntiSlopFinding[];
   newFindings: AntiSlopFinding[];
   baselinedFindings: AntiSlopFinding[];
@@ -69,6 +88,7 @@ export declare function buildGateReport(input: {
   branch?: string | null;
   baseline?: string[];
   repoRoot?: string;
+  analysis?: AntiSlopAnalysis;
 }): AntiSlopGateReport;
 
 export declare function formatGateReport(report: AntiSlopGateReport, format?: AntiSlopGateFormat): string;

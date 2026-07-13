@@ -155,6 +155,46 @@ describe("buildGateReport", () => {
     assert.equal(report.baselinedFindings.length, 2);
     assert.equal(report.newFindings.length, 0);
   });
+
+  it("keeps requested audit mode separate from effective enforcement policy", () => {
+    const findings = antiSlopFindingsFromResults({
+      repoRoot: "/repo",
+      results: [resultWithMessages],
+    });
+
+    const report = buildGateReport({ findings, mode: "audit", branch: "main" });
+
+    assert.equal(report.mode, "audit");
+    assert.equal(report.effectiveMode, "warn");
+    assert.equal(report.decision, "warn");
+    assert.equal(report.exitCode, 0);
+    assert.equal(report.analysis.status, "complete");
+  });
+
+  it("models skipped and failed analysis separately from gate findings", () => {
+    const skipped = buildGateReport({
+      findings: [],
+      mode: "block",
+      analysis: { status: "skipped", selection: "changed", files: [], errors: [] },
+    });
+    const failed = buildGateReport({
+      findings: [],
+      mode: "audit",
+      analysis: {
+        status: "failed",
+        selection: "explicit",
+        files: ["app/page.tsx"],
+        errors: [{ kind: "parser", file: "app/page.tsx", line: 2, column: 5, message: "Parsing error" }],
+      },
+    });
+
+    assert.equal(skipped.decision, "skipped");
+    assert.equal(skipped.exitCode, 0);
+    assert.equal(failed.mode, "audit");
+    assert.equal(failed.effectiveMode, "warn");
+    assert.equal(failed.decision, "error");
+    assert.equal(failed.exitCode, 1);
+  });
 });
 
 describe("filterBaselineFindings", () => {
@@ -183,6 +223,37 @@ describe("formatGateReport", () => {
     assert.equal(JSON.parse(formatGateReport(report, "json")).newFindings.length, 2);
     assert.equal(formatGateReport(report, "jsonl").trim().split("\n").length, 2);
     assert.match(formatGateReport(report, "pre-cr"), /"gate":"Anti-Slop"/);
+  });
+
+  it("makes skipped and failed analysis visible in every machine-readable format", () => {
+    const skipped = buildGateReport({
+      findings: [],
+      mode: "block",
+      analysis: {
+        status: "skipped",
+        selection: "changed",
+        files: [],
+        errors: [],
+      },
+    });
+    const failed = buildGateReport({
+      findings: [],
+      mode: "block",
+      analysis: {
+        status: "failed",
+        selection: "configured",
+        files: ["."],
+        errors: [{ kind: "eslint", file: null, line: null, column: null, message: "Runner failed" }],
+      },
+    });
+
+    assert.match(formatGateReport(failed, "text"), /analysis failed/i);
+    assert.equal(JSON.parse(formatGateReport(failed, "json")).analysis.status, "failed");
+    assert.equal(JSON.parse(formatGateReport(failed, "jsonl")).record_type, "analysis_failed");
+    assert.equal(JSON.parse(formatGateReport(failed, "pre-cr")).record_type, "analysis_failed");
+    assert.match(JSON.stringify(sarifFromGateReport(failed)), /analysis-failure/);
+    assert.equal(JSON.parse(formatGateReport(skipped, "jsonl")).record_type, "analysis_skipped");
+    assert.match(JSON.stringify(sarifFromGateReport(skipped)), /analysis-skipped/);
   });
 });
 
@@ -237,6 +308,38 @@ describe("readAntiSlopConfig", () => {
         files: ["."],
         ignores: [],
         mode: "auto",
+        baselinePath: ".anti-slop-baseline.json",
+        outputPath: null,
+      });
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("validates project config keys and field shapes", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-config-invalid-"));
+    const invalidConfigs = [
+      { value: [], pattern: /must contain an object/ },
+      { value: { unknown: true }, pattern: /Unknown configuration field/ },
+      { value: { mode: "invalid" }, pattern: /mode/ },
+      { value: { files: "src" }, pattern: /files/ },
+      { value: { files: [] }, pattern: /files/ },
+      { value: { ignores: ["dist/**", 1] }, pattern: /ignores/ },
+      { value: { baselinePath: "" }, pattern: /baselinePath/ },
+      { value: { outputPath: 42 }, pattern: /outputPath/ },
+    ];
+
+    try {
+      for (const { value, pattern } of invalidConfigs) {
+        writeFileSync(join(repoRoot, "anti-slop.config.json"), JSON.stringify(value), "utf8");
+        assert.throws(() => readAntiSlopConfig(repoRoot), pattern);
+      }
+
+      writeFileSync(join(repoRoot, "anti-slop.config.json"), JSON.stringify({ mode: "audit" }), "utf8");
+      assert.deepEqual(readAntiSlopConfig(repoRoot), {
+        files: ["."],
+        ignores: [],
+        mode: "audit",
         baselinePath: ".anti-slop-baseline.json",
         outputPath: null,
       });

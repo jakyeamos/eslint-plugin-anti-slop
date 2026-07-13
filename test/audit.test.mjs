@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import aiosAuditConfig, {
@@ -15,6 +15,7 @@ import {
   redactSecrets,
 } from "../src/audit.mjs";
 import formatAuditResults from "../src/audit-formatter.mjs";
+import { antiSlopFindingsFromResults } from "../src/gate.mjs";
 
 describe("AIOS audit integration surface", () => {
   it("exports a packaged formatter name, artifact paths, and consumer flat config", () => {
@@ -79,6 +80,7 @@ describe("auditEventsFromEslintResults", () => {
     });
 
     assert.equal(events.length, 1);
+    assert.equal(events[0].schema_version, "1.1");
     assert.equal(events[0].gate, "Anti-Slop");
     assert.equal(events[0].event_type, "commit_blocked");
     assert.equal(events[0].rule_id, "anti-slop/no-placeholder-copy");
@@ -113,7 +115,33 @@ describe("auditEventsFromEslintResults", () => {
     assert.equal(events[0].branch, "feature/hoopscout");
     assert.equal(events[0].decision, "warn");
     assert.equal(events[0].severity, "warning");
+    assert.equal(events[0].event_type, "finding_observed");
     assert.match(events[0].summary, /warning only/);
+  });
+
+  it("uses the same finding identity as the gate", () => {
+    const repoRoot = "/repo";
+    const results = [
+      {
+        filePath: "/repo/app/page.tsx",
+        source: "export function Page() {\n  return <p>TODO</p>;\n}\n",
+        messages: [
+          {
+            ruleId: "anti-slop/no-placeholder-copy",
+            severity: 2,
+            message: "Placeholder copy detected.",
+            line: 2,
+            column: 10,
+          },
+        ],
+      },
+    ];
+
+    const [finding] = antiSlopFindingsFromResults({ repoRoot, results });
+    const [event] = auditEventsFromEslintResults({ repoRoot, branch: "main", results });
+
+    assert.equal(event.dedupe_fingerprint, finding.fingerprint);
+    assert.equal(event.failure_pattern, finding.failurePattern);
   });
 
   it("ignores non-blocking and non-Anti-Slop messages", () => {
@@ -201,6 +229,15 @@ describe("appendAuditEvents", () => {
       results: [
         {
           filePath: join(repoRoot, "app", "page.tsx"),
+          source: [
+            "export function Page() {",
+            "  return <section>",
+            "    <p>Supercharge now</p>",
+            "    <p>Supercharge now</p>",
+            "    <p>Supercharge now</p>",
+            "  </section>;",
+            "}",
+          ].join("\n"),
           messages: [
             {
               ruleId: "anti-slop/no-marketing-copy",
@@ -236,6 +273,45 @@ describe("appendAuditEvents", () => {
       rmSync(repoRoot, { recursive: true, force: true });
     }
   });
+
+  it("keeps legacy and current fingerprint histories in separate schema buckets", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-audit-schema-"));
+    const [currentEvent] = auditEventsFromEslintResults({
+      repoRoot,
+      branch: "main",
+      results: [
+        {
+          filePath: join(repoRoot, "app", "page.tsx"),
+          source: "export function Page() {\n  return <p>TODO</p>;\n}\n",
+          messages: [
+            {
+              ruleId: "anti-slop/no-placeholder-copy",
+              severity: 2,
+              message: "Placeholder copy detected.",
+              line: 2,
+            },
+          ],
+        },
+      ],
+    });
+    const legacyEvent = { ...currentEvent, schema_version: "1.0", event_id: "legacy-event" };
+    const auditDir = join(repoRoot, ".aios", "audit");
+
+    try {
+      mkdirSync(auditDir, { recursive: true });
+      writeFileSync(join(auditDir, "gate-events.jsonl"), `${JSON.stringify(legacyEvent)}\n`, "utf8");
+
+      appendAuditEvents(repoRoot, [currentEvent]);
+
+      const jsonl = readFileSync(join(auditDir, "gate-events.jsonl"), "utf8");
+      const summary = readFileSync(join(auditDir, "gate-summary.md"), "utf8");
+
+      assert.equal(jsonl.trim().split("\n").length, 2);
+      assert.doesNotMatch(summary, /Seen: 2 times/);
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("formatAuditResults", () => {
@@ -263,11 +339,58 @@ describe("formatAuditResults", () => {
       assert.match(output, /Anti-Slop audit events: 1/);
       const eventText = readFileSync(join(repoRoot, ".aios", "audit", "gate-events.jsonl"), "utf8");
       const event = JSON.parse(eventText);
-      assert.equal(event.schema_version, "1.0");
+      assert.equal(event.schema_version, "1.1");
       assert.equal(event.gate, "Anti-Slop");
       assert.equal(event.event_type, "commit_blocked");
       assert.equal(event.rule_id, "anti-slop/no-placeholder-copy");
       assert.deepEqual(Object.keys(event.evidence[0]).sort(), ["file", "line_end", "line_start", "reason"]);
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("replaces stale audit artifacts with an explicit analysis failure", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-audit-fatal-"));
+    const auditDir = join(repoRoot, ".aios", "audit");
+
+    try {
+      mkdirSync(auditDir, { recursive: true });
+      writeFileSync(join(auditDir, "gate-events.jsonl"), '{"stale":true}\n', "utf8");
+      writeFileSync(join(auditDir, "gate-summary.md"), "stale\n", "utf8");
+      writeFileSync(join(auditDir, "learning-lessons.md"), "stale\n", "utf8");
+
+      const output = formatAuditResults(
+        [
+          {
+            filePath: join(repoRoot, "app", "page.tsx"),
+            fatalErrorCount: 1,
+            messages: [
+              {
+                ruleId: null,
+                fatal: true,
+                severity: 2,
+                message: "Parsing error: Unexpected token",
+                line: 2,
+                column: 4,
+              },
+            ],
+          },
+        ],
+        { cwd: repoRoot },
+      );
+
+      const event = JSON.parse(readFileSync(join(auditDir, "gate-events.jsonl"), "utf8"));
+      const summary = readFileSync(join(auditDir, "gate-summary.md"), "utf8");
+      const lessons = readFileSync(join(auditDir, "learning-lessons.md"), "utf8");
+
+      assert.match(output, /audit analysis failed/i);
+      assert.equal(event.schema_version, "1.1");
+      assert.equal(event.event_type, "analysis_failed");
+      assert.equal(event.decision, "error");
+      assert.equal(event.rule_id, null);
+      assert.match(summary, /analysis failed/i);
+      assert.match(lessons, /Parsing error/);
+      assert.doesNotMatch(summary, /stale/);
     } finally {
       rmSync(repoRoot, { recursive: true, force: true });
     }

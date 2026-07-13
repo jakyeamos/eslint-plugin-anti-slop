@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+- Made the CLI and gate fail closed: invalid `anti-slop.config.json` files and
+  malformed baselines now fail before analysis, fatal ESLint/parser failures
+  are explicit non-successful analysis results in every mode, and clean
+  `--changed` runs are visible no-op scans instead of full-repository fallbacks.
+- Preserved requested `audit` mode in reports while exposing the effective
+  warning policy and analysis status. The full JSON report now uses schema
+  version `1.1`; JSONL, Pre-CR, and SARIF represent skipped or failed analysis
+  explicitly.
+- Moved audit output to schema `1.1`, unified its finding fingerprints with the
+  gate, and recorded feature-branch findings as `finding_observed`. Existing
+  audit history remains version-segregated; archive `gate-events.jsonl` before
+  upgrade when a downstream consumer requires a single schema version.
+- Replaced stale audit artifacts with a schema-`1.1` `analysis_failed` event
+  after fatal ESLint/parser output.
+- Made the deterministic local smoke consumer link to the current checkout so
+  it cannot validate a stale copied `file:` dependency; packed-artifact
+  isolation remains covered by the separate online smoke.
 - Raised the declared Node support floor to the actual parser dependency range:
   `^20.19.0 || ^22.13.0 || >=24`.
 - Added an enforced LCOV coverage threshold and a deterministic `pnpm verify`

@@ -51,7 +51,7 @@ explicit, runnable, and appropriately strict.
 | --- | --- |
 | Affected areas | `package.json`, `scripts/`, `.github/workflows/`, test/type fixtures, `README.md`, `CONTRIBUTING.md` |
 | Depends on | M0 |
-| Preserve | pnpm workflow, Node ESM delivery, OIDC/provenance publish, local `file:..` smoke |
+| Preserve | pnpm workflow, Node ESM delivery, OIDC/provenance publish, local linked-checkout smoke |
 | Intentionally change | Command names and docs may become more precise; CI gains missing deterministic checks |
 | Work | Rename syntax-only checking honestly; add packed TypeScript declaration compilation; separate deterministic local verification from explicit online consumer and supply-chain checks; exercise CLI/config/formatter smoke at the ESLint 9.0 floor; assert release tag/package version; decide action-pin and permissions hardening. |
 | Verification | Deterministic gate on Node 20.19/22.13/24, required online packed-consumer and dependency-audit checks, ESLint 9.0 real-consumer smoke, packaged type fixture, release-workflow static validation |
@@ -72,7 +72,7 @@ configuration and a clear policy.
 | Intentionally change | Invalid configs, malformed baselines, and fatal ESLint/parser failures return clear non-success results; root help succeeds; clean-tree `--changed` no longer silently scans all files; warning audit events no longer claim a block. |
 | Work | Introduce validated config and analysis-status contracts; distinguish requested mode/effective policy/decision; unify gate and audit identity; define empty changed-set behavior; add exact error/report fixtures and migration notes if fingerprints change. |
 | Verification | Focused CLI/gate/audit tests for invalid config, parser error, root help, empty changed set, every mode/format, baseline compatibility, and audit event semantics; then full deterministic gate and packed smoke. |
-| Rollback | Revert behavior as one coherent release-unit; if fingerprints change, provide a versioned baseline conversion or preserve v0.3 identity. |
+| Rollback | Revert behavior as one coherent release-unit; preserve v0.3 baselines and retain schema-segregated audit history when fingerprint identity changes. |
 | Completion | No analysis/configuration failure can be reported as a passing analysis. |
 | Delete | Ambiguous direct `audit` policy path and duplicated finding-pattern logic. |
 

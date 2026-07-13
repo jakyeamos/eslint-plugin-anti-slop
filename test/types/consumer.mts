@@ -26,6 +26,7 @@ import {
   readAntiSlopConfig,
   sarifFromGateReport,
   type AntiSlopFinding,
+  type AntiSlopAnalysisStatus,
   type AntiSlopGateFormat,
   type AntiSlopGateMode,
   type AntiSlopGateReport,
@@ -139,6 +140,7 @@ export function assertPublicTypeContract(): void {
   });
   const formattedReport: string = formatGateReport(report, format);
   const sarif: Record<string, unknown> = sarifFromGateReport(report);
+  const analysisStatus: AntiSlopAnalysisStatus = report.analysis.status;
 
   const metadata: AntiSlopRuleMetadata = metadataForRule(finding.ruleId);
   const metadataByRule: Record<string, AntiSlopRuleMetadata> = ruleMetadata;
@@ -164,6 +166,7 @@ export function assertPublicTypeContract(): void {
   void detectedFindings;
   void formattedReport;
   void sarif;
+  void analysisStatus;
   void metadata;
   void metadataByRule;
   void auditEvent;

@@ -2,18 +2,19 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import picomatch from "picomatch";
+import { analysisErrorFromException, analysisErrorsFromResults } from "./analysis.mjs";
 import { antiSlopAiosAuditConfig } from "./aios-audit-config.mjs";
-import { currentBranch } from "./audit.mjs";
+import { currentBranch } from "./gate-policy.mjs";
 import {
   antiSlopFindingsFromResults,
   buildGateReport,
   formatGateReport,
   readAntiSlopConfig,
 } from "./gate.mjs";
+import { AntiSlopInputError, isAntiSlopInputError, VALID_MODES } from "./input.mjs";
 
 const VALID_COMMANDS = new Set(["check", "gate"]);
 const VALID_FORMATS = new Set(["text", "json", "jsonl", "pre-cr", "sarif"]);
-const VALID_MODES = new Set(["auto", "block", "warn", "audit"]);
 
 export async function runCli(argv, dependencies = {}) {
   const stdout = dependencies.stdout ?? ((text) => process.stdout.write(text));
@@ -26,28 +27,86 @@ export async function runCli(argv, dependencies = {}) {
     return 2;
   }
 
-  const projectConfig = readAntiSlopConfig(cwd);
+  if (parsed.help) {
+    stdout(`${usage()}\n`);
+    return 0;
+  }
+
+  let projectConfig;
+  let baseline;
+  let selection;
+  try {
+    projectConfig = readAntiSlopConfig(cwd);
+    baseline = readBaseline(resolve(cwd, parsed.options.baseline ?? projectConfig.baselinePath));
+    selection = filesForRun({
+      parsed,
+      projectConfig,
+      cwd,
+      changedFiles: dependencies.changedFiles ?? defaultChangedFiles,
+    });
+  } catch (error) {
+    stderr(`${inputErrorMessage(error, cwd)}\n`);
+    return 2;
+  }
+
   const mode = parsed.options.mode ?? projectConfig.mode;
   const format = parsed.options.format ?? (parsed.command === "gate" ? "pre-cr" : "text");
   const baselinePath = parsed.options.baseline ?? projectConfig.baselinePath;
-  const files = filesForRun({
-    parsed,
-    projectConfig,
-    cwd,
-    changedFiles: dependencies.changedFiles ?? defaultChangedFiles,
-  });
+  const branch = parsed.options.branch ?? currentBranch(cwd);
+
+  if (selection.files.length === 0) {
+    const report = buildGateReport({
+      findings: [],
+      mode,
+      branch,
+      baseline,
+      repoRoot: cwd,
+      analysis: { status: "skipped", selection: selection.kind, files: [], errors: [] },
+    });
+    emitReport({ report, format, outputPath: projectConfig.outputPath, cwd, stdout });
+    return report.exitCode;
+  }
 
   const eslintRunner = dependencies.eslintRunner ?? defaultEslintRunner(cwd, projectConfig);
-  const results = await eslintRunner(files, { cwd, ignores: projectConfig.ignores });
+  let results;
+  try {
+    results = await eslintRunner(selection.files, { cwd, ignores: projectConfig.ignores });
+  } catch (error) {
+    const errors = [analysisErrorFromException(error)];
+    const report = buildGateReport({
+      findings: [],
+      mode,
+      branch,
+      baseline,
+      repoRoot: cwd,
+      analysis: { status: "failed", selection: selection.kind, files: selection.files, errors },
+    });
+    stderr(`${analysisFailureMessage(errors)}\n`);
+    emitReport({ report, format, outputPath: projectConfig.outputPath, cwd, stdout });
+    return report.exitCode;
+  }
+
+  const errors = analysisErrorsFromResults({ repoRoot: cwd, results });
   const findings = antiSlopFindingsFromResults({ repoRoot: cwd, results });
-  const baseline = readBaseline(resolve(cwd, baselinePath));
   const report = buildGateReport({
     findings,
-    mode: mode === "audit" ? "warn" : mode,
-    branch: parsed.options.branch ?? currentBranch(cwd),
+    mode,
+    branch,
     baseline,
     repoRoot: cwd,
+    analysis: {
+      status: errors.length > 0 ? "failed" : "complete",
+      selection: selection.kind,
+      files: selection.files,
+      errors,
+    },
   });
+
+  if (report.analysis.status === "failed") {
+    stderr(`${analysisFailureMessage(errors)}\n`);
+    emitReport({ report, format, outputPath: projectConfig.outputPath, cwd, stdout });
+    return report.exitCode;
+  }
 
   if (parsed.options.updateBaseline) {
     writeBaseline(resolve(cwd, baselinePath), findings);
@@ -55,20 +114,20 @@ export async function runCli(argv, dependencies = {}) {
     return 0;
   }
 
-  if (projectConfig.outputPath) {
-    writeOutput(resolve(cwd, projectConfig.outputPath), formatGateReport(report, "json"));
-  }
-
-  stdout(formatGateReport(report, format));
-  return mode === "audit" ? 0 : report.exitCode;
+  emitReport({ report, format, outputPath: projectConfig.outputPath, cwd, stdout });
+  return report.exitCode;
 }
 
 function parseArgs(argv) {
   const [command = "check", ...rest] = argv;
-  if (!VALID_COMMANDS.has(command) || rest.includes("--help") || rest.includes("-h")) {
-    return VALID_COMMANDS.has(command) && (rest.includes("--help") || rest.includes("-h"))
-      ? { ok: false, error: "" }
-      : { ok: false, error: `Unknown command: ${command}` };
+  if (command === "--help" || command === "-h") {
+    return { ok: true, help: true, command: "check", options: {}, files: [] };
+  }
+  if (!VALID_COMMANDS.has(command)) {
+    return { ok: false, error: `Unknown command: ${command}` };
+  }
+  if (rest.includes("--help") || rest.includes("-h")) {
+    return { ok: true, help: true, command, options: {}, files: [] };
   }
 
   const options = {};
@@ -117,23 +176,37 @@ function parseArgs(argv) {
     files.push(arg);
   }
 
-  return { ok: true, command, options, files };
+  return { ok: true, help: false, command, options, files };
 }
 
 function filesForRun({ parsed, projectConfig, cwd, changedFiles }) {
+  let kind = "configured";
   let files;
   if (parsed.options.files?.length) {
+    kind = "explicit";
     files = parsed.options.files;
   } else if (parsed.files.length > 0) {
+    kind = "explicit";
     files = parsed.files;
   } else if (parsed.options.changed) {
-    const changed = changedFiles(cwd);
-    files = changed.length > 0 ? changed : projectConfig.files;
+    kind = "changed";
+    try {
+      files = changedFiles(cwd);
+    } catch (error) {
+      if (isAntiSlopInputError(error)) {
+        throw error;
+      }
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new AntiSlopInputError("input", cwd, `Unable to determine changed files: ${detail}`);
+    }
+    if (!Array.isArray(files) || files.some((file) => typeof file !== "string")) {
+      throw new AntiSlopInputError("input", cwd, "Unable to determine changed files: expected a string array.");
+    }
   } else {
     files = projectConfig.files;
   }
 
-  return applyIgnores(files, projectConfig.ignores);
+  return { kind, files: applyIgnores(files, projectConfig.ignores) };
 }
 
 function applyIgnores(files, ignores) {
@@ -162,7 +235,7 @@ function defaultChangedFiles(cwd) {
       stdio: ["ignore", "pipe", "ignore"],
     }).split("\n").map((line) => line.trim()).filter(Boolean);
   } catch {
-    return [];
+    throw new AntiSlopInputError("input", cwd, "Unable to determine changed files from Git.");
   }
 }
 
@@ -188,12 +261,47 @@ function readBaseline(path) {
     return [];
   }
 
-  const parsed = JSON.parse(readFileSync(path, "utf8"));
-  if (Array.isArray(parsed)) {
-    return parsed;
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    throw new AntiSlopInputError("baseline", path, "must contain valid JSON.");
   }
 
-  return (parsed.findings ?? []).map((finding) => typeof finding === "string" ? finding : finding.fingerprint).filter(Boolean);
+  if (Array.isArray(parsed)) {
+    return baselineFingerprints(parsed, path, false);
+  }
+  if (parsed === null || typeof parsed !== "object") {
+    throw new AntiSlopInputError("baseline", path, "must be an array or an object with a findings array.");
+  }
+
+  const hasSchemaVersion = Object.hasOwn(parsed, "schemaVersion");
+  const hasGate = Object.hasOwn(parsed, "gate");
+  if (hasSchemaVersion !== hasGate) {
+    throw new AntiSlopInputError("baseline", path, "schemaVersion and gate must be supplied together.");
+  }
+  if (hasSchemaVersion && (parsed.schemaVersion !== "1.0" || parsed.gate !== "Anti-Slop")) {
+    throw new AntiSlopInputError("baseline", path, "schemaVersion must be \"1.0\" and gate must be \"Anti-Slop\".");
+  }
+  if (!Array.isArray(parsed.findings)) {
+    throw new AntiSlopInputError("baseline", path, "\"findings\" must be an array.");
+  }
+
+  return baselineFingerprints(parsed.findings, path, true);
+}
+
+function baselineFingerprints(findings, path, allowObjects) {
+  return findings.map((finding, index) => {
+    const fingerprint = typeof finding === "string"
+      ? finding
+      : allowObjects && finding !== null && typeof finding === "object"
+        ? finding.fingerprint
+        : null;
+    if (typeof fingerprint !== "string" || fingerprint.length === 0) {
+      throw new AntiSlopInputError("baseline", path, `\"findings[${index}].fingerprint\" must be a non-empty string.`);
+    }
+    return fingerprint;
+  });
 }
 
 function writeBaseline(path, findings) {
@@ -210,9 +318,28 @@ function writeBaseline(path, findings) {
   }, null, 2) + "\n");
 }
 
+function emitReport({ report, format, outputPath, cwd, stdout }) {
+  if (outputPath) {
+    writeOutput(resolve(cwd, outputPath), formatGateReport(report, "json"));
+  }
+  stdout(formatGateReport(report, format));
+}
+
 function writeOutput(path, text) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, text, "utf8");
+}
+
+function inputErrorMessage(error, cwd) {
+  if (isAntiSlopInputError(error)) {
+    return error.message;
+  }
+  const detail = error instanceof Error ? error.message : String(error);
+  return `Anti-Slop input error in ${cwd}: ${detail}`;
+}
+
+function analysisFailureMessage(errors) {
+  return `Anti-Slop analysis failed: ${errors.map((error) => error.message).join(" ")}`;
 }
 
 function usage() {

@@ -295,7 +295,7 @@ describe("public package contract", () => {
           "timestamp",
           "tokens_wasted_estimate",
         ].sort());
-        assert.equal(event.schema_version, "1.0");
+        assert.equal(event.schema_version, "1.1");
         assert.equal(event.gate, "Anti-Slop");
         assert.equal(event.decision, "block");
         assert.equal(event.rule_id, "anti-slop/no-placeholder-copy");
@@ -323,7 +323,7 @@ describe("public package contract", () => {
           { mode: "auto", branch: "feature/contract", exitCode: 0, reportMode: "auto", effectiveMode: "warn", decision: "warn" },
           { mode: "block", branch: "feature/contract", exitCode: 1, reportMode: "block", effectiveMode: "block", decision: "block" },
           { mode: "warn", branch: "feature/contract", exitCode: 0, reportMode: "warn", effectiveMode: "warn", decision: "warn" },
-          { mode: "audit", branch: "feature/contract", exitCode: 0, reportMode: "warn", effectiveMode: "warn", decision: "warn" },
+          { mode: "audit", branch: "feature/contract", exitCode: 0, reportMode: "audit", effectiveMode: "warn", decision: "warn" },
         ];
 
         for (const expected of modeCases) {
@@ -357,7 +357,7 @@ describe("public package contract", () => {
           if (format === "text") {
             assert.match(stdout, /Anti-Slop gate blocked/);
           } else if (format === "json") {
-            assert.equal(JSON.parse(stdout).schemaVersion, "1.0");
+            assert.equal(JSON.parse(stdout).schemaVersion, "1.1");
           } else if (format === "sarif") {
             assert.equal(JSON.parse(stdout).version, "2.1.0");
           } else {

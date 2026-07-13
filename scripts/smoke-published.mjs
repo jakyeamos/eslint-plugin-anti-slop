@@ -165,6 +165,8 @@ try {
   );
   const cliReport = JSON.parse(cliOutput);
   assert.equal(cliReport.gate, "Anti-Slop");
+  assert.equal(cliReport.schemaVersion, "1.1");
+  assert.equal(cliReport.analysis.status, "complete");
   assert.ok(cliReport.newFindings.some((finding) => finding.ruleId === "anti-slop/no-placeholder-copy"));
 
   const typeScriptCliOutput = execFileSync(

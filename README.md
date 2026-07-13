@@ -474,8 +474,8 @@ dependency audit; `pnpm verify:release` also requires the release tag to match
 `package.json`. `pnpm verify:local` additionally runs Pre-CR changed-line
 readiness and requires a globally installed `pre-cr`.
 
-`pnpm smoke:eslint9` installs `eslint-plugin-anti-slop` into `smoke-consumer/`
-as a local `file:..` dependency with pnpm, then runs ESLint 9 against a small
+`pnpm smoke:eslint9` links the current `eslint-plugin-anti-slop` checkout into
+`smoke-consumer/` with pnpm, then runs ESLint 9 against a small
 JSX fixture, the `anti-slop` CLI, and the audit formatter. `pnpm smoke:consumer`
 is kept as an alias for the same supported-major smoke.
 
@@ -504,21 +504,35 @@ new error findings. The built-in config supports JavaScript, JSX, TypeScript,
 and TSX, so backfill scans can run before a target repo has adopted an
 Anti-Slop ESLint config.
 
+A successful gate result means the selected source was analyzed using a valid
+configuration and baseline. Invalid configuration or baseline input exits `2`
+before ESLint runs. Fatal ESLint or parser failures exit `1` in every policy
+mode and are reported as failed analysis rather than as a clean gate.
+
 Gate policy modes:
 
 - `--mode auto`: block on protected branches or known dev/production gate envs,
   warn on detected feature branches.
 - `--mode block`: fail the process when new error findings exist.
 - `--mode warn`: report findings without failing the process.
-- `--mode audit`: always exit zero while still emitting findings.
+- `--mode audit`: report findings without blocking them. It exits zero only
+  after successful analysis; invalid input and fatal analysis failures still
+  fail clearly.
 
 Output formats:
 
 - `text`: concise terminal summary.
-- `json`: full report with summary, new findings, and baselined findings.
-- `jsonl`: one machine-readable finding per line.
-- `pre-cr`: JSONL records shaped for quality-gate ingestion.
-- `sarif`: SARIF 2.1.0 for CI code-scanning systems.
+- `json`: full report with requested mode, effective policy, analysis status,
+  summary, new findings, and baselined findings.
+- `jsonl`: one machine-readable finding per line; skipped or failed analysis
+  emits a single analysis-status record instead of an empty success stream.
+- `pre-cr`: JSONL records shaped for quality-gate ingestion, including explicit
+  skipped or failed analysis records.
+- `sarif`: SARIF 2.1.0 for CI code-scanning systems, with a synthetic status
+  result when analysis fails or is skipped.
+
+The full JSON gate report uses `schemaVersion: "1.1"`. Generated baseline files
+remain `schemaVersion: "1.0"` and retain their existing compatibility forms.
 
 Optional `anti-slop.config.json`:
 
@@ -536,6 +550,12 @@ Optional `anti-slop.config.json`:
 ESLint accepts: `dist/**`, `**/generated/**`, `src/**/*.fixture.ts`, and
 basename patterns such as `*.stories.tsx` all work.
 
+The config is strict: its only supported keys are `files`, `ignores`, `mode`,
+`baselinePath`, and `outputPath`. `files` must contain at least one non-empty
+path; each ignore-list entry must also be a non-empty string. Unsupported keys
+or malformed JSON are configuration errors rather than silently ignored
+settings.
+
 In `--mode auto` without an explicit `--branch`, the CLI resolves the current
 branch from CI environment variables (`GITHUB_REF_NAME`, `GITHUB_HEAD_REF`,
 `BRANCH_NAME`, `VERCEL_GIT_COMMIT_REF`, `AIOS_BRANCH`) or `git rev-parse`, the
@@ -546,6 +566,11 @@ Use changed-file mode for fast local gates:
 ```bash
 pnpm exec anti-slop gate --changed --mode block --format pre-cr
 ```
+
+When Git reports no changed files, `--changed` performs no full-repository
+fallback scan and returns a visible skipped-analysis result. If changed-file
+discovery itself fails, the command exits `2` instead of treating the failure
+as an empty scan.
 
 Use audit mode for first-pass repo adoption/backfill evidence:
 
@@ -560,6 +585,11 @@ known findings:
 pnpm exec anti-slop check . --update-baseline
 pnpm exec anti-slop gate . --baseline .anti-slop-baseline.json --mode block
 ```
+
+Existing raw fingerprint arrays and unversioned `{ "findings": [...] }`
+baseline files remain accepted alongside generated versioned baselines. A
+malformed baseline is never treated as empty, and `--update-baseline` will not
+overwrite it.
 
 For Pre-CR, keep Anti-Slop as a separate quality command alongside
 `pre-cr run --workspace .` until Pre-CR grows a first-class external-gate
@@ -646,13 +676,31 @@ event envelope: `schema_version`, `event_id`, `timestamp`, `repo`, `branch`,
 `actual_fix`, `learning_lesson`, `dedupe_fingerprint`, `related_event_ids`,
 `blocked_duration_seconds`, `tokens_wasted_estimate`, and `notes`.
 
+Current formatter output uses audit event `schema_version: "1.1"`. Its
+fingerprints match the gate identity, including the source snippet, so they are
+not comparable to historical `1.0` audit fingerprints. Existing valid `1.0`
+lines remain as history; summaries keep `1.0` and `1.1` fingerprint groups
+separate. For a single-version downstream log, archive the old file before the
+first upgraded audit:
+
+```bash
+mv .aios/audit/gate-events.jsonl .aios/audit/gate-events.v1.jsonl
+```
+
+The formatter then creates a fresh `1.1` `gate-events.jsonl`. Fatal analysis
+still replaces the active artifacts with its explicit failure event.
+
 Findings are recorded as blocks on `main`, `master`, `dev`, `develop`,
 `development`, or when `AIOS_DEV_ENVIRONMENT`, `AIOS_DEV_ENV`,
 `QUALITY_GATE_DEV_ENV`, or `GATE_CONNECTED_DEV_ENV` is set; detected unprotected
-feature branches are recorded as warnings. `AIOS_BRANCH` and `AIOS_RUN_ID` are
-used when present, and otherwise the formatter falls back to the current git
-branch. ESLint process exit behavior still depends on the runner's rule severity
-and CLI settings.
+feature branches are recorded as neutral `finding_observed` warnings rather
+than claimed blocks. Protected-branch findings use `commit_blocked`. Fatal ESLint
+or parser results produce a single `analysis_failed` event and replace stale
+audit artifacts, so downstream readers do not mistake earlier findings for a
+successful current analysis. Audit findings use the same stable identity as
+gate findings. `AIOS_BRANCH` and `AIOS_RUN_ID` are used when present, and
+otherwise the formatter falls back to the current git branch. ESLint process
+exit behavior still depends on the runner's rule severity and CLI settings.
 
 ## Design Principles
 

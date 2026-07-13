@@ -11,6 +11,7 @@ const coverageScript = join(repoRoot, "scripts", "check-coverage.mjs");
 const dependencySecurityScript = join(repoRoot, "scripts", "dependency-security.mjs");
 const releaseVersionScript = join(repoRoot, "scripts", "assert-release-version.mjs");
 const packageJson = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
+const smokeConsumerPackageJson = JSON.parse(readFileSync(join(repoRoot, "smoke-consumer", "package.json"), "utf8"));
 
 function runNode(script, { args = [], cwd = repoRoot, env = process.env } = {}) {
   return spawnSync(process.execPath, [script, ...args], {
@@ -92,5 +93,11 @@ describe("verification scripts", () => {
     assert.doesNotMatch(packageJson.scripts.verify, /verify:consumer-online|smoke:published/);
     assert.match(packageJson.scripts["verify:ci"], /pnpm verify:consumer-online/);
     assert.match(packageJson.scripts["verify:ci"], /pnpm dependency:security:required/);
+  });
+
+  it("links the local smoke consumer to the current checkout", () => {
+    assert.equal(smokeConsumerPackageJson.dependencies["eslint-plugin-anti-slop"], "link:..");
+    assert.match(packageJson.scripts["smoke:eslint9"], /pnpm --dir smoke-consumer install --frozen-lockfile/);
+    assert.doesNotMatch(packageJson.scripts["smoke:eslint9"], /--force/);
   });
 });

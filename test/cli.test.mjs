@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { runCli } from "../src/cli.mjs";
@@ -14,6 +14,23 @@ const eslintResults = [
         ruleId: "anti-slop/no-placeholder-copy",
         severity: 2,
         message: "Placeholder copy detected.",
+        line: 2,
+        column: 5,
+      },
+    ],
+  },
+];
+
+const fatalEslintResults = [
+  {
+    filePath: "/repo/app/page.tsx",
+    fatalErrorCount: 1,
+    messages: [
+      {
+        ruleId: null,
+        fatal: true,
+        severity: 2,
+        message: "Parsing error: Unexpected token",
         line: 2,
         column: 5,
       },
@@ -257,5 +274,252 @@ describe("runCli", () => {
 
     assert.equal(exitCode, 2);
     assert.match(io.read().stderr, /Usage: anti-slop/);
+  });
+
+  it("prints root and subcommand help successfully without loading project inputs", async () => {
+    for (const argv of [["--help"], ["check", "--help"], ["gate", "-h"]]) {
+      const io = capture();
+      let runnerCalled = false;
+
+      const exitCode = await runCli(argv, {
+        cwd: "/repo",
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async () => {
+          runnerCalled = true;
+          return [];
+        },
+      });
+
+      assert.equal(exitCode, 0, argv.join(" "));
+      assert.match(io.read().stdout, /Usage: anti-slop/);
+      assert.equal(io.read().stderr, "");
+      assert.equal(runnerCalled, false);
+    }
+  });
+
+  it("rejects malformed configuration before running ESLint", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-invalid-config-"));
+    const io = capture();
+    let runnerCalled = false;
+
+    try {
+      writeFileSync(join(repoRoot, "anti-slop.config.json"), JSON.stringify({ mode: "not-a-mode" }), "utf8");
+
+      const exitCode = await runCli(["check", "--mode", "audit"], {
+        cwd: repoRoot,
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async () => {
+          runnerCalled = true;
+          return [];
+        },
+      });
+
+      assert.equal(exitCode, 2);
+      assert.equal(io.read().stdout, "");
+      assert.match(io.read().stderr, /Anti-Slop configuration error/);
+      assert.match(io.read().stderr, /mode/);
+      assert.equal(runnerCalled, false);
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects malformed baselines before analysis and never overwrites them", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-invalid-baseline-"));
+    const baselinePath = join(repoRoot, ".anti-slop-baseline.json");
+    const io = capture();
+    let runnerCalled = false;
+
+    try {
+      writeFileSync(baselinePath, JSON.stringify({ schemaVersion: "1.0", findings: [] }), "utf8");
+
+      const exitCode = await runCli(["check", "--mode", "audit", "--update-baseline"], {
+        cwd: repoRoot,
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async () => {
+          runnerCalled = true;
+          return eslintResults;
+        },
+      });
+
+      assert.equal(exitCode, 2);
+      assert.equal(io.read().stdout, "");
+      assert.match(io.read().stderr, /Anti-Slop baseline error/);
+      assert.equal(runnerCalled, false);
+      assert.deepEqual(JSON.parse(readFileSync(baselinePath, "utf8")), { schemaVersion: "1.0", findings: [] });
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("accepts legacy and current baseline envelopes", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-baseline-compat-"));
+    const baselinePath = join(repoRoot, ".anti-slop-baseline.json");
+
+    try {
+      const seedIo = capture();
+      await runCli(["check", "--update-baseline"], {
+        cwd: repoRoot,
+        stdout: seedIo.stdout,
+        stderr: seedIo.stderr,
+        eslintRunner: async () => eslintResults.map((result) => ({
+          ...result,
+          filePath: join(repoRoot, "app", "page.tsx"),
+        })),
+      });
+      const fingerprint = JSON.parse(readFileSync(baselinePath, "utf8")).findings[0].fingerprint;
+      const baselineShapes = [
+        [fingerprint],
+        { findings: [fingerprint, { fingerprint, ruleId: "anti-slop/no-placeholder-copy" }] },
+        { schemaVersion: "1.0", gate: "Anti-Slop", findings: [{ fingerprint }] },
+      ];
+
+      for (const baseline of baselineShapes) {
+        const io = capture();
+        writeFileSync(baselinePath, JSON.stringify(baseline), "utf8");
+        const exitCode = await runCli(["gate", "--mode", "block", "--format", "json"], {
+          cwd: repoRoot,
+          stdout: io.stdout,
+          stderr: io.stderr,
+          eslintRunner: async () => eslintResults.map((result) => ({
+            ...result,
+            filePath: join(repoRoot, "app", "page.tsx"),
+          })),
+        });
+        const report = JSON.parse(io.read().stdout);
+
+        assert.equal(exitCode, 0);
+        assert.equal(report.decision, "pass");
+        assert.equal(report.baselinedFindings.length, 1);
+      }
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("reports fatal analysis failures and refuses baseline writes in every mode", async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-fatal-"));
+
+    try {
+      for (const mode of ["block", "warn", "audit"]) {
+        const io = capture();
+        const baselinePath = `.anti-slop-${mode}-baseline.json`;
+        const exitCode = await runCli([
+          "check",
+          "--mode",
+          mode,
+          "--format",
+          "json",
+          "--update-baseline",
+          "--baseline",
+          baselinePath,
+        ], {
+          cwd: repoRoot,
+          stdout: io.stdout,
+          stderr: io.stderr,
+          eslintRunner: async () => fatalEslintResults.map((result) => ({
+            ...result,
+            filePath: join(repoRoot, "app", "page.tsx"),
+          })),
+        });
+        const report = JSON.parse(io.read().stdout);
+
+        assert.equal(exitCode, 1, mode);
+        assert.equal(report.mode, mode);
+        assert.equal(report.decision, "error");
+        assert.equal(report.analysis.status, "failed");
+        assert.equal(report.analysis.errors[0].kind, "parser");
+        assert.match(io.read().stderr, /analysis failed/i);
+        assert.equal(existsSync(join(repoRoot, baselinePath)), false);
+      }
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("reports runner failures as failed analysis", async () => {
+    const io = capture();
+
+    const exitCode = await runCli(["check", "--format", "json"], {
+      cwd: "/repo",
+      stdout: io.stdout,
+      stderr: io.stderr,
+      eslintRunner: async () => {
+        throw new Error("ESLint service unavailable");
+      },
+    });
+    const report = JSON.parse(io.read().stdout);
+
+    assert.equal(exitCode, 1);
+    assert.equal(report.decision, "error");
+    assert.equal(report.analysis.status, "failed");
+    assert.match(report.analysis.errors[0].message, /ESLint service unavailable/);
+  });
+
+  it("treats an empty changed set as a skipped no-op instead of a full scan", async () => {
+    const io = capture();
+    let runnerCalled = false;
+
+    const exitCode = await runCli(["gate", "--changed", "--format", "json"], {
+      cwd: "/repo",
+      stdout: io.stdout,
+      stderr: io.stderr,
+      changedFiles: () => [],
+      eslintRunner: async () => {
+        runnerCalled = true;
+        return eslintResults;
+      },
+    });
+    const report = JSON.parse(io.read().stdout);
+
+    assert.equal(exitCode, 0);
+    assert.equal(report.decision, "skipped");
+    assert.equal(report.analysis.status, "skipped");
+    assert.equal(report.analysis.selection, "changed");
+    assert.deepEqual(report.analysis.files, []);
+    assert.equal(runnerCalled, false);
+
+    const sarifIo = capture();
+    const sarifExitCode = await runCli(["gate", "--changed", "--format", "sarif"], {
+      cwd: "/repo",
+      stdout: sarifIo.stdout,
+      stderr: sarifIo.stderr,
+      changedFiles: () => [],
+      eslintRunner: async () => {
+        runnerCalled = true;
+        return eslintResults;
+      },
+    });
+    const sarif = JSON.parse(sarifIo.read().stdout);
+
+    assert.equal(sarifExitCode, 0);
+    assert.equal(sarif.runs[0].results[0].ruleId, "anti-slop/analysis-skipped");
+    assert.equal(runnerCalled, false);
+  });
+
+  it("treats changed-file discovery failures as input errors", async () => {
+    const io = capture();
+    let runnerCalled = false;
+
+    const exitCode = await runCli(["gate", "--changed"], {
+      cwd: "/repo",
+      stdout: io.stdout,
+      stderr: io.stderr,
+      changedFiles: () => {
+        throw new Error("git diff failed");
+      },
+      eslintRunner: async () => {
+        runnerCalled = true;
+        return [];
+      },
+    });
+
+    assert.equal(exitCode, 2);
+    assert.equal(io.read().stdout, "");
+    assert.match(io.read().stderr, /Unable to determine changed files/);
+    assert.equal(runnerCalled, false);
   });
 });

@@ -81,15 +81,18 @@ migrated:
   URLs, and `settings["anti-slop"]` vocabulary.
 - CLI flags, exit codes, JSON/JSONL/Pre-CR/SARIF report shapes, baseline
   fingerprints, and `anti-slop.config.json` fields.
-- Audit event schema `1.0`, artifact paths, redaction, append behavior, and
-  branch policy.
-- ESM import behavior, Node 20+, ESLint 9 flat config, local `file:..`
+- Audit event schema `1.0` history and `1.1` current output, artifact paths,
+  redaction, append behavior, and branch policy.
+- ESM import behavior, Node 20+, ESLint 9 flat config, local linked-checkout
   development, and OIDC/provenance release flow.
 
-There is no data migration. The rollback anchor is the existing `v0.3.0` tag.
-If a finding fingerprint or emitted report shape intentionally changes, the
-release must include a baseline/output migration note; otherwise consumers can
-silently lose their existing suppressions.
+Gate baselines do not need a data migration. Audit output moves to a versioned
+`1.1` event envelope because its fingerprint identity changes: readers retain
+valid `1.0` history but group it separately, and downstream consumers that need
+a single schema must archive `gate-events.jsonl` before the first upgraded run.
+The rollback anchor is the existing `v0.3.0` tag. Any later intentional finding
+fingerprint or report-shape change must include equivalent baseline/output
+migration guidance.
 
 ## Findings
 
