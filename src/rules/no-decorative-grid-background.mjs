@@ -1,7 +1,7 @@
 import {
   getJSXExpression,
   getPropertyValue,
-  getStaticClassValue,
+  getStaticClassPaths,
   isInsideJSXAttributeValue,
   isJSXAttributeNamed,
   staticTemplateValue,
@@ -42,8 +42,8 @@ export const noDecorativeGridBackgroundRule = {
     return {
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
-          const value = getStaticClassValue(node);
-          if (value && hasDecorativeGrid(value)) {
+          const paths = getStaticClassPaths(node);
+          if (paths.some(hasDecorativeGrid)) {
             report(node);
           }
         }

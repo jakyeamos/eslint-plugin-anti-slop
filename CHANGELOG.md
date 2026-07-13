@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+- `no-unjustified-use-client` now reports for manual review instead of removing
+  directives automatically, and recognizes referenced conventional imported
+  hooks plus unshadowed browser APIs accessed through `globalThis`; type-only
+  references and property spellings no longer count as client signals.
+- `no-demo-data-primary-path` now permits a runtime fixture binding only as a
+  `??` fallback to an immutable same-scope real-data result; direct fixture
+  usage, unrelated calls or imports, another fixture binding, and `||` are no
+  longer exempt. Transparent TypeScript value wrappers preserve the same
+  runtime classification.
+- `require-reduced-motion` now requires animation and transition fallbacks to
+  match their motion type, ordered variant scope, selector, cascade order, and
+  static non-motion media scope; it normalizes Tailwind important modifiers,
+  treats nested, scoped, or layered CSS conservatively, ignores CSS comments, and
+  ignores non-motion static values as sources.
+- `require-empty-state-action` now uses high-confidence empty-state language
+  and requires action wording or a usable control within the local empty-state
+  render path; transparent TypeScript wrappers, correlated conjunctions, and
+  first-legend fieldset paths are handled correctly, while disabled, hidden,
+  disabled-fieldset (outside the first legend), and remote controls no longer
+  satisfy the rule.
+- Class-derived UI rules now evaluate mutually exclusive static class paths
+  separately instead of joining branches, avoiding impossible cross-branch
+  findings while preserving concrete class-builder combinations.
 - Made the CLI and gate fail closed: invalid `anti-slop.config.json` files and
   malformed baselines now fail before analysis, fatal ESLint/parser failures
   are explicit non-successful analysis results in every mode, and clean

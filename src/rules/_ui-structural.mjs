@@ -1,4 +1,20 @@
 const CLASS_BUILDER_NAMES = new Set(["clsx", "classnames", "classNames", "cn", "cx", "cva", "twMerge", "twJoin"]);
+const MAX_STATIC_CLASS_PATHS = 64;
+const TRANSPARENT_EXPRESSION_TYPES = new Set([
+  "ChainExpression",
+  "TSAsExpression",
+  "TSNonNullExpression",
+  "TSSatisfiesExpression",
+  "TypeCastExpression",
+]);
+
+function unwrapStaticExpression(expression) {
+  let current = expression;
+  while (TRANSPARENT_EXPRESSION_TYPES.has(current?.type)) {
+    current = current.expression;
+  }
+  return current;
+}
 
 function classBuilderName(callee) {
   if (callee.type === "Identifier") {
@@ -12,111 +28,241 @@ function classBuilderName(callee) {
   return null;
 }
 
-export function staticClassFragments(expression) {
-  const fragments = [];
-
-  function walk(node) {
-    if (!node || typeof node !== "object") {
-      return;
-    }
-
-    if (node.type === "Literal") {
-      if (typeof node.value === "string") {
-        fragments.push(node.value);
-      }
-      return;
-    }
-
-    if (node.type === "TemplateLiteral") {
-      if (node.expressions.length === 0) {
-        fragments.push(node.quasis.map((part) => part.value.cooked ?? "").join(""));
-        return;
-      }
-
-      for (const [index, quasi] of node.quasis.entries()) {
-        let text = quasi.value.cooked ?? "";
-        if (index > 0) {
-          text = text.replace(/^\S+/, "");
-        }
-        if (index < node.expressions.length) {
-          text = text.replace(/\S+$/, "");
-        }
-        if (text.trim()) {
-          fragments.push(text);
-        }
-      }
-      return;
-    }
-
-    if (node.type === "ArrayExpression") {
-      for (const element of node.elements) {
-        walk(element);
-      }
-      return;
-    }
-
-    if (node.type === "ObjectExpression") {
-      for (const property of node.properties) {
-        if (property.type !== "Property" || property.computed) {
-          continue;
-        }
-        if (property.key.type === "Literal" && typeof property.key.value === "string") {
-          fragments.push(property.key.value);
-        } else if (property.key.type === "Identifier") {
-          fragments.push(property.key.name);
-        }
-      }
-      return;
-    }
-
-    if (node.type === "ConditionalExpression") {
-      walk(node.consequent);
-      walk(node.alternate);
-      return;
-    }
-
-    if (node.type === "LogicalExpression") {
-      walk(node.right);
-      if (node.operator === "||" || node.operator === "??") {
-        walk(node.left);
-      }
-      return;
-    }
-
-    if (node.type === "ChainExpression") {
-      walk(node.expression);
-      return;
-    }
-
-    if (node.type === "CallExpression") {
-      const name = classBuilderName(node.callee);
-      if (name && CLASS_BUILDER_NAMES.has(name)) {
-        for (const argument of node.arguments) {
-          walk(argument);
-        }
-      }
-    }
-  }
-
-  walk(expression);
-  return fragments;
+function normalizeClassPath(value) {
+  return String(value).trim().replace(/\s+/g, " ");
 }
 
-export function getStaticClassValue(node) {
-  if (!node?.value) {
-    return null;
+function uniquePaths(paths) {
+  return [...new Set(paths.map(normalizeClassPath))].slice(0, MAX_STATIC_CLASS_PATHS);
+}
+
+function combinePaths(groups) {
+  let paths = [""];
+
+  for (const group of groups) {
+    const nextPaths = [];
+    for (const left of paths) {
+      for (const right of group) {
+        nextPaths.push([left, right].filter(Boolean).join(" "));
+        if (nextPaths.length >= MAX_STATIC_CLASS_PATHS) {
+          break;
+        }
+      }
+      if (nextPaths.length >= MAX_STATIC_CLASS_PATHS) {
+        break;
+      }
+    }
+    paths = uniquePaths(nextPaths);
   }
 
-  if (node.value.type === "Literal" && typeof node.value.value === "string") {
-    return node.value.value;
+  return paths;
+}
+
+function staticTruthiness(node) {
+  const subject = unwrapStaticExpression(node);
+  if (subject?.type === "Literal") {
+    return Boolean(subject.value);
   }
 
-  if (node.value.type === "JSXExpressionContainer") {
-    const fragments = staticClassFragments(node.value.expression);
-    return fragments.length > 0 ? fragments.join(" ") : null;
+  if (subject?.type === "TemplateLiteral" && subject.expressions.length === 0) {
+    return Boolean(subject.quasis.map((part) => part.value.cooked ?? "").join(""));
+  }
+
+  if (subject?.type === "Identifier" && subject.name === "undefined") {
+    return false;
+  }
+
+  if (subject?.type === "UnaryExpression") {
+    if (subject.operator === "void") {
+      return false;
+    }
+    if (subject.operator === "!") {
+      const truthiness = staticTruthiness(subject.argument);
+      return truthiness === null ? null : !truthiness;
+    }
+    if (["+", "-"].includes(subject.operator) && subject.argument.type === "Literal" && typeof subject.argument.value === "number") {
+      return Boolean(subject.operator === "+" ? +subject.argument.value : -subject.argument.value);
+    }
+  }
+
+  if (subject?.type === "LogicalExpression") {
+    const leftTruthiness = staticTruthiness(subject.left);
+    const rightTruthiness = staticTruthiness(subject.right);
+    if (subject.operator === "&&") {
+      if (leftTruthiness === false || rightTruthiness === false) {
+        return false;
+      }
+      return leftTruthiness === true ? rightTruthiness : null;
+    }
+    if (subject.operator === "||") {
+      if (leftTruthiness === true || rightTruthiness === true) {
+        return true;
+      }
+      return leftTruthiness === false ? rightTruthiness : null;
+    }
   }
 
   return null;
+}
+
+function staticNullish(node) {
+  const subject = unwrapStaticExpression(node);
+  if (subject?.type === "Literal") {
+    return subject.value === null;
+  }
+
+  if (subject?.type === "UnaryExpression" && subject.operator === "void") {
+    return true;
+  }
+
+  return subject?.type === "Identifier" && subject.name === "undefined" ? true : null;
+}
+
+function templatePath(node) {
+  if (node.expressions.length === 0) {
+    return node.quasis.map((part) => part.value.cooked ?? "").join("");
+  }
+
+  const fragments = [];
+  for (const [index, quasi] of node.quasis.entries()) {
+    let text = quasi.value.cooked ?? "";
+    if (index > 0) {
+      text = text.replace(/^\S+/, "");
+    }
+    if (index < node.expressions.length) {
+      text = text.replace(/\S+$/, " ");
+    }
+    if (text.trim()) {
+      fragments.push(text);
+    }
+  }
+
+  return fragments.join(" ");
+}
+
+function objectKey(property) {
+  if (property.computed) {
+    return null;
+  }
+
+  if (property.key.type === "Literal" && typeof property.key.value === "string") {
+    return property.key.value;
+  }
+
+  return property.key.type === "Identifier" ? property.key.name : null;
+}
+
+function classPaths(expression) {
+  expression = unwrapStaticExpression(expression);
+  if (!expression || typeof expression !== "object") {
+    return [""];
+  }
+
+  if (expression.type === "Literal") {
+    return typeof expression.value === "string" ? [expression.value] : [""];
+  }
+
+  if (expression.type === "TemplateLiteral") {
+    return [templatePath(expression)];
+  }
+
+  if (expression.type === "ArrayExpression") {
+    return combinePaths(expression.elements.map((element) => classPaths(element)));
+  }
+
+  if (expression.type === "ObjectExpression") {
+    let paths = [""];
+    for (const property of expression.properties) {
+      if (property.type !== "Property") {
+        continue;
+      }
+
+      const key = objectKey(property);
+      if (!key) {
+        continue;
+      }
+
+      const truthiness = staticTruthiness(property.value);
+      if (truthiness === false) {
+        continue;
+      }
+
+      const presentPaths = combinePaths([paths, [key]]);
+      paths = truthiness === true ? presentPaths : uniquePaths([...presentPaths, ...paths]);
+    }
+    return paths;
+  }
+
+  if (expression.type === "ConditionalExpression") {
+    const truthiness = staticTruthiness(expression.test);
+    if (truthiness === true) {
+      return classPaths(expression.consequent);
+    }
+    if (truthiness === false) {
+      return classPaths(expression.alternate);
+    }
+    return uniquePaths([...classPaths(expression.consequent), ...classPaths(expression.alternate)]);
+  }
+
+  if (expression.type === "LogicalExpression") {
+    if (expression.operator === "&&") {
+      const truthiness = staticTruthiness(expression.left);
+      if (truthiness === false) {
+        return [""];
+      }
+      if (truthiness === true) {
+        return classPaths(expression.right);
+      }
+      return uniquePaths(["", ...classPaths(expression.right)]);
+    }
+
+    if (expression.operator === "||") {
+      const truthiness = staticTruthiness(expression.left);
+      if (truthiness === true) {
+        return classPaths(expression.left);
+      }
+      if (truthiness === false) {
+        return classPaths(expression.right);
+      }
+      return uniquePaths([...classPaths(expression.left), ...classPaths(expression.right)]);
+    }
+
+    if (expression.operator === "??") {
+      const nullish = staticNullish(expression.left);
+      if (nullish === true) {
+        return classPaths(expression.right);
+      }
+      if (nullish === false) {
+        return classPaths(expression.left);
+      }
+      return uniquePaths([...classPaths(expression.left), ...classPaths(expression.right)]);
+    }
+  }
+
+  if (expression.type === "CallExpression") {
+    const name = classBuilderName(expression.callee);
+    if (name && CLASS_BUILDER_NAMES.has(name)) {
+      return combinePaths(expression.arguments.map((argument) => classPaths(argument)));
+    }
+  }
+
+  return [""];
+}
+
+export function getStaticClassPaths(node) {
+  if (!node?.value) {
+    return [];
+  }
+
+  if (node.value.type === "Literal" && typeof node.value.value === "string") {
+    return [node.value.value];
+  }
+
+  if (node.value.type === "JSXExpressionContainer") {
+    return classPaths(node.value.expression).map(normalizeClassPath).filter(Boolean);
+  }
+
+  return [];
 }
 
 export function getJSXExpression(node) {
@@ -157,7 +303,7 @@ export function getPropertyValue(property) {
     return null;
   }
 
-  const value = property.value;
+  const value = unwrapStaticExpression(property.value);
   if (value.type === "Literal" && (typeof value.value === "string" || typeof value.value === "number")) {
     return value.value;
   }
@@ -170,11 +316,12 @@ export function getPropertyValue(property) {
 }
 
 export function styleObjectProperties(node) {
-  if (node?.type !== "ObjectExpression") {
+  const expression = unwrapStaticExpression(node);
+  if (expression?.type !== "ObjectExpression") {
     return [];
   }
 
-  return node.properties.filter((property) => property.type === "Property");
+  return expression.properties.filter((property) => property.type === "Property");
 }
 
 export function stylePropertyMap(node) {

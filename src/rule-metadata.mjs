@@ -3,7 +3,7 @@ export const ruleMetadata = {
     category: "Architecture",
     recommendedSeverity: "error",
     strictSeverity: "error",
-    requiredFix: "Remove the directive or add real client-only behavior.",
+    requiredFix: "Review the client boundary; remove the directive only after confirming no client-only behavior remains.",
   },
   "anti-slop/no-useless-memo": {
     category: "Maintainability",
@@ -27,13 +27,13 @@ export const ruleMetadata = {
     category: "UX",
     recommendedSeverity: "warn",
     strictSeverity: "error",
-    requiredFix: "Add an explicit empty-state action or action wording.",
+    requiredFix: "Add action wording or a usable enabled control within the local empty-state boundary.",
   },
   "anti-slop/no-demo-data-primary-path": {
     category: "Data integrity",
     recommendedSeverity: "error",
     strictSeverity: "error",
-    requiredFix: "Use real data in primary routes or move demo data off the main path.",
+    requiredFix: "Use real data in primary routes or restrict demo data to a nullish fallback for an immutable same-scope real-data result.",
   },
   "anti-slop/no-defensive-guard-sprawl": {
     category: "Maintainability",
@@ -81,7 +81,7 @@ export const ruleMetadata = {
     category: "Accessibility",
     recommendedSeverity: "warn",
     strictSeverity: "error",
-    requiredFix: "Add a reduced-motion fallback for static animation or transition code.",
+    requiredFix: "Add a type-matched reduced-motion fallback for each static animation or transition.",
   },
   "anti-slop/no-hidden-reveal-default": {
     category: "Accessibility",

@@ -111,12 +111,12 @@ Each rule has a full docs page with rationale, examples, and options under
 
 | Rule | What it catches |
 | --- | --- |
-| `anti-slop/no-unjustified-use-client` | Client components without obvious client-only behavior. |
+| `anti-slop/no-unjustified-use-client` | Client components without obvious client-only behavior; reports for manual review. |
 | `anti-slop/no-useless-memo` | Trivial `useMemo` and `useCallback` calls. |
 | `anti-slop/no-placeholder-copy` | Placeholder text in user-facing JSX and copy-bearing objects. |
 | `anti-slop/no-marketing-copy` | Generic product marketing language inside application UI. |
-| `anti-slop/require-empty-state-action` | Empty states with no action or action wording. |
-| `anti-slop/no-demo-data-primary-path` | Primary route files importing demo or fixture data without real-data indicators. |
+| `anti-slop/require-empty-state-action` | High-confidence local empty states without wording or a usable control. |
+| `anti-slop/no-demo-data-primary-path` | Primary routes using fixture data outside a nullish fallback to an immutable same-scope real-data result. |
 | `anti-slop/no-defensive-guard-sprawl` | Repeated low-signal defensive checks that obscure the real contract. |
 | `anti-slop/no-generic-stat-label` | Dashboard labels such as "insights" or "performance" without domain meaning. |
 | `anti-slop/no-gradient-text` | Gradient-clipped text in static JSX class names or style objects. |
@@ -124,13 +124,13 @@ Each rule has a full docs page with rationale, examples, and options under
 | `anti-slop/no-side-stripe-accent` | Thick left/right border stripe accents on cards and callouts. |
 | `anti-slop/no-excessive-radius` | Oversized static radius values on framed UI surfaces. |
 | `anti-slop/no-arbitrary-z-index` | Arbitrary z-index values outside a semantic stacking scale. |
-| `anti-slop/require-reduced-motion` | Static motion code without a reduced-motion fallback. |
+| `anti-slop/require-reduced-motion` | Static motion code without a type-matched reduced-motion fallback. |
 | `anti-slop/no-hidden-reveal-default` | Reveal patterns that hide content by default. |
 | `anti-slop/no-nested-cards` | Nested `Card` components or nested `card` class containers. |
 
 ### `anti-slop/no-unjustified-use-client`
 
-Removes unnecessary `"use client"` directives when the file has no obvious client-only behavior.
+Reports unnecessary `"use client"` directives for manual review when the file has no obvious client-only behavior. It deliberately does not autofix a server/client boundary.
 
 Invalid:
 
@@ -213,7 +213,7 @@ export function Banner() {
 
 ### `anti-slop/require-empty-state-action`
 
-Requires empty states to include either an actionable control or action wording in the same UI block.
+Requires high-confidence empty states to include action wording or a usable control on the same static render path in the nearest local message/container boundary. Disabled controls, href-less anchors without a handler, hidden inputs, native controls in a disabled fieldset other than its first `legend`, and actions elsewhere on the page do not satisfy the rule; native boolean attributes remain present even when written as strings such as `disabled="false"`.
 
 Invalid:
 
@@ -242,7 +242,7 @@ export function InvoiceList() {
 
 ### `anti-slop/no-demo-data-primary-path`
 
-Prevents primary route files from importing demo data without a clear real-data indicator.
+Prevents primary routes from using demo data except as the `??` fallback for an immutable same-scope configured real-data result. Direct fixture use, unrelated calls or imports, another fixture binding, and `||` remain invalid.
 
 Invalid:
 
@@ -258,10 +258,11 @@ Valid:
 
 ```tsx
 import { rows } from "@/fixtures/rows";
+import { db } from "@/lib/db";
 
 export async function Page() {
-  const data = await fetch("/api/rows");
-  return data;
+  const records = await db.report.findMany();
+  return records ?? rows;
 }
 ```
 
@@ -395,18 +396,20 @@ Valid:
 
 ### `anti-slop/require-reduced-motion`
 
-Requires a reduced-motion fallback when static JSX/CSS-in-JS code declares transitions or animations.
+Requires a type-matched reduced-motion fallback when static JSX/CSS-in-JS code declares transitions or animations: `animate-*` uses `motion-reduce:animate-none`, and `transition*` uses `motion-reduce:transition-none`. CSS fallbacks must target the same selector in a direct top-level reduced-motion media block, retain the source's static non-motion media scope, and win the cascade; nested, scoped, conditional, or layered CSS is reported rather than guessed at.
 
 Invalid:
 
 ```tsx
 <button className="transition-opacity">Save</button>
+<button className="animate-spin motion-reduce:transition-none">Load</button>
 ```
 
 Valid:
 
 ```tsx
 <button className="transition-opacity motion-reduce:transition-none">Save</button>
+<button className="animate-spin motion-reduce:animate-none">Load</button>
 ```
 
 ### `anti-slop/no-hidden-reveal-default`

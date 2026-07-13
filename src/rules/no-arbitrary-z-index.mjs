@@ -2,7 +2,7 @@ import {
   getJSXExpression,
   getPropertyName,
   getPropertyValue,
-  getStaticClassValue,
+  getStaticClassPaths,
   isJSXAttributeNamed,
   splitClasses,
   styleObjectProperties,
@@ -66,8 +66,8 @@ export const noArbitraryZIndexRule = {
     return {
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
-          const value = getStaticClassValue(node);
-          if (value && classHasArbitraryZIndex(value, maxZIndex)) {
+          const paths = getStaticClassPaths(node);
+          if (paths.some((path) => classHasArbitraryZIndex(path, maxZIndex))) {
             report(node);
           }
         }

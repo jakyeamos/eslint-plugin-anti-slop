@@ -2,7 +2,7 @@ import {
   getJSXExpression,
   getPropertyName,
   getPropertyValue,
-  getStaticClassValue,
+  getStaticClassPaths,
   isInsideJSXAttributeValue,
   isJSXAttributeNamed,
   splitClasses,
@@ -56,8 +56,8 @@ export const noHiddenRevealDefaultRule = {
     return {
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
-          const value = getStaticClassValue(node);
-          if (value && classHasHiddenReveal(value)) {
+          const paths = getStaticClassPaths(node);
+          if (paths.some(classHasHiddenReveal)) {
             report(node);
           }
         }

@@ -1,6 +1,6 @@
 import {
   getJSXExpression,
-  getStaticClassValue,
+  getStaticClassPaths,
   isJSXAttributeNamed,
   splitClasses,
   stylePropertyMap,
@@ -40,8 +40,8 @@ export const noGradientTextRule = {
     return {
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
-          const value = getStaticClassValue(node);
-          if (value && classNameHasGradientText(value)) {
+          const paths = getStaticClassPaths(node);
+          if (paths.some(classNameHasGradientText)) {
             report(node);
           }
         }

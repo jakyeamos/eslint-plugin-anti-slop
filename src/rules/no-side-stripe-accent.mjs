@@ -2,7 +2,7 @@ import {
   getJSXExpression,
   getPropertyName,
   getPropertyValue,
-  getStaticClassValue,
+  getStaticClassPaths,
   isJSXAttributeNamed,
   parseCssLengthPx,
   splitClasses,
@@ -61,8 +61,8 @@ export const noSideStripeAccentRule = {
     return {
       JSXAttribute(node) {
         if (isJSXAttributeNamed(node, "className")) {
-          const value = getStaticClassValue(node);
-          if (value && classHasSideStripe(value)) {
+          const paths = getStaticClassPaths(node);
+          if (paths.some(classHasSideStripe)) {
             report(node);
           }
         }

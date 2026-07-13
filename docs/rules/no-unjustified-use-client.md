@@ -9,8 +9,9 @@ Every unjustified `"use client"` moves a component (and everything it imports) o
 ## What counts as a client signal
 
 - A React client hook (`useState`, `useEffect`, `useRef`, ...) imported from `react` and actually referenced in the file (aliased imports are tracked by their local name; an unused import is not a signal).
+- A referenced conventional hook import whose local binding matches `use[A-Z]`, such as `useWorkspace` from an application hook module. Type-only imports and type-only references do not count.
 - `React.useState(...)`-style member access through a react namespace or default import.
-- Browser globals: `window`, `document`, `localStorage`, `sessionStorage`, `navigator`.
+- Unshadowed browser globals: `window`, `document`, `localStorage`, `sessionStorage`, and `navigator`, including access through `globalThis` such as `globalThis["localStorage"]`. Object-property spellings such as `settings.window` do not count.
 - JSX event handler props matching `/^on[A-Z]/` (`onClick`, `onChange`; a prop like `online` does not count).
 - Imports from configured client-only modules (`settings["anti-slop"].clientOnlyImports`, default: `next/navigation`, `@tanstack/react-query`, `recharts`).
 
@@ -31,11 +32,11 @@ Valid:
 ```tsx
 "use client";
 
-import * as React from "react";
+import { useWorkspace } from "./use-workspace";
 
-export function Toggle() {
-  const [open, setOpen] = React.useState(false);
-  return <button onClick={() => setOpen(!open)}>Toggle</button>;
+export function Header() {
+  const workspace = useWorkspace();
+  return <header>{workspace.name}</header>;
 }
 ```
 
@@ -49,4 +50,4 @@ If your project intentionally marks entire directories as client components rega
 
 ## Fixer
 
-The rule autofixes by removing the directive and its trailing newline.
+This rule reports for manual review and deliberately has no autofix. A file-local heuristic cannot prove that removing the directive preserves the server/client boundary.
