@@ -32,6 +32,9 @@ ESLint with a simple, trustworthy integration path.
 - [x] **MOD-06**: Gate configuration, baselines, and analysis failures cannot
   return a passing result; requested mode, effective policy, analysis status,
   and audit history migration are represented explicitly.
+- [x] **MOD-07**: Rule bindings, metadata, documentation URLs, presets, and
+  SARIF descriptors have one internal owner while published entrypoints and
+  report formats remain stable.
 
 ## Deferred
 
@@ -48,7 +51,7 @@ ESLint with a simple, trustworthy integration path.
 | MOD-04 through MOD-05 | M1: verification and release gate | Complete |
 | Gate correctness | M2 | Complete |
 | Rule-confidence calibration | M3 | Complete |
-| Internal ownership consolidation | M4 | Planned |
+| Internal ownership consolidation | M4 | Complete |
 
 ---
 *Last updated: 2026-07-13*

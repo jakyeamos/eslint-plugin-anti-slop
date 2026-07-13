@@ -2,11 +2,11 @@
 
 ## Current Position
 
-**Phase:** M3 — high-severity rule evidence calibration complete
+**Phase:** M4 — catalog and finding ownership consolidation complete
 **Branch:** `codex/gpt56-modernization-audit`
 **Baseline:** `v0.3.0`
-**Application behavior changed:** rule evidence, static-path handling, and
-reduced-motion/empty-state boundaries
+**Application behavior changed:** internal ownership and deterministic
+dependency validation only; public package behavior is preserved
 
 ## Completed
 
@@ -81,14 +81,31 @@ reduced-motion/empty-state boundaries
 - Final adversarial reviews found and closed static-path and CSS quote/parser
   boundary cases; no confirmed P0, P1, or P2 finding remains.
 
+## M4 Results
+
+- Added `src/internal/rules/catalog.mjs` as the one production owner of the 16
+  rule bindings, remediation metadata, docs URLs, preset severities, and SARIF
+  rule descriptors.
+- Kept `src/index.mjs` and `src/rule-metadata.mjs` as stable public facades;
+  finding identity remains in `src/finding-core.mjs`, and gate-only analysis
+  SARIF records remain local to `src/gate.mjs`.
+- Replaced in-place rule-module docs URL mutation with decorated plugin rule
+  projections, preserving all declared package imports and report formats.
+- Added a literal catalog golden plus a reachable circular-local-import check
+  to prevent coordinated catalog drift or an internal dependency loop.
+- `pnpm verify` passed with 339 tests, 87.82% line coverage, package dry run,
+  and linked local-consumer smoke; `pnpm verify:ci` and the ESLint 9.0.0 packed
+  smoke also passed.
+- Final adversarial review found no confirmed P0, P1, or P2 finding.
+
 ## Next Milestone
 
-Begin M4: consolidate catalog and finding ownership behind one internal source
-of truth without changing public entrypoints, rule IDs, or report formats.
+Begin M5: complete cutover, release-readiness review, and cleanup against the
+`v0.3.0` baseline.
 
 ## Known Risks
 
-- Rule catalog ownership remains split across modules; M4 must preserve M3's
-  parity fixtures while eliminating duplicate registry/metadata ownership.
+- M5 must retain M4's catalog and public-contract proof while removing any
+  release or migration debris found by the final branch review.
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.

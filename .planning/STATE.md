@@ -12,26 +12,24 @@ ESLint with a simple, trustworthy integration path.
 
 ## Current Position
 
-- Phase: M3 — high-severity rule evidence calibration
+- Phase: M4 — catalog and finding ownership consolidation
 - Status: Complete
 - Baseline: `v0.3.0`
 - Branch: `codex/gpt56-modernization-audit`
 
-M3 keeps rule IDs and public package entrypoints stable while making rule
-evidence path-sensitive and conservative: class utilities evaluate possible
-static paths, runtime fixture/client signals resolve actual references, local
-empty-state actions preserve usable sibling wording, and reduced-motion CSS
-requires a scoped, cascade-valid static fallback.
+M4 makes `src/internal/rules/catalog.mjs` the single production owner of rule
+bindings, metadata, documentation URLs, presets, and SARIF descriptors.
+Finding normalization and fingerprinting remain in their existing canonical
+owner; every public package entrypoint and report format stays stable.
 
 ## Current Evidence
 
-- `pnpm verify` passed with 336 tests, 87.60% line coverage, a package dry run,
+- `pnpm verify` passed with 339 tests, 87.82% line coverage, a package dry run,
   and a linked local-consumer smoke.
 - `pnpm verify:ci` passed with the online packed-consumer smoke and required
   registry dependency audit.
 - `pnpm smoke:published:eslint9-floor` passed against ESLint 9.0.0.
-- Final adversarial reviews closed the rule boundary cases with no remaining
-  confirmed P0, P1, or P2 finding.
+- Final adversarial review found no confirmed P0, P1, or P2 finding.
 
 ## Current Decisions
 
@@ -48,23 +46,26 @@ requires a scoped, cascade-valid static fallback.
   the artifact-isolation proof.
 - Keep high-severity rules conservative when static path, CSS cascade, or
   runtime-reference evidence cannot be proven.
+- Keep the catalog an internal leaf: public facades project it, while rule
+  modules, finding identity, and gate-specific analysis records remain owned
+  by their existing focused modules.
 - Keep the legacy QR remediation work deferred until its overlap with M2–M4 is
   resolved.
 
 ## Next Step
 
-Begin M4: consolidate catalog and finding ownership behind one internal source
-of truth while preserving every public entrypoint and report contract.
+Begin M5: complete cutover, release-readiness review, and cleanup against the
+`v0.3.0` baseline without adding migration debris.
 
 ## Blockers and Risks
 
 - No external blocker.
-- M4 must retain M3's rule fixtures while removing duplicate registry,
-  metadata, and finding-identity ownership.
+- M5 must retain the public compatibility proof while auditing the full branch
+  for release, package, documentation, and cleanup risks.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — M3 evidence calibration committed as `80d1797`
+Last activity: 2026-07-13 — M4 catalog consolidation committed as `b3cfce2`
 after deterministic, online CI, and ESLint-floor validation.
