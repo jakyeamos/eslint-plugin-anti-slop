@@ -3,9 +3,9 @@
 ## Current Position
 
 **Phase:** M5 — release hardening and cutover cleanup complete
-**Branch:** `codex/gpt56-modernization-audit`
+**Branch:** `codex/ci-node20-pnpm-compat` (release-handoff corrective branch)
 **Baseline:** `v0.3.0`
-**Candidate:** `0.4.0` (not tagged or published)
+**Candidate:** `0.4.0` (M0–M5 merged to `main`; not tagged or published)
 **Application behavior changed:** configured gate paths and release defenses
 are stricter; public package entrypoints and report formats remain preserved
 
@@ -122,12 +122,17 @@ are stricter; public package entrypoints and report formats remain preserved
 - Made audit-artifact fixtures select their protected policy explicitly and
   construct synthetic secrets at runtime, so tag-context validation cannot
   change their expected semantics or trigger static-secret advisories.
+- Merged-main CI exposed pnpm 11.7.0 as incompatible with the declared Node
+  20.19 floor. The focused handoff branch pins pnpm 10.34.5 (Node `>=18.12`),
+  adds a workflow regression assertion, and passes `CI=true pnpm verify`
+  (350 tests, 87.95% line coverage) with a rebuilt pnpm-10 smoke consumer.
 
 ## Release Handoff
 
-Merge the reviewed branch to `main` before creating a `v0.4.0` GitHub release.
-The workflow verifies that the tag commit is reachable from `main`; no tag or
-package publication occurred in this modernization work.
+Merge the reviewed pnpm compatibility fix to `main` and confirm the Node 20.19
+and ESLint 9.0.0-floor CI jobs before creating the `v0.4.0` tag. The workflow
+verifies that the tag commit is reachable from `main`; no tag or package
+publication occurred in this modernization work.
 
 ## Known Risks
 
