@@ -135,13 +135,16 @@ are stricter; public package entrypoints and report formats remain preserved
 
 ## Release Handoff
 
-The `v0.4.0` tag resolves to `main` commit `9c3028a`, after the final local
-release gate and GitHub CI passed. GitHub release creation and npm publication
-were intentionally not performed; each requires separate explicit authority.
+The `v0.4.0` tag resolves to `main` commit `9c3028a`, and its GitHub Release is
+published after the final local release gate and GitHub CI passed. The Publish
+workflow then failed at npm provenance publishing with an npm `E404`; `0.4.0`
+is not in the npm registry. Configure npm package ownership/trusted publishing
+for `jakyeamos` / `eslint-plugin-anti-slop` / `publish.yml`, then rerun the
+workflow without changing the tag or release.
 
 ## Known Risks
 
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.
-- The tag is intentionally unpublished; a GitHub Release or npm publication is
-  a separate external action.
+- The public GitHub Release and npm package are temporarily out of sync while
+  npm ownership/trusted-publisher configuration blocks the failed publish.

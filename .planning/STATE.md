@@ -13,9 +13,10 @@ ESLint with a simple, trustworthy integration path.
 ## Current Position
 
 - Phase: M5 — release hardening and cutover cleanup
-- Status: complete — tagged, intentionally unpublished
+- Status: partial release — GitHub Release published; npm publication blocked
 - Previous published baseline: `v0.3.0`; `v0.4.0` is an annotated tag at
-  `main` commit `9c3028a`, with no GitHub Release or npm publication created
+  `main` commit `9c3028a` with a published GitHub Release, but is not present
+  on npm
 - Branch: `main`
 
 M5 preserves the public package contract while containing configured
@@ -44,6 +45,12 @@ and adding a private vulnerability-reporting policy.
   GitHub CI passed Node 20.19, Node 22.13, Node 24, and the ESLint 9.0.0 floor.
 - The annotated `v0.4.0` tag is pushed and resolves to a commit reachable from
   `origin/main`.
+- The public GitHub Release is
+  `https://github.com/jakyeamos/eslint-plugin-anti-slop/releases/tag/v0.4.0`.
+- Publish workflow `29283070886` completed its release verification gate but
+  `pnpm publish --provenance --access public --no-git-checks` received npm
+  `E404` for `PUT /eslint-plugin-anti-slop`; registry lookup confirms `0.4.0`
+  is not published.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
 
@@ -72,23 +79,24 @@ and adding a private vulnerability-reporting policy.
 - Require a release tag to resolve to a commit reachable from `origin/main`
   before dependency installation or publication.
 - Keep private GitHub vulnerability reporting enabled and direct reports to
-  `SECURITY.md`; do not create a GitHub Release or publish to npm without
-  separate explicit authority.
+  `SECURITY.md`; retry npm publishing only through the trusted GitHub Actions
+  workflow after npm package ownership/trusted-publisher configuration is set.
 
 ## Next Step
 
-No technical release work remains. A GitHub release and package publication are
-separate external actions that require explicit authority.
+Configure npm ownership and the trusted publisher for `jakyeamos` /
+`eslint-plugin-anti-slop` / `publish.yml` with the `npm publish` action, then
+rerun the failed Publish workflow. The tag and GitHub Release must not change.
 
 ## Blockers and Risks
 
-- No technical blocker remains; GitHub release and npm publication are
-  intentionally deferred external actions.
+- npm rejected the trusted publish with `E404`, so package ownership or trusted
+  publisher configuration must be corrected outside this repository before a
+  safe retry.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — `v0.4.0` was annotated and pushed at `9c3028a`
-after the Node 20/22/24 and ESLint 9.0.0-floor CI matrix passed; no GitHub
-Release or npm publication was created.
+Last activity: 2026-07-13 — the `v0.4.0` GitHub Release was published after its
+release gate passed, but its trusted npm publish failed with an npm `E404`.

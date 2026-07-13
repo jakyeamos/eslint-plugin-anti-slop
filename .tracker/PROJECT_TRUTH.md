@@ -4,12 +4,15 @@
 
 - Package: `eslint-plugin-anti-slop` `0.4.0`; M0–M5 and the final Node 20
   compatibility fixes are merged to `main`. `v0.4.0` is an annotated tag at
-  commit `9c3028a`; `v0.3.0` is the previous published baseline, and no GitHub
-  Release or npm publication has been created for `v0.4.0`.
+  commit `9c3028a` with a published GitHub Release; `v0.3.0` remains the
+  previous npm-published baseline because npm rejected `0.4.0` publication.
 - Package manager: pnpm `10.34.5`; declared runtime is Node
   `^20.19.0 || ^22.13.0 || >=24` with ESLint 9 flat config.
 - The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
   Node-22-only coverage flag before `v0.4.0` was tagged.
+- The release workflow ran its complete verification gate, then npm returned
+  `E404` for the provenance publish. The registry confirms `0.4.0` is absent;
+  npm ownership or trusted-publisher setup is the remaining external blocker.
 - The package publishes a plugin, quality-gate CLI, audit integration, and
   documented ESM subpaths. M0 established executable proof before public
   behavior changes begin; M1 hardened verification/release policy; M2 hardened
@@ -101,8 +104,9 @@
 
 ## Risks and Deferred Work
 
-- No technical release blocker remains. GitHub release and package publication
-  are separate actions requiring explicit authority.
+- The GitHub Release is public, but npm package ownership or its trusted
+  publisher configuration must be corrected before retrying the failed publish
+  workflow. Legacy QR remediation remains separate work.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
 - User-owned untracked `.agents/` and `skills/` directories remain untouched.
