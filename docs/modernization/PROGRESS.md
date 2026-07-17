@@ -2,11 +2,10 @@
 
 ## Current Position
 
-**Phase:** M5 — release hardening and cutover cleanup complete
-**Branch:** `main`
+**Phase:** M5 — release hardening and cutover cleanup complete; Node support migration in progress
+**Branch:** `codex/node-support-migration`
 **Baseline:** `v0.3.0`
-**Candidate:** `0.4.0` (annotated `v0.4.0` tag at `main` commit `9c3028a`; not
-published)
+**Candidate:** `0.5.0` (pre-1.0 Node support policy update; no tag or publish)
 **Application behavior changed:** configured gate paths and release defenses
 are stricter; public package entrypoints and report formats remain preserved
 
@@ -30,9 +29,9 @@ are stricter; public package entrypoints and report formats remain preserved
   minimum permissions, serialized publishing, and credential-free checkout.
 - Exercised every public runtime export and TypeScript/TSX lint path through a
   packed consumer at current ESLint 9 and the 9.0.0 runtime floor.
-- Corrected the Node compatibility promise to
-  `^20.19.0 || ^22.13.0 || >=24` and pinned the parser version that establishes
-  that floor.
+- The `0.4.0` baseline corrected the Node compatibility promise to
+  `^20.19.0 || ^22.13.0 || >=24`; the pending `0.5.0` compatibility migration
+  narrows it to `^22.13.0 || >=24` because Node 20 is End-of-Life.
 - Validated `anti-slop.config.json` and baseline input before ESLint runs;
   malformed input now exits non-successfully without overwriting a baseline.
 - Represented complete, skipped, and failed analysis separately from gate

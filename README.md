@@ -5,7 +5,7 @@
 <p align="center">
   <img alt="Status: active ESLint plugin" src="https://img.shields.io/badge/status-active%20ESLint%20plugin-0f766e">
   <img alt="ESLint: 9" src="https://img.shields.io/badge/ESLint-9.x-4b32c3">
-  <img alt="Node: 20.19+, 22.13+, or 24+" src="https://img.shields.io/badge/Node-20.19%2B%20%7C%2022.13%2B%20%7C%2024%2B-339933">
+  <img alt="Node: 22.13+ or 24+" src="https://img.shields.io/badge/Node-22.13%2B%20%7C%2024%2B-339933">
   <img alt="Package manager: pnpm" src="https://img.shields.io/badge/package%20manager-pnpm-f59e0b">
 </p>
 
@@ -15,9 +15,12 @@ The plugin is intentionally opinionated. It focuses on rules that are specific e
 
 ## Compatibility
 
-- Node.js `^20.19.0 || ^22.13.0 || >=24`.
+- Node.js `^22.13.0 || >=24`.
 - ESLint 9.x with flat config.
 - React/TypeScript projects using app, component, or library source paths.
+
+The next pre-1.0 release drops Node 20 because that release line is
+End-of-Life. The `0.4.0` release line was the last one with Node 20 support.
 
 ESLint 8 is not supported. A local compatibility audit showed that ESLint
 8.57.1 can load the flat-config rule preset in a narrow lint smoke, but the
@@ -31,8 +34,8 @@ plugin or CLI.
 Version 0.4 retains the published package subpaths and rule IDs, but it is a
 hardening release with deliberate behavior changes:
 
-- Use the supported Node range above; the package no longer supports every
-  Node 20 release.
+- Use the supported Node range above; Node 20 is no longer supported by the
+  next release.
 - Gate JSON output is schema `1.1` and audit events use schema `1.1`; existing
   baseline formats remain accepted. See the audit section for retaining a
   single-version event log.

@@ -25,14 +25,16 @@ describe("GitHub workflows", () => {
     assert.match(ciWorkflow, /permissions:\n  contents: read/);
     assert.match(ciWorkflow, /group: ci-\$\{\{ github\.workflow \}\}-\$\{\{ github\.event\.pull_request\.number \|\| github\.ref \}\}/);
     assert.match(ciWorkflow, /cancel-in-progress: true/);
-    assert.match(ciWorkflow, /node-version: \[20\.19\.0, 22\.13\.0, 24\]/);
+    assert.match(ciWorkflow, /node-version: \[22\.13\.0, 24\]/);
+    assert.doesNotMatch(ciWorkflow, /20\.19\.0/);
     assert.match(ciWorkflow, /run: pnpm verify:ci/);
     assert.match(ciWorkflow, /run: pnpm smoke:published:eslint9-floor/);
     assert.match(ciWorkflow, /persist-credentials: false/);
   });
 
-  it("pins a package manager compatible with the Node 20.19 CI floor", () => {
+  it("pins a package manager compatible with the Node 22.13 CI floor", () => {
     assert.equal(packageJson.packageManager, "pnpm@10.34.5");
+    assert.equal(packageJson.engines.node, "^22.13.0 || >=24");
   });
 
   it("serializes a minimally privileged release and verifies its tag, version, and main ancestry before publishing", () => {

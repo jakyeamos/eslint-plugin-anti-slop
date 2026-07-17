@@ -258,6 +258,7 @@ describe("verification scripts", () => {
 
   it("links the local smoke consumer to the current checkout", () => {
     assert.equal(smokeConsumerPackageJson.dependencies["eslint-plugin-anti-slop"], "link:..");
+    assert.equal(smokeConsumerPackageJson.engines.node, packageJson.engines.node);
     assert.match(packageJson.scripts["smoke:eslint9"], /pnpm --dir smoke-consumer install --frozen-lockfile/);
     assert.doesNotMatch(packageJson.scripts["smoke:eslint9"], /--force/);
   });

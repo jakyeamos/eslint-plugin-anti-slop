@@ -2,6 +2,9 @@
   "name": "anti-slop-smoke-consumer",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "^22.13.0 || >=24"
+  },
   "scripts": {
     "lint": "eslint fixture.jsx --max-warnings=0",
     "audit:anti-slop": "eslint fixture.jsx --format ./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs",

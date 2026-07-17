@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Dropped Node 20 support because the release line is End-of-Life. The package
+  engines declaration, CI matrix, ESLint-floor smoke, documentation, and
+  consumer fixtures now target `^22.13.0 || >=24`. Because this is a breaking
+  support-policy change before 1.0, release it as `0.5.0` rather than a patch.
+
 ## 0.4.0 - 2026-07-13
 
 - Consolidated rule registration, presets, metadata, documentation URLs, and

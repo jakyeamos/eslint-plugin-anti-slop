@@ -5,7 +5,8 @@
 `v0.3.0` is the released baseline. The in-place modernization sequence in
 `docs/modernization/EXEC_PLAN.md` is complete; that document retains the
 milestone detail, dependencies, preservation rules, and verification criteria.
-The branch now carries a verified `0.4.0` candidate, not a release tag.
+The branch now carries a verified `0.5.0` Node-support candidate, not a release
+tag.
 
 ## Active Sequence
 
@@ -20,9 +21,9 @@ The branch now carries a verified `0.4.0` candidate, not a release tag.
 
 ## Release Handoff
 
-Merge the reviewed branch to `main` before creating a `v0.4.0` release. The
+Merge the reviewed branch to `main` before creating a `v0.5.0` release. The
 publish workflow rejects tags whose commits are not reachable from `main`; no
-tag or package publication is part of this modernization branch.
+tag or package publication is part of this compatibility branch.
 
 ## Deferred Work
 
@@ -32,4 +33,4 @@ execution; they must not create concurrent changes to the same rules or
 helpers.
 
 ---
-*Last updated: 2026-07-13*
+*Last updated: 2026-07-17*
