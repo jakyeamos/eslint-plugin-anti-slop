@@ -61,14 +61,14 @@ The code is already divided along useful lines:
 
 ## Parts Worth Retaining
 
-- Raw Node ESM delivery with Node 20+ and ESLint 9 support. A TypeScript source
+- Raw Node ESM delivery with Node 22.13+ or Node 24+ and ESLint 9 support. A TypeScript source
   rewrite or build-output migration has no demonstrated payoff.
 - Individual rule modules and their narrow shared helpers. Do not replace them
   with a generic rule DSL or regex framework.
 - The published subpaths, CLI binary, formatter shim, baseline behavior, audit
   artifacts, and packed-tarball smoke. They are real downstream contracts.
 - The current RuleTester coverage and separate CLI, gate, and audit tests.
-- Trusted npm publishing with provenance and the Node 20/22/24 CI matrix.
+- Trusted npm publishing with provenance and the Node 22.13/24 CI matrix.
 
 ## External Contracts and Constraints
 
@@ -83,7 +83,7 @@ migrated:
   fingerprints, and `anti-slop.config.json` fields.
 - Audit event schema `1.0` history and `1.1` current output, artifact paths,
   redaction, append behavior, and branch policy.
-- ESM import behavior, Node 20+, ESLint 9 flat config, local linked-checkout
+- ESM import behavior, Node 22.13+ or Node 24+, ESLint 9 flat config, local linked-checkout
   development, and OIDC/provenance release flow.
 
 Gate baselines do not need a data migration. Audit output moves to a versioned

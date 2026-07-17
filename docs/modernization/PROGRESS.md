@@ -2,11 +2,10 @@
 
 ## Current Position
 
-**Phase:** M5 — release hardening and cutover cleanup complete
-**Branch:** `main`
-**Baseline:** `v0.3.0`
-**Candidate:** `0.4.0` (annotated `v0.4.0` tag at `main` commit `9c3028a`; not
-published)
+**Phase:** M5 — release hardening and cutover cleanup complete; 0.5.0 release cut in progress
+**Branch:** `codex/release-0.5.0-clean`
+**Baseline:** `v0.4.0` (published on npm and GitHub)
+**Candidate:** `0.5.0` (pre-1.0 Node support policy update; no tag or publish yet)
 **Application behavior changed:** configured gate paths and release defenses
 are stricter; public package entrypoints and report formats remain preserved
 
@@ -30,9 +29,9 @@ are stricter; public package entrypoints and report formats remain preserved
   minimum permissions, serialized publishing, and credential-free checkout.
 - Exercised every public runtime export and TypeScript/TSX lint path through a
   packed consumer at current ESLint 9 and the 9.0.0 runtime floor.
-- Corrected the Node compatibility promise to
-  `^20.19.0 || ^22.13.0 || >=24` and pinned the parser version that establishes
-  that floor.
+- The `0.4.0` baseline corrected the Node compatibility promise to
+  `^20.19.0 || ^22.13.0 || >=24`; the pending `0.5.0` compatibility migration
+  narrows it to `^22.13.0 || >=24` because Node 20 is End-of-Life.
 - Validated `anti-slop.config.json` and baseline input before ESLint runs;
   malformed input now exits non-successfully without overwriting a baseline.
 - Represented complete, skipped, and failed analysis separately from gate
@@ -42,8 +41,10 @@ are stricter; public package entrypoints and report formats remain preserved
 - Moved audit events to schema `1.1`, separated legacy/current fingerprint
   history, and documented the optional archive migration for single-schema
   downstream consumers.
-- Linked the deterministic local smoke directly to the current checkout;
-  packed-artifact isolation remains an independent online check.
+- Pinned the deterministic smoke consumer to the published `0.4.0` registry
+  baseline with lockfile integrity; packed-artifact isolation remains an
+  independent online check. Local `file:` installs remain documented for
+  ad hoc development.
 - Replaced flattened static class evidence with possible class/render paths and
   updated all structural rule consumers to inspect each path.
 - Calibrated demo-data, use-client, empty-state, and reduced-motion evidence
@@ -135,16 +136,15 @@ are stricter; public package entrypoints and report formats remain preserved
 
 ## Release Handoff
 
-The `v0.4.0` tag resolves to `main` commit `9c3028a`, and its GitHub Release is
-published after the final local release gate and GitHub CI passed. The Publish
-workflow then failed at npm provenance publishing with an npm `E404`; `0.4.0`
-is not in the npm registry. Configure npm package ownership/trusted publishing
-for `jakyeamos` / `eslint-plugin-anti-slop` / `publish.yml`, then rerun the
-workflow without changing the tag or release.
+The `v0.4.0` tag resolves to `main` commit `9c3028a`, and its GitHub Release
+and npm publication are now both live after the trusted-publisher configuration
+was corrected. The next release is the intentional Node support break at
+`0.5.0`.
 
 ## Known Risks
 
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.
-- The public GitHub Release and npm package are temporarily out of sync while
-  npm ownership/trusted-publisher configuration blocks the failed publish.
+- Local pnpm enforces a 24-hour minimum release age, so registry smoke runs for
+  the newly published `0.4.0` need a temporary command-line override until
+  that window elapses; CI has no matching local-age blocker.

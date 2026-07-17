@@ -2,17 +2,24 @@
 
 ## Current State
 
-- Package: `eslint-plugin-anti-slop` `0.4.0`; M0–M5 and the final Node 20
-  compatibility fixes are merged to `main`. `v0.4.0` is an annotated tag at
-  commit `9c3028a` with a published GitHub Release; `v0.3.0` remains the
-  previous npm-published baseline because npm rejected `0.4.0` publication.
-- Package manager: pnpm `10.34.5`; declared runtime is Node
-  `^20.19.0 || ^22.13.0 || >=24` with ESLint 9 flat config.
+- Package: `eslint-plugin-anti-slop` `0.5.0` candidate; M0–M5 and the final Node 20
+  compatibility fixes are merged to `main`. The pending release integration
+  branch is the reviewed `0.5.0` pre-1.0 compatibility candidate. `v0.4.0` is an
+  annotated tag at commit `9c3028a`, has a published GitHub Release, and is
+  now the npm-published baseline.
+- Package manager: pnpm `10.34.5`; the pending candidate declares Node
+  `^22.13.0 || >=24` with ESLint 9 flat config and CI coverage on Node 22.13
+  and Node 24.
+- CI and publish pin checkout `v5.0.1`, setup-node `v5.0.0`, and
+  pnpm/action-setup `v4.4.0` to immutable commits using Node 24-compatible
+  action runtimes.
+- Planning snapshots now identify npm `0.4.0` as the published baseline and
+  the untagged `0.5.0` integration branch as the next release.
 - The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
   Node-22-only coverage flag before `v0.4.0` was tagged.
-- The release workflow ran its complete verification gate, then npm returned
-  `E404` for the provenance publish. The registry confirms `0.4.0` is absent;
-  npm ownership or trusted-publisher setup is the remaining external blocker.
+- The earlier `0.4.0` provenance publish returned npm `E404`; after npm
+  ownership and trusted-publisher configuration were corrected, the registry
+  now serves `0.4.0` as the latest release.
 - The package publishes a plugin, quality-gate CLI, audit integration, and
   documented ESM subpaths. M0 established executable proof before public
   behavior changes begin; M1 hardened verification/release policy; M2 hardened
@@ -36,9 +43,11 @@
 - Rule metadata, presets, docs URLs, SARIF descriptors, and declared package
   types are part of the consumer contract even when their implementation moves
   internally.
-- OIDC trusted publishing with npm provenance, immutable action pins, and the
-  Node 20.19/22.13/24 CI matrix are retained release constraints. A release tag
-  must resolve to a commit reachable from `origin/main` before publication.
+- OIDC trusted publishing with npm provenance, immutable Node-24-compatible
+  action pins, and the Node 22.13/24 CI matrix are retained release
+  constraints for the pending candidate. A release tag must resolve to a
+  commit reachable from
+  `origin/main` before publication.
 - Configured baseline and output paths must resolve within the project root,
   including when existing symlinks participate. The secret scan compares both
   staged index blobs and tracked working-tree files, and fails closed on
@@ -60,8 +69,10 @@
   in every CLI policy mode; empty changed sets are visible skipped scans.
 - Added status records to JSONL, Pre-CR, and SARIF, retained requested audit
   mode, and replaced stale audit artifacts with explicit failure events.
-- Versioned audit fingerprints/history and switched local smoke to `link:..`;
-  packed consumer verification remains the artifact-isolation proof.
+- Versioned audit fingerprints/history and switched the smoke consumer to the
+  exact published `0.4.0` registry baseline; packed consumer verification
+  remains the candidate artifact-isolation proof. Local `file:` installs remain
+  available for ad hoc development.
 - Replaced flattened static class evidence with possible render paths and added
   conservative static-value handling for rule consumers.
 - Calibrated fixture fallback, client-signal, empty-state action, and
@@ -83,6 +94,15 @@
 - Added release-tag ancestry enforcement before publish, repository secret-file
   ignores, a security-reporting policy, and verified private GitHub
   vulnerability reporting.
+- Migrated CI and publish action runtimes to Node 24-compatible immutable pins;
+  `CI=true pnpm verify` passed with 351 tests, 87.95% line coverage, package
+  dry run, and linked ESLint 9 consumer smoke.
+- Registry-backed smoke verification passed against `eslint-plugin-anti-slop`
+  `0.4.0`, and test fixture subprocesses now clear inherited Git repository
+  variables so commit hooks cannot alter the release index.
+- The `0.5.0` release ladder passed with 351 tests, 87.98% source line
+  coverage, packed candidate smoke, registry baseline smoke, and an npm audit
+  reporting 0 critical/high advisories.
 - M5 passed `pnpm verify` (349 tests, 87.98% line coverage), `pnpm verify:ci`,
   the ESLint 9.0.0 published-package floor smoke, and
   `GITHUB_REF_NAME=v0.4.0 pnpm verify:release`; final adversarial reviews found
@@ -101,12 +121,20 @@
 - The final release-tag gate passed with 351 tests and 87.98% source line
   coverage, and GitHub CI passed Node 20.19, Node 22.13, Node 24, and the
   ESLint 9.0.0 floor.
+- The pending Node support migration passed `CI=true pnpm verify` with 351 tests
+  and 87.95% line coverage, `pnpm verify:ci` with a packed-consumer install and
+  registry audit reporting 0 critical/high advisories, and the explicit ESLint
+  9.0.0 floor smoke. Linked and packed consumers assert the declared engines
+  metadata.
 
 ## Risks and Deferred Work
 
-- The GitHub Release is public, but npm package ownership or its trusted
-  publisher configuration must be corrected before retrying the failed publish
-  workflow. Legacy QR remediation remains separate work.
+- The GitHub Release and npm `0.4.0` publication are public; the next release
+  is the intentional Node support break at `0.5.0`, which is not tagged or
+  published yet. Legacy QR remediation remains separate work.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
+- Dropping Node 20 is an intentional breaking support-policy change in the 0.x
+  series; release the candidate as `0.5.0` after review and merge. Node 20
+  consumers remain supported by the `0.4.0` line only.
 - User-owned untracked `.agents/` and `skills/` directories remain untouched.

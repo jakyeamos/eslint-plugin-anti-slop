@@ -15,9 +15,9 @@ simple, trustworthy integration path.
 
 ## Current Position
 
-The `v0.3.0` release remains the baseline, and the branch now carries a
-verified, not-yet-published `0.4.0` candidate. The development contract
-supports Node `^20.19.0 || ^22.13.0 || >=24` and ESLint 9 flat config,
+The `v0.4.0` release is the npm-published baseline, and this branch carries a
+verified, not-yet-published `0.5.0` compatibility candidate. The development
+contract supports Node `^22.13.0 || >=24` and ESLint 9 flat config,
 separates a deterministic local gate from explicit online package/supply-chain
 checks, and publishes through a hardened OIDC/provenance workflow. M0 through
 M5 are complete: M5 hardens configured path containment, secret scanning,
@@ -57,4 +57,4 @@ rule IDs, and report formats.
 | Harden release boundaries before publication | Configured paths, repository secrets, and release-tag ancestry must be verified from authoritative project state. | M5 complete |
 
 ---
-*Last updated: 2026-07-13*
+*Last updated: 2026-07-17*

@@ -8,11 +8,11 @@ safe to adopt in CI. Its value is not the number of rules; it is the confidence
 that a reported result means the source was actually analyzed and that the
 recommended action is proportionate to the evidence.
 
-The default release target is a **backward-compatible 0.4 hardening release**.
-Public behavior should change only where current behavior can falsely claim a
-passing analysis, is internally inconsistent, or is documented incorrectly.
-Any intentional JSON schema, fingerprint, rule ID, or preset break requires an
-explicit semver and migration decision before release.
+The `0.4` hardening release is the existing GitHub Release and remains absent
+from npm. The next release target is a focused **0.5.0 pre-1.0 compatibility
+release**: it drops End-of-Life Node 20 support and retains Node 22.13 and Node
+24. This is an intentional breaking support-policy change, so it requires an
+explicit version and migration decision before release.
 
 ## Design Principles
 

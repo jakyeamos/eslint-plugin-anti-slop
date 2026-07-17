@@ -37,6 +37,7 @@ try {
         name: "anti-slop-published-smoke-fixture",
         private: true,
         type: "module",
+        engines: packageJson.engines,
         dependencies: {
           "eslint-plugin-anti-slop": `file:${tarballPath}`,
         },
@@ -146,6 +147,11 @@ try {
     cwd: fixtureRoot,
     stdio: "inherit",
   });
+
+  const installedPackageJson = JSON.parse(
+    readFileSync(join(fixtureRoot, "node_modules", packageJson.name, "package.json"), "utf8"),
+  );
+  assert.equal(installedPackageJson.engines.node, packageJson.engines.node);
 
   if (eslintVersionIndex !== -1) {
     const installedEslintVersion = execFileSync("pnpm", ["exec", "eslint", "--version"], {

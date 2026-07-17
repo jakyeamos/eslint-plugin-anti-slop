@@ -15,11 +15,19 @@ const secretScanScript = join(repoRoot, "scripts", "secret-scan.mjs");
 const packageJson = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
 const smokeConsumerPackageJson = JSON.parse(readFileSync(join(repoRoot, "smoke-consumer", "package.json"), "utf8"));
 
+function isolatedGitEnv(env = process.env) {
+  const result = { ...env };
+  for (const key of ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"]) {
+    delete result[key];
+  }
+  return result;
+}
+
 function runNode(script, { args = [], cwd = repoRoot, env = process.env } = {}) {
   return spawnSync(process.execPath, [script, ...args], {
     cwd,
     encoding: "utf8",
-    env,
+    env: isolatedGitEnv(env),
   });
 }
 
@@ -59,9 +67,10 @@ function writeTrackedSecretFixture(files) {
     writeFileSync(path, contents, "utf8");
   }
 
-  const initialized = spawnSync("git", ["init", "--quiet"], { cwd: root, encoding: "utf8" });
+  const env = isolatedGitEnv();
+  const initialized = spawnSync("git", ["init", "--quiet"], { cwd: root, encoding: "utf8", env });
   assert.equal(initialized.status, 0, initialized.stderr);
-  const staged = spawnSync("git", ["add", "--force", "--all"], { cwd: root, encoding: "utf8" });
+  const staged = spawnSync("git", ["add", "--force", "--all"], { cwd: root, encoding: "utf8", env });
   assert.equal(staged.status, 0, staged.stderr);
   return root;
 }
@@ -256,8 +265,11 @@ describe("verification scripts", () => {
     assert.match(packageJson.scripts["verify:ci"], /pnpm dependency:security:required/);
   });
 
-  it("links the local smoke consumer to the current checkout", () => {
-    assert.equal(smokeConsumerPackageJson.dependencies["eslint-plugin-anti-slop"], "link:..");
+  it("pins the smoke consumer to a published registry baseline", () => {
+    const smokeDependency = smokeConsumerPackageJson.dependencies["eslint-plugin-anti-slop"];
+    assert.equal(smokeDependency, "0.4.0");
+    assert.doesNotMatch(smokeDependency, /^(?:link|file):/);
+    assert.equal(smokeConsumerPackageJson.engines.node, packageJson.engines.node);
     assert.match(packageJson.scripts["smoke:eslint9"], /pnpm --dir smoke-consumer install --frozen-lockfile/);
     assert.doesNotMatch(packageJson.scripts["smoke:eslint9"], /--force/);
   });

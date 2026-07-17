@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-anti-slop",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "description": "Config-driven anti-slop ESLint rules for React/TypeScript projects.",
   "packageManager": "pnpm@10.34.5",
@@ -67,7 +67,7 @@
     "ui-quality"
   ],
   "engines": {
-    "node": "^20.19.0 || ^22.13.0 || >=24"
+    "node": "^22.13.0 || >=24"
   },
   "repository": {
     "type": "git",
