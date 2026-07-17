@@ -1,11 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 - 2026-07-17
 
 - Dropped Node 20 support because the release line is End-of-Life. The package
   engines declaration, CI matrix, ESLint-floor smoke, documentation, and
   consumer fixtures now target `^22.13.0 || >=24`. Because this is a breaking
   support-policy change before 1.0, release it as `0.5.0` rather than a patch.
+- Migrated CI and publish workflows to Node 24-compatible immutable action
+  pins and kept the Node 22.13/24 validation matrix.
+- Pinned the smoke consumer to the published `0.4.0` registry baseline with a
+  lockfile integrity record; packed-consumer verification remains the proof
+  for the candidate package.
 
 ## 0.4.0 - 2026-07-13
 
