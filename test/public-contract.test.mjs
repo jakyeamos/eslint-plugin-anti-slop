@@ -191,6 +191,7 @@ describe("public package contract", () => {
 
   it("ships an executable anti-slop bin target", () => {
     assert.deepEqual(Object.keys(packageJson.bin), ["anti-slop"]);
+    assert.deepEqual(packageJson.publishConfig, { access: "public" });
 
     const binPath = resolve(repoRoot, packageJson.bin["anti-slop"]);
     assert.equal(existsSync(binPath), true);

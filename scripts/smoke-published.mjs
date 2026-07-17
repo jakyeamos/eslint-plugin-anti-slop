@@ -161,6 +161,19 @@ try {
     assert.equal(installedEslintVersion, `v${eslintVersion}`);
   }
 
+  const cliHelpOutput = execFileSync("pnpm", ["exec", "anti-slop", "--help"], {
+    cwd: fixtureRoot,
+    encoding: "utf8",
+  });
+  assert.match(cliHelpOutput, /^Usage: anti-slop /);
+  assert.match(cliHelpOutput, /--version/);
+
+  const cliVersionOutput = execFileSync("pnpm", ["exec", "anti-slop", "--version"], {
+    cwd: fixtureRoot,
+    encoding: "utf8",
+  }).trim();
+  assert.equal(cliVersionOutput, `anti-slop ${packageJson.version}`);
+
   const cliOutput = execFileSync(
     "pnpm",
     ["exec", "anti-slop", "check", "fixture.jsx", "--mode", "audit", "--format", "json"],

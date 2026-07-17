@@ -13,6 +13,7 @@ import {
 } from "./gate.mjs";
 import { AntiSlopInputError, isAntiSlopInputError, VALID_MODES } from "./input.mjs";
 
+const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const VALID_COMMANDS = new Set(["check", "gate"]);
 const VALID_FORMATS = new Set(["text", "json", "jsonl", "pre-cr", "sarif"]);
 const VALID_PRESETS = new Set(["recommended", "strict", "evidence"]);
@@ -30,6 +31,11 @@ export async function runCli(argv, dependencies = {}) {
 
   if (parsed.help) {
     stdout(`${usage()}\n`);
+    return 0;
+  }
+
+  if (parsed.version) {
+    stdout(`anti-slop ${packageJson.version}\n`);
     return 0;
   }
 
@@ -124,6 +130,9 @@ function parseArgs(argv) {
   const [command = "check", ...rest] = argv;
   if (command === "--help" || command === "-h") {
     return { ok: true, help: true, command: "check", options: {}, files: [] };
+  }
+  if (command === "--version" || command === "-v") {
+    return { ok: true, version: true, command: "check", options: {}, files: [] };
   }
   if (!VALID_COMMANDS.has(command)) {
     return { ok: false, error: `Unknown command: ${command}` };
@@ -351,9 +360,15 @@ function analysisFailureMessage(errors) {
 
 function usage() {
   return [
-    "Usage: anti-slop <check|gate> [files...] [options]",
+    "Usage: anti-slop [check|gate] [files...] [options]",
+    "",
+    "Commands:",
+    "  check             Analyze configured or selected files.",
+    "  gate              Run the quality-gate policy for selected files.",
     "",
     "Options:",
+    "  -h, --help",
+    "  -v, --version",
     "  --mode <auto|block|warn|audit>",
     "  --format <text|json|jsonl|pre-cr|sarif>",
     "  --preset <recommended|strict|evidence>",

@@ -85,6 +85,9 @@
     "typescript": "~6.0.3"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@typescript-eslint/parser": "8.62.0",
     "picomatch": "^4.0.5"

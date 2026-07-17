@@ -53,3 +53,8 @@ Update docs when changing:
 5. Create a `v<package-version>` GitHub release tag on a reviewed commit
    reachable from `main`; the publish workflow verifies the tag/version and
    ancestry before publishing through npm trusted publishing with provenance.
+   The package must declare `publishConfig.access: "public"`. If the GitHub
+   release exists but npm still reports an older `latest` version, fix npm
+   ownership/trusted-publisher setup and rerun the existing Publish workflow;
+   do not create a second tag. The workflow's publish command is
+   `pnpm publish --provenance --access public --no-git-checks`.

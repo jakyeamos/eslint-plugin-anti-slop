@@ -58,10 +58,20 @@ notes.
 
 ## Install
 
-From npm:
+The repository currently tracks source release `0.4.0`. Its GitHub tag and
+release are available, but npm currently publishes `0.2.0`; do not use an
+unpinned npm install when you need the current source release.
+
+For the current source release:
 
 ```bash
-pnpm add -D eslint-plugin-anti-slop
+pnpm add -D "github:jakyeamos/eslint-plugin-anti-slop#v0.4.0"
+```
+
+For the last npm-published release:
+
+```bash
+pnpm add -D eslint-plugin-anti-slop@0.2.0
 ```
 
 Package page: [eslint-plugin-anti-slop on npm](https://www.npmjs.com/package/eslint-plugin-anti-slop).
@@ -70,7 +80,10 @@ Package page: [eslint-plugin-anti-slop on npm](https://www.npmjs.com/package/esl
 
 Report vulnerabilities through [GitHub private vulnerability reporting](https://github.com/jakyeamos/eslint-plugin-anti-slop/security/advisories/new). Do not put exploit details or live credentials in a public issue; see the [security policy](SECURITY.md) for the reporting contract.
 
-## Quick Start
+## Plugin configuration
+
+The plugin configuration path is separate from the optional quality-gate CLI
+path below.
 
 ```javascript
 // eslint.config.mjs
@@ -592,13 +605,17 @@ current ESLint 9.x consumer; ESLint 9.0.0 itself does not expose declarations.
 The package includes a gate runner for CI, local hooks, and Pre-CR-adjacent checks:
 
 ```bash
+pnpm exec anti-slop --help
+pnpm exec anti-slop --version
 pnpm exec anti-slop check .
 pnpm exec anti-slop gate --changed --mode block --format pre-cr
 pnpm exec anti-slop check . --preset evidence --format json
 ```
 
-Run `anti-slop --help` after installing the package to inspect the available
-commands.
+The package exposes one executable, `anti-slop`. Root `--help` and `--version`
+read the installed package metadata before loading project configuration;
+`--version` prints `anti-slop <version>`. `check` and `gate` remain the two
+analysis commands and retain their existing exit behavior and report schemas.
 
 `anti-slop check` defaults to human-readable output. `anti-slop gate` defaults to
 line-delimited Pre-CR-compatible records. Both commands run ESLint with a
@@ -832,3 +849,11 @@ exit behavior still depends on the runner's rule severity and CLI settings.
    ancestry and the tag/version match before publishing with npm provenance
    through trusted publishing (the repo must be configured as a trusted
    publisher for the package on npmjs.com — no long-lived npm token).
+
+The current `v0.4.0` GitHub release is not yet published to npm; registry
+readback is `latest: 0.2.0`. After npm package ownership and the trusted
+publisher are corrected, rerun the existing Publish workflow for `v0.4.0`.
+Its exact publication command is
+`pnpm publish --provenance --access public --no-git-checks`; do not create a
+second tag or claim npm publication until
+the registry reports `0.4.0`.

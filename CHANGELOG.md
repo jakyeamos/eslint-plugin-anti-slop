@@ -21,6 +21,12 @@
 
 ## 0.4.0 - 2026-07-13
 
+- Added a canonical root `anti-slop --help` and `anti-slop --version` surface
+  while preserving `check`/`gate` behavior and report schemas. Release
+  metadata now declares public npm publication intent.
+- Release status: source and GitHub `v0.4.0` are ready, but npm latest remains
+  `0.2.0` pending package ownership/trusted-publisher configuration; no npm
+  publication is claimed here.
 - Consolidated rule registration, presets, metadata, documentation URLs, and
   SARIF rule descriptors behind one internal catalog without changing public
   package imports or report formats. `pnpm verify` now also rejects circular

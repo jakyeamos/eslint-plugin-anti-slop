@@ -6,6 +6,8 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { runCli } from "../src/cli.mjs";
 
+const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+
 const eslintResults = [
   {
     filePath: "/repo/app/page.tsx",
@@ -325,6 +327,29 @@ describe("runCli", () => {
 
       assert.equal(exitCode, 0, argv.join(" "));
       assert.match(io.read().stdout, /Usage: anti-slop/);
+      assert.match(io.read().stdout, /--version/);
+      assert.equal(io.read().stderr, "");
+      assert.equal(runnerCalled, false);
+    }
+  });
+
+  it("prints the installed package version for the root version flag", async () => {
+    for (const argv of [["--version"], ["-v"]]) {
+      const io = capture();
+      let runnerCalled = false;
+
+      const exitCode = await runCli(argv, {
+        cwd: "/repo",
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async () => {
+          runnerCalled = true;
+          return [];
+        },
+      });
+
+      assert.equal(exitCode, 0, argv.join(" "));
+      assert.equal(io.read().stdout, `anti-slop ${packageJson.version}\n`);
       assert.equal(io.read().stderr, "");
       assert.equal(runnerCalled, false);
     }
