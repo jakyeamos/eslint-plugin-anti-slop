@@ -11,7 +11,7 @@
     "quality:anti-slop": "anti-slop check fixture.jsx --mode block --format json"
   },
   "dependencies": {
-    "eslint-plugin-anti-slop": "link:.."
+    "eslint-plugin-anti-slop": "0.4.0"
   },
   "devDependencies": {
     "eslint": "^9.29.0"

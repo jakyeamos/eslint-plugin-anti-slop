@@ -54,6 +54,14 @@ function capture() {
   };
 }
 
+function isolatedGitEnv() {
+  const env = { ...process.env };
+  for (const key of ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"]) {
+    delete env[key];
+  }
+  return env;
+}
+
 describe("runCli", () => {
   it("runs with the built-in anti-slop config when a repo has no ESLint config", async () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-standalone-"));
@@ -232,11 +240,16 @@ describe("runCli", () => {
       for (const key of branchEnvKeys) {
         delete process.env[key];
       }
-      execFileSync("git", ["init", "--initial-branch", "feature/glob-cli"], { cwd: repoRoot, stdio: "ignore" });
+      const gitEnv = isolatedGitEnv();
+      execFileSync("git", ["init", "--initial-branch", "feature/glob-cli"], {
+        cwd: repoRoot,
+        stdio: "ignore",
+        env: gitEnv,
+      });
       execFileSync(
         "git",
         ["-c", "user.email=test@example.com", "-c", "user.name=test", "commit", "--allow-empty", "-m", "init"],
-        { cwd: repoRoot, stdio: "ignore" },
+        { cwd: repoRoot, stdio: "ignore", env: gitEnv },
       );
 
       const exitCode = await runCli(["check", "--format", "json"], {
