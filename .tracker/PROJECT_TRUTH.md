@@ -2,9 +2,9 @@
 
 ## Current State
 
-- Package: `eslint-plugin-anti-slop` `0.4.0`; M0–M5 and the final Node 20
+- Package: `eslint-plugin-anti-slop` `0.5.0` candidate; M0–M5 and the final Node 20
   compatibility fixes are merged to `main`. The pending release integration
-  branch is a `0.5.0` pre-1.0 compatibility candidate. `v0.4.0` is an
+  branch is the reviewed `0.5.0` pre-1.0 compatibility candidate. `v0.4.0` is an
   annotated tag at commit `9c3028a`, has a published GitHub Release, and is
   now the npm-published baseline.
 - Package manager: pnpm `10.34.5`; the pending candidate declares Node
@@ -98,6 +98,9 @@
 - Registry-backed smoke verification passed against `eslint-plugin-anti-slop`
   `0.4.0`, and test fixture subprocesses now clear inherited Git repository
   variables so commit hooks cannot alter the release index.
+- The `0.5.0` release ladder passed with 351 tests, 87.98% source line
+  coverage, packed candidate smoke, registry baseline smoke, and an npm audit
+  reporting 0 critical/high advisories.
 - M5 passed `pnpm verify` (349 tests, 87.98% line coverage), `pnpm verify:ci`,
   the ESLint 9.0.0 published-package floor smoke, and
   `GITHUB_REF_NAME=v0.4.0 pnpm verify:release`; final adversarial reviews found
@@ -125,8 +128,8 @@
 ## Risks and Deferred Work
 
 - The GitHub Release and npm `0.4.0` publication are public; the next release
-  is the intentional Node support break at `0.5.0`. Legacy QR remediation
-  remains separate work.
+  is the intentional Node support break at `0.5.0`, which is not tagged or
+  published yet. Legacy QR remediation remains separate work.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
 - Dropping Node 20 is an intentional breaking support-policy change in the 0.x

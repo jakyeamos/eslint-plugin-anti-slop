@@ -13,8 +13,8 @@ ESLint with a simple, trustworthy integration path.
 ## Current Position
 
 - Phase: M5 — release hardening and cutover cleanup; Node support migration complete
-- Status: 0.5.0 compatibility candidate has registry-backed consumer proof and
-  is ready for the version bump and release ladder
+- Status: 0.5.0 metadata is cut and the full local release ladder is green;
+  the integration branch is ready for review and merge
 - Previous published baseline: `v0.4.0`; it is an annotated tag at `main`
   commit `9c3028a`, has a published GitHub Release, and is present on npm
 - Branch: `codex/release-0.5.0-clean`
@@ -61,6 +61,10 @@ and adding a private vulnerability-reporting policy.
   passed against the registry package. Local Git fixture subprocesses clear
   inherited repository variables so commit hooks cannot mutate the release
   index.
+- `CI=true GITHUB_REF_NAME=v0.5.0 npm_config_minimum_release_age=0 pnpm
+  verify:release` passed: formatting, syntax, dead-code, secrets, 351 tests,
+  87.98% coverage, package dry run, registry smoke, packed `0.5.0` smoke, and
+  the npm audit (0 critical/high advisories).
 - The public GitHub Release is
   `https://github.com/jakyeamos/eslint-plugin-anti-slop/releases/tag/v0.4.0`.
 - The earlier `0.4.0` publish workflow initially returned npm `E404`; after
@@ -102,9 +106,8 @@ and adding a private vulnerability-reporting policy.
 
 ## Next Step
 
-Update the package metadata and changelog to `0.5.0`, run the full release
-ladder with the registry-backed smoke, then merge the reviewed integration
-branch to `main`, tag it, and publish through the trusted workflow.
+Review the release diff, push `codex/release-0.5.0-clean`, merge it into
+`main`, tag `v0.5.0`, and publish through the trusted workflow.
 
 ## Blockers and Risks
 
