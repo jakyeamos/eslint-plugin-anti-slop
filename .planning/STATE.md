@@ -13,11 +13,11 @@ ESLint with a simple, trustworthy integration path.
 ## Current Position
 
 - Phase: M5 — release hardening and cutover cleanup; Node support migration complete
-- Status: 0.5.0 compatibility candidate ready for review; npm publication remains blocked
-- Previous published baseline: `v0.3.0`; `v0.4.0` is an annotated tag at
-  `main` commit `9c3028a` with a published GitHub Release, but is not present
-  on npm
-- Branch: `codex/node-support-migration`
+- Status: 0.5.0 compatibility candidate has registry-backed consumer proof and
+  is ready for the version bump and release ladder
+- Previous published baseline: `v0.4.0`; it is an annotated tag at `main`
+  commit `9c3028a`, has a published GitHub Release, and is present on npm
+- Branch: `codex/release-0.5.0-clean`
 
 M5 preserves the public package contract while containing configured
 baseline/output paths to the repository, scanning both tracked index and
@@ -56,12 +56,16 @@ and adding a private vulnerability-reporting policy.
   pnpm/action-setup `v4.4.0` to immutable commits using Node 24-compatible
   action runtimes; `CI=true pnpm verify` passed with 351 tests, 87.95% line
   coverage, a package dry run, and the linked ESLint 9 consumer smoke.
+- The smoke consumer now pins published `eslint-plugin-anti-slop@0.4.0`
+  with a lockfile integrity record; its ESLint, quality, and audit commands
+  passed against the registry package. Local Git fixture subprocesses clear
+  inherited repository variables so commit hooks cannot mutate the release
+  index.
 - The public GitHub Release is
   `https://github.com/jakyeamos/eslint-plugin-anti-slop/releases/tag/v0.4.0`.
-- Publish workflow `29283070886` completed its release verification gate but
-  `pnpm publish --provenance --access public --no-git-checks` received npm
-  `E404` for `PUT /eslint-plugin-anti-slop`; registry lookup confirms `0.4.0`
-  is not published.
+- The earlier `0.4.0` publish workflow initially returned npm `E404`; after
+  ownership and trusted-publisher configuration was corrected, npm now serves
+  `0.4.0` as the latest package.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
 
@@ -76,8 +80,9 @@ and adding a private vulnerability-reporting policy.
   empty configured file lists and every malformed config/baseline shape.
 - Keep audit `1.0` history readable and schema-segregated from current `1.1`
   fingerprints; downstream consumers can archive the old JSONL before upgrade.
-- Use `link:..` for current-checkout smoke and retain the packed consumer as
-  the artifact-isolation proof.
+- Pin the deterministic smoke consumer to the exact published `0.4.0`
+  baseline, and retain the packed consumer as the candidate artifact-isolation
+  proof. Local `file:` installs remain documented for ad hoc development.
 - Keep high-severity rules conservative when static path, CSS cascade, or
   runtime-reference evidence cannot be proven.
 - Keep the catalog an internal leaf: public facades project it, while rule
@@ -97,19 +102,17 @@ and adding a private vulnerability-reporting policy.
 
 ## Next Step
 
-Review and merge `codex/node-support-migration`, then cut `0.5.0` after the
-canonical release branch contains the candidate. Separately configure npm
-ownership and the trusted publisher for `jakyeamos` / `eslint-plugin-anti-slop`
-/ `publish.yml` before retrying the older `0.4.0` publish; its tag and GitHub
-Release must not change.
+Update the package metadata and changelog to `0.5.0`, run the full release
+ladder with the registry-backed smoke, then merge the reviewed integration
+branch to `main`, tag it, and publish through the trusted workflow.
 
 ## Blockers and Risks
 
-- npm rejected the trusted `0.4.0` publish with `E404`, so package ownership or
-  trusted publisher configuration must be corrected outside this repository
-  before a safe retry.
 - Node 20 consumers must remain on the `0.4.0` line; the pending `0.5.0`
   release intentionally narrows the support range to Node 22.13 and Node 24.
+- The machine enforces a 24-hour pnpm minimum release age; local registry
+  smoke runs for the newly published `0.4.0` require a temporary command-line
+  override until that window elapses. CI has no matching local-age blocker.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 

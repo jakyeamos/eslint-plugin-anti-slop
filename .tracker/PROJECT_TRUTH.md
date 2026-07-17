@@ -15,9 +15,9 @@
   action runtimes.
 - The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
   Node-22-only coverage flag before `v0.4.0` was tagged.
-- The release workflow ran its complete verification gate, then npm returned
-  `E404` for the provenance publish. The registry confirms `0.4.0` is absent;
-  npm ownership or trusted-publisher setup is the remaining external blocker.
+- The earlier `0.4.0` provenance publish returned npm `E404`; after npm
+  ownership and trusted-publisher configuration were corrected, the registry
+  now serves `0.4.0` as the latest release.
 - The package publishes a plugin, quality-gate CLI, audit integration, and
   documented ESM subpaths. M0 established executable proof before public
   behavior changes begin; M1 hardened verification/release policy; M2 hardened
@@ -67,8 +67,10 @@
   in every CLI policy mode; empty changed sets are visible skipped scans.
 - Added status records to JSONL, Pre-CR, and SARIF, retained requested audit
   mode, and replaced stale audit artifacts with explicit failure events.
-- Versioned audit fingerprints/history and switched local smoke to `link:..`;
-  packed consumer verification remains the artifact-isolation proof.
+- Versioned audit fingerprints/history and switched the smoke consumer to the
+  exact published `0.4.0` registry baseline; packed consumer verification
+  remains the candidate artifact-isolation proof. Local `file:` installs remain
+  available for ad hoc development.
 - Replaced flattened static class evidence with possible render paths and added
   conservative static-value handling for rule consumers.
 - Calibrated fixture fallback, client-signal, empty-state action, and
@@ -93,6 +95,9 @@
 - Migrated CI and publish action runtimes to Node 24-compatible immutable pins;
   `CI=true pnpm verify` passed with 351 tests, 87.95% line coverage, package
   dry run, and linked ESLint 9 consumer smoke.
+- Registry-backed smoke verification passed against `eslint-plugin-anti-slop`
+  `0.4.0`, and test fixture subprocesses now clear inherited Git repository
+  variables so commit hooks cannot alter the release index.
 - M5 passed `pnpm verify` (349 tests, 87.98% line coverage), `pnpm verify:ci`,
   the ESLint 9.0.0 published-package floor smoke, and
   `GITHUB_REF_NAME=v0.4.0 pnpm verify:release`; final adversarial reviews found
@@ -119,9 +124,9 @@
 
 ## Risks and Deferred Work
 
-- The GitHub Release is public, but npm package ownership or its trusted
-  publisher configuration must be corrected before retrying the failed publish
-  workflow. Legacy QR remediation remains separate work.
+- The GitHub Release and npm `0.4.0` publication are public; the next release
+  is the intentional Node support break at `0.5.0`. Legacy QR remediation
+  remains separate work.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
 - Dropping Node 20 is an intentional breaking support-policy change in the 0.x
