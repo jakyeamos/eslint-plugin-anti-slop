@@ -8,6 +8,10 @@
   previous npm-published baseline because npm rejected `0.4.0` publication.
 - Package manager: pnpm `10.34.5`; declared runtime is Node
   `^20.19.0 || ^22.13.0 || >=24` with ESLint 9 flat config.
+- CI and publish pin checkout `v5.0.1`, setup-node `v5.0.0`, and
+  pnpm/action-setup `v4.4.0` to immutable commits using Node 24-compatible
+  action runtimes; the Node `20.19.0`/`22.13.0`/`24` matrix and release
+  protections remain unchanged.
 - The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
   Node-22-only coverage flag before `v0.4.0` was tagged.
 - The release workflow ran its complete verification gate, then npm returned
@@ -36,9 +40,10 @@
 - Rule metadata, presets, docs URLs, SARIF descriptors, and declared package
   types are part of the consumer contract even when their implementation moves
   internally.
-- OIDC trusted publishing with npm provenance, immutable action pins, and the
-  Node 20.19/22.13/24 CI matrix are retained release constraints. A release tag
-  must resolve to a commit reachable from `origin/main` before publication.
+- OIDC trusted publishing with npm provenance, immutable Node-24-compatible
+  action pins, and the Node 20.19/22.13/24 CI matrix are retained release
+  constraints. A release tag must resolve to a commit reachable from
+  `origin/main` before publication.
 - Configured baseline and output paths must resolve within the project root,
   including when existing symlinks participate. The secret scan compares both
   staged index blobs and tracked working-tree files, and fails closed on
@@ -83,6 +88,9 @@
 - Added release-tag ancestry enforcement before publish, repository secret-file
   ignores, a security-reporting policy, and verified private GitHub
   vulnerability reporting.
+- Migrated CI and publish action runtimes to Node 24-compatible immutable pins;
+  `CI=true pnpm verify` passed with 351 tests, 87.95% line coverage, package
+  dry run, and linked ESLint 9 consumer smoke.
 - M5 passed `pnpm verify` (349 tests, 87.98% line coverage), `pnpm verify:ci`,
   the ESLint 9.0.0 published-package floor smoke, and
   `GITHUB_REF_NAME=v0.4.0 pnpm verify:release`; final adversarial reviews found

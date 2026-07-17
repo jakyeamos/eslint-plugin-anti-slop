@@ -45,6 +45,10 @@ and adding a private vulnerability-reporting policy.
   GitHub CI passed Node 20.19, Node 22.13, Node 24, and the ESLint 9.0.0 floor.
 - The annotated `v0.4.0` tag is pushed and resolves to a commit reachable from
   `origin/main`.
+- CI and publish now pin checkout `v5.0.1`, setup-node `v5.0.0`, and
+  pnpm/action-setup `v4.4.0` to immutable commits using Node 24-compatible
+  action runtimes; `CI=true pnpm verify` passed with 351 tests, 87.95% line
+  coverage, a package dry run, and the linked ESLint 9 consumer smoke.
 - The public GitHub Release is
   `https://github.com/jakyeamos/eslint-plugin-anti-slop/releases/tag/v0.4.0`.
 - Publish workflow `29283070886` completed its release verification gate but
@@ -98,5 +102,6 @@ rerun the failed Publish workflow. The tag and GitHub Release must not change.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — the `v0.4.0` GitHub Release was published after its
-release gate passed, but its trusted npm publish failed with an npm `E404`.
+Last activity: 2026-07-17 — `f17b574` migrated CI and publish action runtimes to
+Node 24-compatible immutable pins; the approved-network verification gate
+passed before the generated install artifacts were removed.
