@@ -3,11 +3,14 @@
 ## Current State
 
 - Package: `eslint-plugin-anti-slop` `0.4.0`; M0–M5 and the final Node 20
-  compatibility fixes are merged to `main`. `v0.4.0` is an annotated tag at
-  commit `9c3028a` with a published GitHub Release; `v0.3.0` remains the
-  previous npm-published baseline because npm rejected `0.4.0` publication.
-- Package manager: pnpm `10.34.5`; declared runtime is Node
-  `^20.19.0 || ^22.13.0 || >=24` with ESLint 9 flat config.
+  compatibility fixes are merged to `main`. The pending
+  `codex/node-support-migration` branch is a `0.5.0` pre-1.0 compatibility
+  candidate. `v0.4.0` is an annotated tag at commit `9c3028a` with a published
+  GitHub Release; `v0.3.0` remains the previous npm-published baseline because
+  npm rejected `0.4.0` publication.
+- Package manager: pnpm `10.34.5`; the pending candidate declares Node
+  `^22.13.0 || >=24` with ESLint 9 flat config and CI coverage on Node 22.13
+  and Node 24.
 - The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
   Node-22-only coverage flag before `v0.4.0` was tagged.
 - The release workflow ran its complete verification gate, then npm returned
@@ -37,8 +40,9 @@
   types are part of the consumer contract even when their implementation moves
   internally.
 - OIDC trusted publishing with npm provenance, immutable action pins, and the
-  Node 20.19/22.13/24 CI matrix are retained release constraints. A release tag
-  must resolve to a commit reachable from `origin/main` before publication.
+  Node 22.13/24 CI matrix are retained release constraints for the pending
+  candidate. A release tag must resolve to a commit reachable from
+  `origin/main` before publication.
 - Configured baseline and output paths must resolve within the project root,
   including when existing symlinks participate. The secret scan compares both
   staged index blobs and tracked working-tree files, and fails closed on
@@ -101,6 +105,11 @@
 - The final release-tag gate passed with 351 tests and 87.98% source line
   coverage, and GitHub CI passed Node 20.19, Node 22.13, Node 24, and the
   ESLint 9.0.0 floor.
+- The pending Node support migration passed `CI=true pnpm verify` with 351 tests
+  and 87.95% line coverage, `pnpm verify:ci` with a packed-consumer install and
+  registry audit reporting 0 critical/high advisories, and the explicit ESLint
+  9.0.0 floor smoke. Linked and packed consumers assert the declared engines
+  metadata.
 
 ## Risks and Deferred Work
 
@@ -109,4 +118,7 @@
   workflow. Legacy QR remediation remains separate work.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
+- Dropping Node 20 is an intentional breaking support-policy change in the 0.x
+  series; release the candidate as `0.5.0` after review and merge. Node 20
+  consumers remain supported by the `0.4.0` line only.
 - User-owned untracked `.agents/` and `skills/` directories remain untouched.

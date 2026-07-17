@@ -12,12 +12,12 @@ ESLint with a simple, trustworthy integration path.
 
 ## Current Position
 
-- Phase: M5 — release hardening and cutover cleanup
-- Status: partial release — GitHub Release published; npm publication blocked
+- Phase: M5 — release hardening and cutover cleanup; Node support migration complete
+- Status: 0.5.0 compatibility candidate ready for review; npm publication remains blocked
 - Previous published baseline: `v0.3.0`; `v0.4.0` is an annotated tag at
   `main` commit `9c3028a` with a published GitHub Release, but is not present
   on npm
-- Branch: `main`
+- Branch: `codex/node-support-migration`
 
 M5 preserves the public package contract while containing configured
 baseline/output paths to the repository, scanning both tracked index and
@@ -31,6 +31,13 @@ and adding a private vulnerability-reporting policy.
 - `pnpm verify:ci` passed with the online packed-consumer smoke and required
   registry dependency audit.
 - `pnpm smoke:published:eslint9-floor` passed against ESLint 9.0.0.
+- The Node support candidate declares `^22.13.0 || >=24`, tests Node 22.13 and
+  Node 24, removes Node 20 from the ESLint-floor job, and asserts the same
+  engines metadata in linked and packed consumers.
+- The Node support candidate passed `CI=true pnpm verify` with 351 tests and
+  87.95% line coverage, `pnpm verify:ci` with a packed-consumer install and
+  registry audit reporting 0 critical/high advisories, and the explicit ESLint
+  9.0.0 floor smoke.
 - `GITHUB_REF_NAME=v0.4.0 pnpm verify:release` passed, including release
   tag/version assertion, fresh packed-consumer verification, and registry audit.
 - `pre-cr run --workspace .` passes after the RuleTester taxonomy split without
@@ -81,22 +88,29 @@ and adding a private vulnerability-reporting policy.
 - Keep private GitHub vulnerability reporting enabled and direct reports to
   `SECURITY.md`; retry npm publishing only through the trusted GitHub Actions
   workflow after npm package ownership/trusted-publisher configuration is set.
+- Treat dropping Node 20 as a breaking pre-1.0 compatibility change and release
+  it as `0.5.0`; do not tag or publish this candidate from the feature branch.
 
 ## Next Step
 
-Configure npm ownership and the trusted publisher for `jakyeamos` /
-`eslint-plugin-anti-slop` / `publish.yml` with the `npm publish` action, then
-rerun the failed Publish workflow. The tag and GitHub Release must not change.
+Review and merge `codex/node-support-migration`, then cut `0.5.0` after the
+canonical release branch contains the candidate. Separately configure npm
+ownership and the trusted publisher for `jakyeamos` / `eslint-plugin-anti-slop`
+/ `publish.yml` before retrying the older `0.4.0` publish; its tag and GitHub
+Release must not change.
 
 ## Blockers and Risks
 
-- npm rejected the trusted publish with `E404`, so package ownership or trusted
-  publisher configuration must be corrected outside this repository before a
-  safe retry.
+- npm rejected the trusted `0.4.0` publish with `E404`, so package ownership or
+  trusted publisher configuration must be corrected outside this repository
+  before a safe retry.
+- Node 20 consumers must remain on the `0.4.0` line; the pending `0.5.0`
+  release intentionally narrows the support range to Node 22.13 and Node 24.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 
 ## Session Continuity
 
-Last activity: 2026-07-13 — the `v0.4.0` GitHub Release was published after its
-release gate passed, but its trusted npm publish failed with an npm `E404`.
+Last activity: 2026-07-17 — `b39490b` recorded the Node 20 support migration as
+a `0.5.0` candidate after the full deterministic, packed-consumer, registry,
+and ESLint-floor gates passed; no tag or publish was performed.
