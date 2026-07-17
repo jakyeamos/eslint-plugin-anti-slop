@@ -13,6 +13,8 @@
 - CI and publish pin checkout `v5.0.1`, setup-node `v5.0.0`, and
   pnpm/action-setup `v4.4.0` to immutable commits using Node 24-compatible
   action runtimes.
+- Planning snapshots now identify npm `0.4.0` as the published baseline and
+  the untagged `0.5.0` integration branch as the next release.
 - The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
   Node-22-only coverage flag before `v0.4.0` was tagged.
 - The earlier `0.4.0` provenance publish returned npm `E404`; after npm

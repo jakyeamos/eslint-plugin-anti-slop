@@ -99,8 +99,8 @@ and adding a private vulnerability-reporting policy.
 - Require a release tag to resolve to a commit reachable from `origin/main`
   before dependency installation or publication.
 - Keep private GitHub vulnerability reporting enabled and direct reports to
-  `SECURITY.md`; retry npm publishing only through the trusted GitHub Actions
-  workflow after npm package ownership/trusted-publisher configuration is set.
+  `SECURITY.md`; publish only through the trusted GitHub Actions workflow. The
+  npm ownership/trusted-publisher configuration is now verified for `0.4.0`.
 - Treat dropping Node 20 as a breaking pre-1.0 compatibility change and release
   it as `0.5.0`; do not tag or publish this candidate from the feature branch.
 
@@ -122,5 +122,6 @@ Review the release diff, push `codex/release-0.5.0-clean`, merge it into
 ## Session Continuity
 
 Last activity: 2026-07-17 — the release integration branch combines the Node
-support migration with Node 24-compatible immutable workflow action pins; the
-next step is the registry-backed smoke proof and `0.5.0` release cut.
+support migration, Node 24-compatible immutable workflow action pins, the
+registry-backed `0.4.0` smoke baseline, and the green `0.5.0` release ladder;
+the next step is review and merge to `main`.

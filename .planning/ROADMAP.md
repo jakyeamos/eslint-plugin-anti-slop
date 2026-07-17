@@ -2,7 +2,7 @@
 
 ## Overview
 
-`v0.3.0` is the released baseline. The in-place modernization sequence in
+`v0.4.0` is the released baseline. The in-place modernization sequence in
 `docs/modernization/EXEC_PLAN.md` is complete; that document retains the
 milestone detail, dependencies, preservation rules, and verification criteria.
 The branch now carries a verified `0.5.0` Node-support candidate, not a release

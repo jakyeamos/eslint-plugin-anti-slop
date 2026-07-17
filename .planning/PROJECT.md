@@ -15,9 +15,8 @@ simple, trustworthy integration path.
 
 ## Current Position
 
-The `v0.3.0` release remains the npm-published baseline, `v0.4.0` is the
-published GitHub Release that remains absent from npm, and this branch carries
-a verified, not-yet-published `0.5.0` compatibility candidate. The development
+The `v0.4.0` release is the npm-published baseline, and this branch carries a
+verified, not-yet-published `0.5.0` compatibility candidate. The development
 contract supports Node `^22.13.0 || >=24` and ESLint 9 flat config,
 separates a deterministic local gate from explicit online package/supply-chain
 checks, and publishes through a hardened OIDC/provenance workflow. M0 through
