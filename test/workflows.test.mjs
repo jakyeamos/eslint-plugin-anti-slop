@@ -4,17 +4,26 @@ import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 const actionPins = {
-  "actions/checkout": "34e114876b0b11c390a56381ad16ebd13914f8d5",
-  "actions/setup-node": "49933ea5288caeca8642d1e84afbd3f7d6820020",
-  "pnpm/action-setup": "b906affcce14559ad1aafd4ab0e942779e9f58b1",
+  "actions/checkout": {
+    pin: "93cb6efe18208431cddfb8368fd83d5badbf9bfd",
+    version: "v5.0.1",
+  },
+  "actions/setup-node": {
+    pin: "a0853c24544627f65ddf259abe73b1d18a591444",
+    version: "v5.0.0",
+  },
+  "pnpm/action-setup": {
+    pin: "fc06bc1257f339d1d5d8b3a19a8cae5388b55320",
+    version: "v4.4.0",
+  },
 };
 const ciWorkflow = readFileSync(fileURLToPath(new URL("../.github/workflows/ci.yml", import.meta.url)), "utf8");
 const publishWorkflow = readFileSync(fileURLToPath(new URL("../.github/workflows/publish.yml", import.meta.url)), "utf8");
 const packageJson = JSON.parse(readFileSync(fileURLToPath(new URL("../package.json", import.meta.url)), "utf8"));
 
 function assertActionPins(workflow) {
-  for (const [action, pin] of Object.entries(actionPins)) {
-    assert.match(workflow, new RegExp(`uses: ${action}@${pin} # v4`));
+  for (const [action, { pin, version }] of Object.entries(actionPins)) {
+    assert.match(workflow, new RegExp(`uses: ${action}@${pin} # ${version}`));
   }
   assert.doesNotMatch(workflow, /uses: (?:actions\/checkout|actions\/setup-node|pnpm\/action-setup)@v4/);
 }
