@@ -3,14 +3,16 @@
 ## Current State
 
 - Package: `eslint-plugin-anti-slop` `0.4.0`; M0–M5 and the final Node 20
-  compatibility fixes are merged to `main`. The pending
-  `codex/node-support-migration` branch is a `0.5.0` pre-1.0 compatibility
-  candidate. `v0.4.0` is an annotated tag at commit `9c3028a` with a published
-  GitHub Release; `v0.3.0` remains the previous npm-published baseline because
-  npm rejected `0.4.0` publication.
+  compatibility fixes are merged to `main`. The pending release integration
+  branch is a `0.5.0` pre-1.0 compatibility candidate. `v0.4.0` is an
+  annotated tag at commit `9c3028a`, has a published GitHub Release, and is
+  now the npm-published baseline.
 - Package manager: pnpm `10.34.5`; the pending candidate declares Node
   `^22.13.0 || >=24` with ESLint 9 flat config and CI coverage on Node 22.13
   and Node 24.
+- CI and publish pin checkout `v5.0.1`, setup-node `v5.0.0`, and
+  pnpm/action-setup `v4.4.0` to immutable commits using Node 24-compatible
+  action runtimes.
 - The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
   Node-22-only coverage flag before `v0.4.0` was tagged.
 - The release workflow ran its complete verification gate, then npm returned
@@ -39,9 +41,10 @@
 - Rule metadata, presets, docs URLs, SARIF descriptors, and declared package
   types are part of the consumer contract even when their implementation moves
   internally.
-- OIDC trusted publishing with npm provenance, immutable action pins, and the
-  Node 22.13/24 CI matrix are retained release constraints for the pending
-  candidate. A release tag must resolve to a commit reachable from
+- OIDC trusted publishing with npm provenance, immutable Node-24-compatible
+  action pins, and the Node 22.13/24 CI matrix are retained release
+  constraints for the pending candidate. A release tag must resolve to a
+  commit reachable from
   `origin/main` before publication.
 - Configured baseline and output paths must resolve within the project root,
   including when existing symlinks participate. The secret scan compares both
@@ -87,6 +90,9 @@
 - Added release-tag ancestry enforcement before publish, repository secret-file
   ignores, a security-reporting policy, and verified private GitHub
   vulnerability reporting.
+- Migrated CI and publish action runtimes to Node 24-compatible immutable pins;
+  `CI=true pnpm verify` passed with 351 tests, 87.95% line coverage, package
+  dry run, and linked ESLint 9 consumer smoke.
 - M5 passed `pnpm verify` (349 tests, 87.98% line coverage), `pnpm verify:ci`,
   the ESLint 9.0.0 published-package floor smoke, and
   `GITHUB_REF_NAME=v0.4.0 pnpm verify:release`; final adversarial reviews found
