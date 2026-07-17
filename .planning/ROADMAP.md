@@ -2,11 +2,10 @@
 
 ## Overview
 
-`v0.4.0` is the released baseline. The in-place modernization sequence in
+`v0.5.0` is the released baseline. The in-place modernization sequence in
 `docs/modernization/EXEC_PLAN.md` is complete; that document retains the
 milestone detail, dependencies, preservation rules, and verification criteria.
-The branch now carries a verified `0.5.0` Node-support candidate, not a release
-tag.
+The Node-support migration is released and the repository is back on `main`.
 
 ## Active Sequence
 
@@ -21,9 +20,9 @@ tag.
 
 ## Release Handoff
 
-Merge the reviewed branch to `main` before creating a `v0.5.0` release. The
-publish workflow rejects tags whose commits are not reachable from `main`; no
-tag or package publication is part of this compatibility branch.
+The reviewed branch was merged to `main` before creating `v0.5.0`. The
+publish workflow verified tag ancestry and published the package through npm
+trusted publishing.
 
 ## Deferred Work
 

@@ -13,11 +13,12 @@ ESLint with a simple, trustworthy integration path.
 ## Current Position
 
 - Phase: M5 — release hardening and cutover cleanup; Node support migration complete
-- Status: 0.5.0 metadata is cut and the full local release ladder is green;
-  the integration branch is ready for review and merge
-- Previous published baseline: `v0.4.0`; it is an annotated tag at `main`
-  commit `9c3028a`, has a published GitHub Release, and is present on npm
-- Branch: `codex/release-0.5.0-clean`
+- Status: `v0.5.0` is merged, tagged, published to GitHub and npm, and
+  independently verified
+- Current release: `v0.5.0` is an annotated tag at main merge commit
+  `dec2de6b9dd39c1d5513ff616c78f34660669128`; `0.4.0` remains the Node 20
+  compatibility line
+- Branch: `main`
 
 M5 preserves the public package contract while containing configured
 baseline/output paths to the repository, scanning both tracked index and
@@ -31,10 +32,10 @@ and adding a private vulnerability-reporting policy.
 - `pnpm verify:ci` passed with the online packed-consumer smoke and required
   registry dependency audit.
 - `pnpm smoke:published:eslint9-floor` passed against ESLint 9.0.0.
-- The Node support candidate declares `^22.13.0 || >=24`, tests Node 22.13 and
+- The released package declares `^22.13.0 || >=24`, tests Node 22.13 and
   Node 24, removes Node 20 from the ESLint-floor job, and asserts the same
   engines metadata in linked and packed consumers.
-- The Node support candidate passed `CI=true pnpm verify` with 351 tests and
+- The Node support migration passed `CI=true pnpm verify` with 351 tests and
   87.95% line coverage, `pnpm verify:ci` with a packed-consumer install and
   registry audit reporting 0 critical/high advisories, and the explicit ESLint
   9.0.0 floor smoke.
@@ -50,8 +51,8 @@ and adding a private vulnerability-reporting policy.
   records.
 - The final tag gate passed with 351 tests and 87.98% source line coverage;
   GitHub CI passed Node 20.19, Node 22.13, Node 24, and the ESLint 9.0.0 floor.
-- The annotated `v0.4.0` tag is pushed and resolves to a commit reachable from
-  `origin/main`.
+- The annotated `v0.5.0` tag is pushed and resolves exactly to the `origin/main`
+  merge commit `dec2de6b9dd39c1d5513ff616c78f34660669128`.
 - CI and publish now pin checkout `v5.0.1`, setup-node `v5.0.0`, and
   pnpm/action-setup `v4.4.0` to immutable commits using Node 24-compatible
   action runtimes; `CI=true pnpm verify` passed with 351 tests, 87.95% line
@@ -66,10 +67,11 @@ and adding a private vulnerability-reporting policy.
   87.98% coverage, package dry run, registry smoke, packed `0.5.0` smoke, and
   the npm audit (0 critical/high advisories).
 - The public GitHub Release is
-  `https://github.com/jakyeamos/eslint-plugin-anti-slop/releases/tag/v0.4.0`.
-- The earlier `0.4.0` publish workflow initially returned npm `E404`; after
-  ownership and trusted-publisher configuration was corrected, npm now serves
-  `0.4.0` as the latest package.
+  `https://github.com/jakyeamos/eslint-plugin-anti-slop/releases/tag/v0.5.0`.
+- Publish workflow `29597146308` completed successfully, including the tag
+  ancestry check, full release verification, and trusted npm provenance
+  publish. npm serves `0.5.0` as the latest package with engines
+  `^22.13.0 || >=24`.
 - Final architecture, package, and security adversarial reviews found no
   confirmed P0, P1, or P2 finding.
 
@@ -101,27 +103,26 @@ and adding a private vulnerability-reporting policy.
 - Keep private GitHub vulnerability reporting enabled and direct reports to
   `SECURITY.md`; publish only through the trusted GitHub Actions workflow. The
   npm ownership/trusted-publisher configuration is now verified for `0.4.0`.
-- Treat dropping Node 20 as a breaking pre-1.0 compatibility change and release
-  it as `0.5.0`; do not tag or publish this candidate from the feature branch.
+- Treat dropping Node 20 as a breaking pre-1.0 compatibility change; the
+  resulting `0.5.0` release is complete and future fixes start from `main`.
 
 ## Next Step
 
-Review the release diff, push `codex/release-0.5.0-clean`, merge it into
-`main`, tag `v0.5.0`, and publish through the trusted workflow.
+Continue maintenance from `main`; the next release should repeat the same
+registry-backed smoke, review, tag, and trusted-publish gates.
 
 ## Blockers and Risks
 
-- Node 20 consumers must remain on the `0.4.0` line; the pending `0.5.0`
-  release intentionally narrows the support range to Node 22.13 and Node 24.
+- Node 20 consumers must remain on the `0.4.0` line; `0.5.0` intentionally
+  narrows the support range to Node 22.13 and Node 24.
 - The machine enforces a 24-hour pnpm minimum release age; local registry
-  smoke runs for the newly published `0.4.0` require a temporary command-line
+  smoke runs for newly published packages require a temporary command-line
   override until that window elapses. CI has no matching local-age blocker.
 - Untracked `.agents/` and `skills/` content remains outside this branch’s
   product scope.
 
 ## Session Continuity
 
-Last activity: 2026-07-17 — the release integration branch combines the Node
-support migration, Node 24-compatible immutable workflow action pins, the
-registry-backed `0.4.0` smoke baseline, and the green `0.5.0` release ladder;
-the next step is review and merge to `main`.
+Last activity: 2026-07-17 — merged PR #2, tagged and published `v0.5.0`, and
+independently verified the GitHub Release, npm latest metadata, tag ancestry,
+and successful trusted-publish workflow.

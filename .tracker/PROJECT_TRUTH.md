@@ -2,24 +2,22 @@
 
 ## Current State
 
-- Package: `eslint-plugin-anti-slop` `0.5.0` candidate; M0–M5 and the final Node 20
-  compatibility fixes are merged to `main`. The pending release integration
-  branch is the reviewed `0.5.0` pre-1.0 compatibility candidate. `v0.4.0` is an
-  annotated tag at commit `9c3028a`, has a published GitHub Release, and is
-  now the npm-published baseline.
-- Package manager: pnpm `10.34.5`; the pending candidate declares Node
+- Package: `eslint-plugin-anti-slop` `0.5.0` published; M0–M5 and the final Node 20
+  compatibility fixes are merged to `main`. `v0.5.0` is an annotated tag at
+  merge commit `dec2de6`, has a published GitHub Release, and is the npm latest.
+- Package manager: pnpm `10.34.5`; the release declares Node
   `^22.13.0 || >=24` with ESLint 9 flat config and CI coverage on Node 22.13
   and Node 24.
 - CI and publish pin checkout `v5.0.1`, setup-node `v5.0.0`, and
   pnpm/action-setup `v4.4.0` to immutable commits using Node 24-compatible
   action runtimes.
-- Planning snapshots now identify npm `0.4.0` as the published baseline and
-  the untagged `0.5.0` integration branch as the next release.
+- Planning snapshots now identify npm `0.5.0` as the published baseline and
+  `main` as the canonical maintenance branch.
 - The final release handoff corrected the Node-20/pnpm-11 setup mismatch and a
   Node-22-only coverage flag before `v0.4.0` was tagged.
 - The earlier `0.4.0` provenance publish returned npm `E404`; after npm
-  ownership and trusted-publisher configuration were corrected, the registry
-  now serves `0.4.0` as the latest release.
+  ownership and trusted-publisher configuration were corrected, workflow
+  `29597146308` published `0.5.0` successfully with provenance.
 - The package publishes a plugin, quality-gate CLI, audit integration, and
   documented ESM subpaths. M0 established executable proof before public
   behavior changes begin; M1 hardened verification/release policy; M2 hardened
@@ -45,7 +43,7 @@
   internally.
 - OIDC trusted publishing with npm provenance, immutable Node-24-compatible
   action pins, and the Node 22.13/24 CI matrix are retained release
-  constraints for the pending candidate. A release tag must resolve to a
+  constraints. A release tag must resolve to a
   commit reachable from
   `origin/main` before publication.
 - Configured baseline and output paths must resolve within the project root,
@@ -129,12 +127,10 @@
 
 ## Risks and Deferred Work
 
-- The GitHub Release and npm `0.4.0` publication are public; the next release
-  is the intentional Node support break at `0.5.0`, which is not tagged or
-  published yet. Legacy QR remediation remains separate work.
+- The GitHub Release and npm `0.5.0` publication are public. Legacy QR
+  remediation remains separate work.
 - Legacy QR remediation is deferred pending reconciliation with the approved
   M2–M4 sequence.
-- Dropping Node 20 is an intentional breaking support-policy change in the 0.x
-  series; release the candidate as `0.5.0` after review and merge. Node 20
-  consumers remain supported by the `0.4.0` line only.
+- Dropping Node 20 was an intentional breaking support-policy change in the
+  0.x series; Node 20 consumers remain supported by the `0.4.0` line only.
 - User-owned untracked `.agents/` and `skills/` directories remain untouched.
