@@ -15,8 +15,8 @@ simple, trustworthy integration path.
 
 ## Current Position
 
-The `v0.4.0` release is the npm-published baseline, and this branch carries a
-verified, not-yet-published `0.5.0` compatibility candidate. The development
+The `v0.5.0` release is the current npm-published baseline, and `v0.4.0`
+remains the Node 20 compatibility line. The development
 contract supports Node `^22.13.0 || >=24` and ESLint 9 flat config,
 separates a deterministic local gate from explicit online package/supply-chain
 checks, and publishes through a hardened OIDC/provenance workflow. M0 through

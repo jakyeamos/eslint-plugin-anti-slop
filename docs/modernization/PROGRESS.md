@@ -2,10 +2,10 @@
 
 ## Current Position
 
-**Phase:** M5 — release hardening and cutover cleanup complete; 0.5.0 release cut in progress
-**Branch:** `codex/release-0.5.0-clean`
-**Baseline:** `v0.4.0` (published on npm and GitHub)
-**Candidate:** `0.5.0` (pre-1.0 Node support policy update; no tag or publish yet)
+**Phase:** M5 — release hardening and cutover cleanup complete; 0.5.0 released
+**Branch:** `main`
+**Baseline:** `v0.5.0` (published on npm and GitHub)
+**Candidate:** none
 **Application behavior changed:** configured gate paths and release defenses
 are stricter; public package entrypoints and report formats remain preserved
 
@@ -136,15 +136,14 @@ are stricter; public package entrypoints and report formats remain preserved
 
 ## Release Handoff
 
-The `v0.4.0` tag resolves to `main` commit `9c3028a`, and its GitHub Release
-and npm publication are now both live after the trusted-publisher configuration
-was corrected. The next release is the intentional Node support break at
-`0.5.0`.
+The `v0.5.0` tag resolves exactly to main merge commit `dec2de6`, and its
+GitHub Release and npm publication are live. The trusted publish workflow
+passed its full verification gate and npm provenance publish.
 
 ## Known Risks
 
 - The untracked `skills/` directory is stale but outside this branch's owned
   tracked product surface.
 - Local pnpm enforces a 24-hour minimum release age, so registry smoke runs for
-  the newly published `0.4.0` need a temporary command-line override until
-  that window elapses; CI has no matching local-age blocker.
+  newly published packages need a temporary command-line override until that
+  window elapses; CI has no matching local-age blocker.
