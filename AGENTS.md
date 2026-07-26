@@ -42,4 +42,6 @@ pre-cr run --workspace .
 
 - Keep commits atomic and scoped to one concern.
 - Do not bypass hooks with `--no-verify`.
-- Commit the project truth-file update separately after the implementation commit when work changes project state.
+- Keep optional planning notes separate from implementation commits when a
+  change materially affects documented scope; no status-file update is
+  required for completion.
