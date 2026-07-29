@@ -10,6 +10,13 @@
     "coverage.out"
   ],
   "coverageFormat": "auto",
+  "qualityAdapters": [
+    {
+      "name": "environment-contract",
+      "command": "node scripts/check_environment_contract.mjs",
+      "required": true
+    }
+  ],
   "surfaces": {
     "covered": [
       "src/**"

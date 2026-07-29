@@ -1,0 +1,5 @@
+overrides:
+  eslint>minimatch: 10.2.5
+  '@eslint/config-array>minimatch': 10.2.5
+  '@eslint/eslintrc>minimatch': 10.2.5
+  js-yaml: 4.3.0

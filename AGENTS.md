@@ -2,7 +2,21 @@
 
 ## Scope
 
-These instructions apply to this repository.
+These instructions apply to this repository. Read `.agents/context/README.md`
+first and load only the packet relevant to the task.
+
+## Ownership and boundaries
+
+- `src/` owns the published ESLint plugin, rules, CLI, gate, and audit
+  projections.
+- `test/` owns behavioral and public-contract evidence; `smoke-consumer/` owns
+  real-consumer compatibility evidence.
+- `scripts/` owns deterministic repository checks and never replaces Quality
+  Runner's findings engine.
+- AIOS is historical compatibility only. Do not import AIOS modules, write to
+  its database, or inherit its permissions.
+- Quality Runner owns repository quality findings; this package only exposes
+  its own rule and audit behavior.
 
 ## Package Management
 
@@ -32,6 +46,17 @@ Run this before committing product or rule changes:
 pnpm verify
 ```
 
+The environment contract is an additional blocking prerequisite:
+
+```bash
+pnpm quality:contract
+pre-cr run --workspace .
+```
+
+Keep `test/types/tsconfig.json` strict. Do not weaken type or security checks
+to make a branch green. Distinguish deterministic local evidence from
+registry-dependent consumer and dependency evidence.
+
 For small documentation-only changes, run at least:
 
 ```bash
@@ -45,3 +70,9 @@ pre-cr run --workspace .
 - Keep optional planning notes separate from implementation commits when a
   change materially affects documented scope; no status-file update is
   required for completion.
+
+## Definition of done
+
+A change is complete only when its implementation, rule catalog, docs, fixtures,
+package contents, and verification evidence agree. Publishing, marketplace
+release, remotes, and deployment remain explicit human-approved actions.

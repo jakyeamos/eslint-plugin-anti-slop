@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Environment contract
+        run: pnpm quality:contract
+
       - name: Run verification gate
         run: pnpm verify:ci
 

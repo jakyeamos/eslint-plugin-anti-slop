@@ -37,6 +37,7 @@ describe("GitHub workflows", () => {
     assert.match(ciWorkflow, /node-version: \[22\.13\.0, 24\]/);
     assert.doesNotMatch(ciWorkflow, /20\.19\.0/);
     assert.match(ciWorkflow, /run: pnpm verify:ci/);
+    assert.match(ciWorkflow, /run: pnpm quality:contract/);
     assert.match(ciWorkflow, /run: pnpm smoke:published:eslint9-floor/);
     assert.match(ciWorkflow, /persist-credentials: false/);
   });

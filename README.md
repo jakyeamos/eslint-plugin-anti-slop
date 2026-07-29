@@ -60,7 +60,7 @@ notes.
 
 The repository currently tracks source release `0.4.0`. Its GitHub tag and
 release are available, but npm currently publishes `0.2.0`; do not use an
-unpinned npm install when you need the current source release.
+unpinned registry install when you need the current source release.
 
 For the current source release:
 
@@ -79,6 +79,17 @@ Package page: [eslint-plugin-anti-slop on npm](https://www.npmjs.com/package/esl
 ## Security
 
 Report vulnerabilities through [GitHub private vulnerability reporting](https://github.com/jakyeamos/eslint-plugin-anti-slop/security/advisories/new). Do not put exploit details or live credentials in a public issue; see the [security policy](SECURITY.md) for the reporting contract.
+
+## Environment contract
+
+Agents should begin with [`AGENTS.md`](AGENTS.md) and the linked
+`.agents/context/` packet for the task. The executable contract is
+`pnpm quality:contract`; it checks context freshness and links, strict public
+TypeScript types, required Pre-CR and Quality Runner gates, CI command parity,
+and tracked secret-like paths. It is also required by `.pre-cr.json` and CI.
+
+Keep prompts small: use the context router and targeted files rather than
+dumping the entire repository into an agent session.
 
 ## Plugin configuration
 
