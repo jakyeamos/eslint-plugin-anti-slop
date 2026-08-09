@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "revision": 1,
+  "project": {
+    "name": "eslint-plugin-anti-slop",
+    "identity": "An ESLint plugin that catches low-signal AI and code-review patterns before they land in JavaScript and TypeScript code.",
+    "audience": "JavaScript and TypeScript teams that want focused signal-quality checks in local lint and CI workflows.",
+    "core_loop": "Run lint rules against a code change, report low-signal patterns with actionable locations, fix or consciously review them, and use the same checks in CI.",
+    "north_star": "Low-signal generated or review-shaped code is made visible early enough for a team to improve it before it becomes shared code.",
+    "not_this": ["A universal style or correctness judge", "A model client or autonomous refactoring service", "A license to reject code without explainable rule evidence"]
+  },
+  "targets": {
+    "mvp": {"definition": "The package installs and exposes focused anti-slop rules that produce actionable ESLint diagnostics for supported JavaScript and TypeScript patterns."},
+    "complete_product": {"definition": "The plugin provides a stable, explainable rule set with low false-positive risk, documented configuration, and reliable local and CI adoption across supported codebases."}
+  },
+  "pillars": [
+    {"id": "actionable-signal", "name": "Actionable signal quality", "outcomes": [{"id": "explainable-lint-findings", "name": "Teams receive focused diagnostics that identify low-signal patterns and support a human fix or review decision.", "targets": ["mvp", "complete_product"], "maturity": 75, "confidence": "medium", "layers": {"intended": "The plugin improves code signal without pretending to replace engineering judgment.", "planned": "The package exposes rules and configuration for anti-slop patterns.", "implemented": "An active ESLint package contains the rule implementation and package surface.", "verified": "Package documentation and repository shape support implementation; full consumer matrix was not run here."}, "evidence": [{"ref": "README.md", "note": "Describes the ESLint plugin purpose and supported anti-slop scope.", "observed_at": "2026-08-02T13:25:04Z"}, {"ref": "AGENTS.md", "note": "Provides repository workflow and quality constraints.", "observed_at": "2026-08-02T13:25:04Z"}], "blockers": [{"kind": "verification", "summary": "False-positive behavior and compatibility across supported ESLint and parser configurations need broader execution evidence."}]}]},
+    {"id": "safe-adoption", "name": "Safe adoption", "outcomes": [{"id": "local-ci-parity", "name": "The same explainable checks can run locally and in CI without hidden model, network, or mutation dependencies.", "targets": ["complete_product"], "maturity": 50, "confidence": "medium", "layers": {"intended": "Teams can adopt the plugin as a predictable quality layer.", "planned": "The package is positioned as an ordinary ESLint plugin rather than an agent service.", "implemented": "The repository contains a publishable plugin package.", "verified": "No release or consumer CI parity check was performed in this bootstrap."}, "evidence": [{"ref": "README.md", "note": "Frames the project as an ESLint plugin with local rule execution.", "observed_at": "2026-08-02T13:25:04Z"}], "blockers": [{"kind": "verification", "summary": "Release compatibility and CI adoption remain to be verified against representative consumers."}]}]}
+  ],
+  "source_layers": {"intended": [{"ref": "README.md", "note": "Product identity and user outcome.", "observed_at": "2026-08-02T13:25:04Z"}], "planned": [{"ref": "README.md", "note": "Rule and package scope.", "observed_at": "2026-08-02T13:25:04Z"}], "implemented": [{"ref": "README.md", "note": "Current package surface.", "observed_at": "2026-08-02T13:25:04Z"}], "verified": [{"ref": "README.md", "note": "Documented package claims; no consumer matrix was run here.", "observed_at": "2026-08-02T13:25:04Z"}]},
+  "drift": [{"kind": "verification-gap", "summary": "The low-signal quality outcome depends on false-positive and parser/configuration compatibility evidence that is broader than the current repository-local proof.", "status": "open", "observed_at": "2026-08-02T13:25:04Z", "evidence": [{"ref": "README.md", "note": "Documents intended package scope but not the full consumer matrix.", "observed_at": "2026-08-02T13:25:04Z"}]}],
+  "updated_at": "2026-08-02T13:25:04Z"
+}
