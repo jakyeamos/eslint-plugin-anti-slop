@@ -1,0 +1,29 @@
+{
+  "schema_version": "change-surface-matrix/v1",
+  "subject": {"kind": "repository", "id": "eslint-plugin-anti-slop"},
+  "owner": "repository-owner",
+  "last_reviewed": "2026-08-11",
+  "surfaces": [
+    {
+      "id": "eslint-rules",
+      "scope": "local",
+      "path": "rules/, test/, scripts/, eslint.config.*",
+      "owner": "repository-owner",
+      "condition": "rule, preset, parser, fixture, or static-check behavior changes",
+      "operations": ["add", "change", "remove"],
+      "validation": ["pnpm test", "pnpm check:syntax", "pnpm check:format", "pnpm check:dead-code"],
+      "status": "applicable"
+    },
+    {
+      "id": "npm-consumers",
+      "scope": "external",
+      "path": "packed npm artifact, smoke-consumer, registry consumer, and release metadata",
+      "owner": "integration-owner",
+      "condition": "public rule contract, package exports, version, or dependency behavior changes",
+      "operations": ["add", "change", "remove"],
+      "validation": ["pnpm pack:check", "pnpm smoke:consumer", "pnpm verify:ci"],
+      "status": "applicable"
+    }
+  ],
+  "unresolved_surfaces": []
+}

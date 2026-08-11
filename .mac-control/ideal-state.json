@@ -1,9 +1,10 @@
 {
-  "schema": "mac-control-task-manifest/v1",
+  "schema": "mac-control-task-manifest/v3",
   "repository_id": "repo-59c1a387008c25f4",
   "repository_name": "eslint-plugin-anti-slop",
   "applicability": "not_applicable",
-  "applicability_reason": "No repository-owned macOS application or Mac Control-specific task surface is present; this repository exposes browser, service, library, data, CLI, or test-fixture behavior covered by its direct interface.",
+  "applicability_reason": "This repository owns an ESLint plugin, static rules, and package consumers rather than a repository-owned native or browser user interface for Mac Control task measurement.",
+  "app": null,
   "criteria": {},
   "tasks": []
 }
