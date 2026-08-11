@@ -13,6 +13,15 @@
 
 The plugin is intentionally opinionated. It focuses on rules that are specific enough to be useful in product repositories without turning lint into vague taste enforcement.
 
+## Quality evidence checkpoint
+
+Last reviewed: 2026-08-11.
+
+The repository instructions, completion checks, and executable quality commands
+were reviewed on this date. This checkpoint keeps the evidence current; it
+does not claim that every check passes. Re-run the documented checks and the
+fleet audit when these contracts or the target branch changes.
+
 ## Compatibility
 
 - Node.js `^22.13.0 || >=24`.
