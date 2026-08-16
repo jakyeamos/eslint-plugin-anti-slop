@@ -594,6 +594,7 @@ The package includes a gate runner for CI, local hooks, and Pre-CR-adjacent chec
 ```bash
 pnpm exec anti-slop check .
 pnpm exec anti-slop gate --changed --mode block --format pre-cr
+pnpm exec anti-slop check . --preset evidence --format json
 ```
 
 Run `anti-slop --help` after installing the package to inspect the available
@@ -606,6 +607,12 @@ configured gate policy, and exit nonzero only when the effective policy blocks
 new error findings. The built-in config supports JavaScript, JSX, TypeScript,
 and TSX, so backfill scans can run before a target repo has adopted an
 Anti-Slop ESLint config.
+
+The default `recommended` preset covers the product and UI rules. The opt-in
+`evidence` preset enables the TypeScript evidence rules used by external
+detector integrations; select it with `--preset evidence` or the reusable
+config's `preset: "evidence"` option. The `strict` preset raises the ordinary
+recommended rules to error severity.
 
 A successful gate result means the selected source was analyzed using a valid
 configuration and baseline. Invalid configuration or baseline input exits `2`
@@ -767,6 +774,7 @@ import { antiSlopAiosAuditConfig } from "eslint-plugin-anti-slop/aios-audit-conf
 
 export default antiSlopAiosAuditConfig({
   ignores: ["generated/**"],
+  preset: "evidence",
 });
 ```
 

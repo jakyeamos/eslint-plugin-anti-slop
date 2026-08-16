@@ -90,6 +90,25 @@ describe("runCli", () => {
     }
   });
 
+  it("selects the evidence preset for the QR adapter", async () => {
+    const io = capture();
+    const seen = {};
+
+    const exitCode = await runCli(["check", "--preset", "evidence", "--format", "json", "--mode", "audit"], {
+      cwd: "/repo",
+      stdout: io.stdout,
+      stderr: io.stderr,
+      eslintRunner: async (_files, options) => {
+        seen.options = options;
+        return [];
+      },
+    });
+
+    assert.equal(exitCode, 0);
+    assert.deepEqual(seen.options, { cwd: "/repo", ignores: [] });
+    assert.equal(JSON.parse(io.read().stdout).analysis.status, "complete");
+  });
+
   it("runs the check command and exits nonzero when block mode has new errors", async () => {
     const io = capture();
     const seen = {};

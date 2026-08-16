@@ -10,6 +10,7 @@ const DEFAULT_CONFIG = {
   files: ["."],
   ignores: [],
   mode: "auto",
+  preset: "recommended",
   baselinePath: ".anti-slop-baseline.json",
   outputPath: null,
 };
@@ -226,6 +227,12 @@ function validateConfig(parsed, configPath, repoRoot) {
       throw new AntiSlopInputError("configuration", configPath, "\"mode\" must be one of auto, block, warn, audit.");
     }
     config.mode = parsed.mode;
+  }
+  if ("preset" in parsed) {
+    if (typeof parsed.preset !== "string" || !["recommended", "strict", "evidence"].includes(parsed.preset)) {
+      throw new AntiSlopInputError("configuration", configPath, '"preset" must be one of recommended, strict, evidence.');
+    }
+    config.preset = parsed.preset;
   }
   if ("baselinePath" in parsed) {
     config.baselinePath = projectPath(parsed.baselinePath, "baselinePath", configPath, repoRoot);

@@ -15,6 +15,7 @@ import { AntiSlopInputError, isAntiSlopInputError, VALID_MODES } from "./input.m
 
 const VALID_COMMANDS = new Set(["check", "gate"]);
 const VALID_FORMATS = new Set(["text", "json", "jsonl", "pre-cr", "sarif"]);
+const VALID_PRESETS = new Set(["recommended", "strict", "evidence"]);
 
 export async function runCli(argv, dependencies = {}) {
   const stdout = dependencies.stdout ?? ((text) => process.stdout.write(text));
@@ -67,7 +68,8 @@ export async function runCli(argv, dependencies = {}) {
     return report.exitCode;
   }
 
-  const eslintRunner = dependencies.eslintRunner ?? defaultEslintRunner(cwd, projectConfig);
+  const preset = parsed.options.preset ?? projectConfig.preset;
+  const eslintRunner = dependencies.eslintRunner ?? defaultEslintRunner(cwd, projectConfig, preset);
   let results;
   try {
     results = await eslintRunner(selection.files, { cwd, ignores: projectConfig.ignores });
@@ -146,7 +148,7 @@ function parseArgs(argv) {
       continue;
     }
 
-    if (["--format", "--mode", "--baseline", "--branch", "--files"].includes(arg)) {
+    if (["--format", "--mode", "--baseline", "--branch", "--files", "--preset"].includes(arg)) {
       const value = rest[index + 1];
       if (!value) {
         return { ok: false, error: `Missing value for ${arg}` };
@@ -167,6 +169,11 @@ function parseArgs(argv) {
         options.baseline = value;
       } else if (arg === "--branch") {
         options.branch = value;
+      } else if (arg === "--preset") {
+        if (!VALID_PRESETS.has(value)) {
+          return { ok: false, error: `Invalid preset: ${value}` };
+        }
+        options.preset = value;
       } else {
         options.files = value.split(",").map((item) => item.trim()).filter(Boolean);
       }
@@ -239,21 +246,21 @@ function defaultChangedFiles(cwd) {
   }
 }
 
-function defaultEslintRunner(cwd, projectConfig) {
+function defaultEslintRunner(cwd, projectConfig, preset = "recommended") {
   return async (files) => {
     const { ESLint } = await import("eslint");
     const eslint = new ESLint({
       cwd,
       errorOnUnmatchedPattern: false,
       overrideConfigFile: true,
-      overrideConfig: antiSlopCliConfig(projectConfig),
+      overrideConfig: antiSlopCliConfig(projectConfig, preset),
     });
     return eslint.lintFiles(files);
   };
 }
 
-function antiSlopCliConfig(projectConfig) {
-  return antiSlopAiosAuditConfig({ ignores: projectConfig.ignores });
+function antiSlopCliConfig(projectConfig, preset = "recommended") {
+  return antiSlopAiosAuditConfig({ ignores: projectConfig.ignores, preset });
 }
 
 function readBaseline(path) {
@@ -349,6 +356,7 @@ function usage() {
     "Options:",
     "  --mode <auto|block|warn|audit>",
     "  --format <text|json|jsonl|pre-cr|sarif>",
+    "  --preset <recommended|strict|evidence>",
     "  --changed",
     "  --files <comma,separated,files>",
     "  --baseline <path>",

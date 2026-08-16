@@ -42,6 +42,19 @@ describe("AIOS audit integration surface", () => {
     assert.equal(config[2].rules["anti-slop/no-placeholder-copy"], "error");
   });
 
+  it("selects the evidence preset rules without changing the recommended default", () => {
+    const recommended = antiSlopAiosAuditConfig();
+    const evidence = antiSlopAiosAuditConfig({ preset: "evidence" });
+
+    assert.equal(recommended[2].rules["anti-slop/no-known-value-widening"], undefined);
+    assert.deepEqual(Object.keys(evidence[2].rules).sort(), [
+      "anti-slop/no-known-value-widening",
+      "anti-slop/no-widen-then-assert",
+      "anti-slop/require-safety-comment-for-type-assertion",
+    ]);
+    assert.deepEqual(Object.keys(evidence[1].rules).sort(), Object.keys(evidence[2].rules).sort());
+  });
+
   it("declares the reusable audit config as a package export", () => {
     const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 

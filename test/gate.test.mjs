@@ -292,6 +292,7 @@ describe("readAntiSlopConfig", () => {
         files: ["src/**/*.ts"],
         ignores: ["dist/**"],
         mode: "warn",
+        preset: "recommended",
         baselinePath: ".anti-slop-baseline.json",
         outputPath: ".aios/audit/anti-slop.json",
       });
@@ -308,6 +309,7 @@ describe("readAntiSlopConfig", () => {
         files: ["."],
         ignores: [],
         mode: "auto",
+        preset: "recommended",
         baselinePath: ".anti-slop-baseline.json",
         outputPath: null,
       });
@@ -322,6 +324,7 @@ describe("readAntiSlopConfig", () => {
       { value: [], pattern: /must contain an object/ },
       { value: { unknown: true }, pattern: /Unknown configuration field/ },
       { value: { mode: "invalid" }, pattern: /mode/ },
+      { value: { preset: "invalid" }, pattern: /preset/ },
       { value: { files: "src" }, pattern: /files/ },
       { value: { files: [] }, pattern: /files/ },
       { value: { ignores: ["dist/**", 1] }, pattern: /ignores/ },
@@ -344,6 +347,7 @@ describe("readAntiSlopConfig", () => {
         files: ["."],
         ignores: [],
         mode: "audit",
+        preset: "recommended",
         baselinePath: ".anti-slop-baseline.json",
         outputPath: null,
       });

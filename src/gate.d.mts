@@ -2,6 +2,7 @@ import type { ESLint } from "eslint";
 
 export type AntiSlopGateMode = "auto" | "block" | "warn" | "audit";
 export type AntiSlopGateFormat = "text" | "json" | "jsonl" | "pre-cr" | "sarif";
+export type AntiSlopPreset = "recommended" | "strict" | "evidence";
 export type AntiSlopGateDecision = "block" | "warn" | "pass" | "skipped" | "error";
 export type AntiSlopAnalysisStatus = "complete" | "skipped" | "failed";
 export type AntiSlopAnalysisSelection = "explicit" | "configured" | "changed";
@@ -25,6 +26,7 @@ export interface AntiSlopProjectConfig {
   files: string[];
   ignores: string[];
   mode: AntiSlopGateMode;
+  preset: AntiSlopPreset;
   baselinePath: string;
   outputPath: string | null;
 }
