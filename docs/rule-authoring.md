@@ -58,6 +58,7 @@ rule name, rule module, and metadata:
 - category
 - `recommendedSeverity` for balanced product defaults
 - `strictSeverity` for all-error enforcement
+- `evidenceSeverity` for opt-in evidence-preservation rules
 - `requiredFix` guidance
 
 The catalog derives plugin registration, rule documentation URLs, both presets,

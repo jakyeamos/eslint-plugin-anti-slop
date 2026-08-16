@@ -9,7 +9,7 @@
   <img alt="Package manager: pnpm" src="https://img.shields.io/badge/package%20manager-pnpm-f59e0b">
 </p>
 
-`eslint-plugin-anti-slop` catches product and UI code patterns that make React/TypeScript apps feel unfinished: unjustified client components, placeholder copy, generic marketing text, demo data on primary routes, weak empty states, generic stat labels, defensive guard sprawl, low-value memoization, and deterministic structural UI tells such as gradient text, decorative grid backgrounds, side-stripe accents, excessive radii, arbitrary z-index values, missing reduced-motion fallbacks, hidden reveal defaults, and nested cards.
+`eslint-plugin-anti-slop` catches product and UI code patterns that make React/TypeScript apps feel unfinished: unjustified client components, placeholder copy, generic marketing text, demo data on primary routes, weak empty states, generic stat labels, defensive guard sprawl, low-value memoization, and deterministic structural UI tells such as gradient text, decorative grid backgrounds, side-stripe accents, excessive radii, arbitrary z-index values, missing reduced-motion fallbacks, hidden reveal defaults, and nested cards. An opt-in evidence preset also protects useful TypeScript evidence at unsafe boundaries.
 
 The plugin is intentionally opinionated. It focuses on rules that are specific enough to be useful in product repositories without turning lint into vague taste enforcement.
 
@@ -137,6 +137,7 @@ export default [
 | --- | --- |
 | `antiSlop.configs.recommended` | Balanced defaults for product repositories. |
 | `antiSlop.configs.strict` | Escalates every rule to `error`. |
+| `antiSlop.configs.evidence` | Opt-in TypeScript rules for preserving known value evidence and documenting assertions. |
 
 ## Rules
 
@@ -161,6 +162,9 @@ Each rule has a full docs page with rationale, examples, and options under
 | `anti-slop/require-reduced-motion` | Static motion code without a type-matched reduced-motion fallback. |
 | `anti-slop/no-hidden-reveal-default` | Reveal patterns that hide content by default. |
 | `anti-slop/no-nested-cards` | Nested `Card` components or nested `card` class containers. |
+| `anti-slop/require-safety-comment-for-type-assertion` | TypeScript assertions without a nearby `SAFETY:` invariant comment. |
+| `anti-slop/no-known-value-widening` | Known values assigned to broad or anonymous types that erase useful evidence. |
+| `anti-slop/no-widen-then-assert` | Immutable values widened before being reconstructed with a narrower assertion. |
 
 ### `anti-slop/no-unjustified-use-client`
 
@@ -480,6 +484,66 @@ Valid:
 <Card>
   <section>Details</section>
 </Card>
+```
+
+### `anti-slop/require-safety-comment-for-type-assertion`
+
+Requires a nearby `SAFETY:` comment for non-const TypeScript assertions. The
+comment records the invariant that the type system cannot express; `as const`
+remains valid without one.
+
+Invalid:
+
+```tsx
+const user = input as User;
+```
+
+Valid:
+
+```tsx
+// SAFETY: The parser established the User invariant.
+const user = input as User;
+```
+
+### `anti-slop/no-known-value-widening`
+
+Reports known literals, objects, arrays, and stable const bindings flowing into
+`unknown`, `object`, open dictionaries, or anonymous object targets. Empty
+dictionary initializers, named owner contracts, `satisfies`, and values coming
+from calls remain valid.
+
+Invalid:
+
+```tsx
+const command = { run: () => {} };
+const commands: Record<string, () => void> = { run: () => {} };
+```
+
+Valid:
+
+```tsx
+const commands = { run: () => {} } satisfies Record<string, () => void>;
+```
+
+### `anti-slop/no-widen-then-assert`
+
+Reports a stable known value that is widened into `unknown`, `object`, or a
+dictionary and later asserted back to a narrower structural type. Parse or
+validate boundary input once and preserve the resulting type.
+
+Invalid:
+
+```tsx
+const source = { id: "user-1" };
+const widened: unknown = source;
+const user = widened as { readonly id: string };
+```
+
+Valid:
+
+```tsx
+declare const input: unknown;
+const user = input as { readonly id: string };
 ```
 
 ## Development

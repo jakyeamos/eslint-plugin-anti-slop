@@ -206,12 +206,26 @@ describe("public package contract", () => {
     const metadata = modules["./rule-metadata"].ruleMetadata;
     const ruleIds = Object.keys(metadata).sort();
     const pluginRuleIds = Object.keys(plugin.rules).map((ruleName) => `anti-slop/${ruleName}`).sort();
+    const recommendedRuleIds = Object.entries(metadata)
+      .filter(([, ruleMetadata]) => ruleMetadata.recommendedSeverity)
+      .map(([ruleId]) => ruleId)
+      .sort();
+    const strictRuleIds = Object.entries(metadata)
+      .filter(([, ruleMetadata]) => ruleMetadata.strictSeverity)
+      .map(([ruleId]) => ruleId)
+      .sort();
+    const evidenceRuleIds = Object.entries(metadata)
+      .filter(([, ruleMetadata]) => ruleMetadata.evidenceSeverity)
+      .map(([ruleId]) => ruleId)
+      .sort();
 
     assert.deepEqual(pluginRuleIds, ruleIds);
-    assert.deepEqual(Object.keys(plugin.configs.recommended.rules).sort(), ruleIds);
-    assert.deepEqual(Object.keys(plugin.configs.strict.rules).sort(), ruleIds);
+    assert.deepEqual(Object.keys(plugin.configs.recommended.rules).sort(), recommendedRuleIds);
+    assert.deepEqual(Object.keys(plugin.configs.strict.rules).sort(), strictRuleIds);
+    assert.deepEqual(Object.keys(plugin.configs.evidence.rules).sort(), evidenceRuleIds);
     assert.equal(plugin.configs.recommended.plugins["anti-slop"], plugin);
     assert.equal(plugin.configs.strict.plugins["anti-slop"], plugin);
+    assert.equal(plugin.configs.evidence.plugins["anti-slop"], plugin);
 
     for (const ruleId of ruleIds) {
       const ruleName = ruleId.replace("anti-slop/", "");
@@ -219,10 +233,24 @@ describe("public package contract", () => {
       const ruleMetadata = metadata[ruleId];
       const documentPath = join(repoRoot, "docs", "rules", `${ruleName}.md`);
 
-      assert.equal(plugin.configs.recommended.rules[ruleId], ruleMetadata.recommendedSeverity);
-      assert.equal(plugin.configs.strict.rules[ruleId], ruleMetadata.strictSeverity);
-      assert.ok(["warn", "error"].includes(ruleMetadata.recommendedSeverity));
-      assert.ok(["warn", "error"].includes(ruleMetadata.strictSeverity));
+      if (ruleMetadata.recommendedSeverity) {
+        assert.equal(plugin.configs.recommended.rules[ruleId], ruleMetadata.recommendedSeverity);
+        assert.ok(["warn", "error"].includes(ruleMetadata.recommendedSeverity));
+      } else {
+        assert.equal(plugin.configs.recommended.rules[ruleId], undefined);
+      }
+      if (ruleMetadata.strictSeverity) {
+        assert.equal(plugin.configs.strict.rules[ruleId], ruleMetadata.strictSeverity);
+        assert.ok(["warn", "error"].includes(ruleMetadata.strictSeverity));
+      } else {
+        assert.equal(plugin.configs.strict.rules[ruleId], undefined);
+      }
+      if (ruleMetadata.evidenceSeverity) {
+        assert.equal(plugin.configs.evidence.rules[ruleId], ruleMetadata.evidenceSeverity);
+        assert.ok(["warn", "error"].includes(ruleMetadata.evidenceSeverity));
+      } else {
+        assert.equal(plugin.configs.evidence.rules[ruleId], undefined);
+      }
       assert.equal(typeof rule.create, "function");
       assert.equal(rule.meta.docs.url, `https://github.com/jakyeamos/eslint-plugin-anti-slop/blob/main/docs/rules/${ruleName}.md`);
       assert.equal(existsSync(documentPath), true, `${ruleId} documentation must exist`);

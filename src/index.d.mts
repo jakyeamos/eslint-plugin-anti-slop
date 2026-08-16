@@ -10,6 +10,7 @@ declare const plugin: ESLint.Plugin & {
   configs: {
     recommended: Linter.Config;
     strict: Linter.Config;
+    evidence: Linter.Config;
   };
 };
 

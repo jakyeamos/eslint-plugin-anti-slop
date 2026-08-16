@@ -91,6 +91,10 @@ and adding a private vulnerability-reporting policy.
   proof. Local `file:` installs remain documented for ad hoc development.
 - Keep high-severity rules conservative when static path, CSS cascade, or
   runtime-reference evidence cannot be proven.
+- Keep TypeScript evidence-preservation rules opt-in until their false-positive
+  corpus supports promotion into the balanced presets; prefer `satisfies`,
+  named owner contracts, and one-time boundary parsing over broad annotations
+  followed by assertions.
 - Keep the catalog an internal leaf: public facades project it, while rule
   modules, finding identity, and gate-specific analysis records remain owned
   by their existing focused modules.

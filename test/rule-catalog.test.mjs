@@ -132,6 +132,24 @@ const CATALOG_GOLDEN = [
     strictSeverity: "error",
     requiredFix: "Flatten nested cards into sections or a simpler hierarchy.",
   },
+  {
+    ruleName: "require-safety-comment-for-type-assertion",
+    category: "TypeScript evidence",
+    evidenceSeverity: "warn",
+    requiredFix: "Document the checked invariant with a nearby SAFETY comment or remove the assertion.",
+  },
+  {
+    ruleName: "no-known-value-widening",
+    category: "TypeScript evidence",
+    evidenceSeverity: "warn",
+    requiredFix: "Preserve the inferred value shape, validate with `satisfies`, or use a named owner contract.",
+  },
+  {
+    ruleName: "no-widen-then-assert",
+    category: "TypeScript evidence",
+    evidenceSeverity: "warn",
+    requiredFix: "Avoid widening a known value before reconstructing its type with an assertion.",
+  },
 ];
 
 function expectedCatalogEntries() {
@@ -149,7 +167,9 @@ function expectedMetadata() {
 
 function expectedPreset(severityKey) {
   return Object.fromEntries(
-    expectedCatalogEntries().map(({ ruleId, metadata }) => [ruleId, metadata[severityKey]]),
+    expectedCatalogEntries()
+      .filter(({ metadata }) => typeof metadata[severityKey] === "string")
+      .map(({ ruleId, metadata }) => [ruleId, metadata[severityKey]]),
   );
 }
 
@@ -160,7 +180,7 @@ function expectedSarifRules() {
     shortDescription: { text: metadata.requiredFix },
     properties: {
       category: metadata.category,
-      recommendedSeverity: metadata.recommendedSeverity,
+      ...(metadata.recommendedSeverity ? { recommendedSeverity: metadata.recommendedSeverity } : {}),
     },
   }));
 }
@@ -180,19 +200,16 @@ describe("canonical rule catalog", () => {
     assert.equal(ruleMetadata, metadataByRuleId);
     assert.deepEqual(plugin.configs.recommended.rules, expectedPreset("recommendedSeverity"));
     assert.deepEqual(plugin.configs.strict.rules, expectedPreset("strictSeverity"));
+    assert.deepEqual(plugin.configs.evidence.rules, expectedPreset("evidenceSeverity"));
     assert.deepEqual(presetRules("recommendedSeverity"), expectedPreset("recommendedSeverity"));
     assert.deepEqual(presetRules("strictSeverity"), expectedPreset("strictSeverity"));
+    assert.deepEqual(presetRules("evidenceSeverity"), expectedPreset("evidenceSeverity"));
 
-    for (const { ruleId, ruleName, docsUrl } of expectedEntries) {
+    for (const { ruleId, ruleName, docsUrl, metadata } of expectedEntries) {
       assert.equal(plugin.rules[ruleName].meta.docs.url, docsUrl);
       assert.equal(metadataForRule(ruleId), ruleMetadata[ruleId]);
       assert.equal(metadataForCatalogRule(ruleId), ruleMetadata[ruleId]);
-      assert.deepEqual(Object.keys(ruleMetadata[ruleId]).sort(), [
-        "category",
-        "recommendedSeverity",
-        "requiredFix",
-        "strictSeverity",
-      ]);
+      assert.deepEqual(Object.keys(ruleMetadata[ruleId]).sort(), Object.keys(metadata).sort());
     }
 
     assert.deepEqual(sarifRuleDescriptors(), expectedSarifRules());

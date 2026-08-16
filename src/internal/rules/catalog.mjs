@@ -12,8 +12,11 @@ import { noPlaceholderCopyRule } from "../../rules/no-placeholder-copy.mjs";
 import { noSideStripeAccentRule } from "../../rules/no-side-stripe-accent.mjs";
 import { noUnjustifiedUseClientRule } from "../../rules/no-unjustified-use-client.mjs";
 import { noUselessMemoRule } from "../../rules/no-useless-memo.mjs";
+import { noKnownValueWideningRule } from "../../rules/no-known-value-widening.mjs";
+import { noWidenThenAssertRule } from "../../rules/no-widen-then-assert.mjs";
 import { requireEmptyStateActionRule } from "../../rules/require-empty-state-action.mjs";
 import { requireReducedMotionRule } from "../../rules/require-reduced-motion.mjs";
+import { requireSafetyCommentForTypeAssertionRule } from "../../rules/require-safety-comment-for-type-assertion.mjs";
 
 const RULE_NAMESPACE = "anti-slop";
 const RULE_DOCUMENTATION_BASE_URL = "https://github.com/jakyeamos/eslint-plugin-anti-slop/blob/main/docs/rules";
@@ -178,6 +181,33 @@ const catalogEntries = [
       requiredFix: "Flatten nested cards into sections or a simpler hierarchy.",
     },
   },
+  {
+    ruleName: "require-safety-comment-for-type-assertion",
+    rule: requireSafetyCommentForTypeAssertionRule,
+    metadata: {
+      category: "TypeScript evidence",
+      evidenceSeverity: "warn",
+      requiredFix: "Document the checked invariant with a nearby SAFETY comment or remove the assertion.",
+    },
+  },
+  {
+    ruleName: "no-known-value-widening",
+    rule: noKnownValueWideningRule,
+    metadata: {
+      category: "TypeScript evidence",
+      evidenceSeverity: "warn",
+      requiredFix: "Preserve the inferred value shape, validate with `satisfies`, or use a named owner contract.",
+    },
+  },
+  {
+    ruleName: "no-widen-then-assert",
+    rule: noWidenThenAssertRule,
+    metadata: {
+      category: "TypeScript evidence",
+      evidenceSeverity: "warn",
+      requiredFix: "Avoid widening a known value before reconstructing its type with an assertion.",
+    },
+  },
 ];
 
 export const ruleCatalog = catalogEntries.map(({ ruleName, rule, metadata }) => {
@@ -205,7 +235,9 @@ export function metadataForCatalogRule(ruleId) {
 
 export function presetRules(severityKey) {
   return Object.fromEntries(
-    ruleCatalog.map(({ ruleId, metadata }) => [ruleId, metadata[severityKey]]),
+    ruleCatalog
+      .filter(({ metadata }) => typeof metadata[severityKey] === "string")
+      .map(({ ruleId, metadata }) => [ruleId, metadata[severityKey]]),
   );
 }
 
@@ -216,7 +248,7 @@ export function sarifRuleDescriptors() {
     shortDescription: { text: metadata.requiredFix },
     properties: {
       category: metadata.category,
-      recommendedSeverity: metadata.recommendedSeverity,
+      ...(metadata.recommendedSeverity ? { recommendedSeverity: metadata.recommendedSeverity } : {}),
     },
   }));
 }

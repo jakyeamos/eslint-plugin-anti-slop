@@ -1,7 +1,8 @@
 export interface AntiSlopRuleMetadata {
   category: string;
-  recommendedSeverity: "warn" | "error";
-  strictSeverity: "warn" | "error";
+  recommendedSeverity?: "warn" | "error";
+  strictSeverity?: "warn" | "error";
+  evidenceSeverity?: "warn" | "error";
   requiredFix: string;
 }
 
