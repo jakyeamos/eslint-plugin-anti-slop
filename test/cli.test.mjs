@@ -311,6 +311,28 @@ describe("runCli", () => {
     }
   });
 
+  it("prints the package version without loading project inputs", async () => {
+    for (const argv of [["version"], ["--version"], ["-V"]]) {
+      const io = capture();
+      let runnerCalled = false;
+
+      const exitCode = await runCli(argv, {
+        cwd: "/repo",
+        stdout: io.stdout,
+        stderr: io.stderr,
+        eslintRunner: async () => {
+          runnerCalled = true;
+          return [];
+        },
+      });
+
+      assert.equal(exitCode, 0, argv.join(" "));
+      assert.equal(io.read().stdout, "anti-slop 0.5.0\n");
+      assert.equal(io.read().stderr, "");
+      assert.equal(runnerCalled, false);
+    }
+  });
+
   it("rejects malformed configuration before running ESLint", async () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "anti-slop-cli-invalid-config-"));
     const io = capture();

@@ -524,7 +524,7 @@ pnpm exec anti-slop gate --changed --mode block --format pre-cr
 ```
 
 Run `anti-slop --help` after installing the package to inspect the available
-commands.
+commands, and `anti-slop --version` to verify the installed package version.
 
 `anti-slop check` defaults to human-readable output. `anti-slop gate` defaults to
 line-delimited Pre-CR-compatible records. Both commands run ESLint with a

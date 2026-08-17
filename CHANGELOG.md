@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add `anti-slop version`, `anti-slop --version`, and `anti-slop -V` without loading project configuration.
+
 ## 0.5.0 - 2026-07-17
 
 - Dropped Node 20 support because the release line is End-of-Life. The package

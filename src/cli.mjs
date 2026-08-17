@@ -15,6 +15,9 @@ import { AntiSlopInputError, isAntiSlopInputError, VALID_MODES } from "./input.m
 
 const VALID_COMMANDS = new Set(["check", "gate"]);
 const VALID_FORMATS = new Set(["text", "json", "jsonl", "pre-cr", "sarif"]);
+const PACKAGE_VERSION = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+).version;
 
 export async function runCli(argv, dependencies = {}) {
   const stdout = dependencies.stdout ?? ((text) => process.stdout.write(text));
@@ -29,6 +32,11 @@ export async function runCli(argv, dependencies = {}) {
 
   if (parsed.help) {
     stdout(`${usage()}\n`);
+    return 0;
+  }
+
+  if (parsed.version) {
+    stdout(`anti-slop ${PACKAGE_VERSION}\n`);
     return 0;
   }
 
@@ -122,6 +130,9 @@ function parseArgs(argv) {
   const [command = "check", ...rest] = argv;
   if (command === "--help" || command === "-h") {
     return { ok: true, help: true, command: "check", options: {}, files: [] };
+  }
+  if (command === "version" || command === "--version" || command === "-V") {
+    return { ok: true, help: false, version: true, command: "check", options: {}, files: [] };
   }
   if (!VALID_COMMANDS.has(command)) {
     return { ok: false, error: `Unknown command: ${command}` };
@@ -347,6 +358,7 @@ function usage() {
     "Usage: anti-slop <check|gate> [files...] [options]",
     "",
     "Options:",
+    "  --version",
     "  --mode <auto|block|warn|audit>",
     "  --format <text|json|jsonl|pre-cr|sarif>",
     "  --changed",
