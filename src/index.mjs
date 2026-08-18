@@ -25,6 +25,12 @@ plugin.configs = {
     },
     rules: presetRules("strictSeverity"),
   },
+  evidence: {
+    plugins: {
+      "anti-slop": plugin,
+    },
+    rules: presetRules("evidenceSeverity"),
+  },
 };
 
 export default plugin;

@@ -6,7 +6,10 @@ export declare const aiosAuditArtifacts: readonly string[];
 
 export declare const defaultAntiSlopAuditIgnores: readonly string[];
 
-export declare function antiSlopAiosAuditConfig(options?: { ignores?: string[] }): Linter.Config[];
+export declare function antiSlopAiosAuditConfig(options?: {
+  ignores?: string[];
+  preset?: "recommended" | "strict" | "evidence";
+}): Linter.Config[];
 
 declare const config: Linter.Config[];
 export default config;

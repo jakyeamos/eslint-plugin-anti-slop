@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added an opt-in `antiSlop.configs.evidence` preset with TypeScript rules that
+  preserve known value evidence and require `SAFETY:` comments for non-const
+  type assertions. The existing `recommended` and `strict` presets are
+  unchanged.
+
 ## 0.5.0 - 2026-07-17
 
 - Dropped Node 20 support because the release line is End-of-Life. The package

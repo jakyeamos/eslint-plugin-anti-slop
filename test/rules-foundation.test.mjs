@@ -20,6 +20,10 @@ tester.run("plugin exports", {
           context.report({ node, message: "missing structural UI config" });
         }
 
+        if (plugin.configs?.evidence?.rules?.["anti-slop/require-safety-comment-for-type-assertion"] !== "warn") {
+          context.report({ node, message: "missing evidence config" });
+        }
+
         if (plugin.meta?.version !== packageJson.version) {
           context.report({ node, message: "plugin metadata version must match package version" });
         }

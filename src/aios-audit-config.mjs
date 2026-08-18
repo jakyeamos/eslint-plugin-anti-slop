@@ -17,8 +17,11 @@ export const defaultAntiSlopAuditIgnores = Object.freeze([
   "**/node_modules/**",
 ]);
 
-export function antiSlopAiosAuditConfig({ ignores = [] } = {}) {
-  const recommended = antiSlop.configs.recommended;
+export function antiSlopAiosAuditConfig({ ignores = [], preset = "recommended" } = {}) {
+  const selected = antiSlop.configs[preset];
+  if (!selected) {
+    throw new Error(`Unknown Anti-Slop preset: ${preset}`);
+  }
 
   return [
     {
@@ -35,8 +38,8 @@ export function antiSlopAiosAuditConfig({ ignores = [] } = {}) {
           },
         },
       },
-      plugins: recommended.plugins,
-      rules: recommended.rules,
+      plugins: selected.plugins,
+      rules: selected.rules,
     },
     {
       files: ["**/*.{ts,tsx,mts,cts}"],
@@ -50,8 +53,8 @@ export function antiSlopAiosAuditConfig({ ignores = [] } = {}) {
           },
         },
       },
-      plugins: recommended.plugins,
-      rules: recommended.rules,
+      plugins: selected.plugins,
+      rules: selected.rules,
     },
   ];
 }
