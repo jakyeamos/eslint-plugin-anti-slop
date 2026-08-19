@@ -42,7 +42,7 @@
     "test:coverage": "pnpm coverage:report",
     "audit:dead-code": "pnpm check:dead-code",
     "smoke": "pnpm smoke:consumer",
-    "smoke:eslint9": "pnpm --dir smoke-consumer install --frozen-lockfile && pnpm --dir smoke-consumer lint && pnpm --dir smoke-consumer quality:anti-slop && pnpm --dir smoke-consumer audit:anti-slop",
+    "smoke:eslint9": "pnpm --dir smoke-consumer install --offline --frozen-lockfile && pnpm --dir smoke-consumer lint && pnpm --dir smoke-consumer quality:anti-slop && pnpm --dir smoke-consumer audit:anti-slop",
     "smoke:consumer": "pnpm smoke:eslint9",
     "smoke:published": "node scripts/smoke-published.mjs",
     "smoke:published:eslint9-floor": "node scripts/smoke-published.mjs --eslint-version 9.0.0 --skip-types",

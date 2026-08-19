@@ -372,6 +372,16 @@ tester.run("require-empty-state-action", plugin.rules["require-empty-state-actio
 tsTester.run("require-empty-state-action TypeScript", plugin.rules["require-empty-state-action"], {
   valid: [
     {
+      code: `type Invoice = { id: string };
+export function InvoiceList({ invoices, onCreate }: { invoices: readonly Invoice[]; onCreate: () => void }) {
+  if (invoices.length === 0) {
+    return <section><h2>No invoices</h2><button type="button" onClick={onCreate}>Create invoice</button></section>;
+  }
+  return <ul>{invoices.map((invoice) => <li key={invoice.id}>{invoice.id}</li>)}</ul>;
+}`,
+      settings,
+    },
+    {
       code: "export function View() { return <section><p>No invoices</p>{(<button>Go</button> as unknown as JSX.Element)}</section>; }",
       settings,
     },

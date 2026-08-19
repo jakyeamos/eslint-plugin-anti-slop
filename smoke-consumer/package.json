@@ -6,12 +6,12 @@
     "node": "^22.13.0 || >=24"
   },
   "scripts": {
-    "lint": "eslint fixture.jsx --max-warnings=0",
-    "audit:anti-slop": "eslint fixture.jsx --format ./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs",
-    "quality:anti-slop": "anti-slop check fixture.jsx --mode block --format json"
+    "lint": "eslint fixture.jsx fixture.tsx --max-warnings=0",
+    "audit:anti-slop": "eslint fixture.jsx fixture.tsx --format ./node_modules/eslint-plugin-anti-slop/audit-formatter.mjs",
+    "quality:anti-slop": "anti-slop check fixture.jsx fixture.tsx --mode block --format json"
   },
   "dependencies": {
-    "eslint-plugin-anti-slop": "0.4.0"
+    "eslint-plugin-anti-slop": "link:.."
   },
   "devDependencies": {
     "eslint": "^9.29.0"
