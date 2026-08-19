@@ -265,12 +265,14 @@ describe("verification scripts", () => {
     assert.match(packageJson.scripts["verify:ci"], /pnpm dependency:security:required/);
   });
 
-  it("pins the smoke consumer to a published registry baseline", () => {
+  it("keeps the deterministic smoke consumer local and covers both parser fixtures", () => {
     const smokeDependency = smokeConsumerPackageJson.dependencies["eslint-plugin-anti-slop"];
-    assert.equal(smokeDependency, "0.4.0");
-    assert.doesNotMatch(smokeDependency, /^(?:link|file):/);
+    assert.equal(smokeDependency, "link:..");
     assert.equal(smokeConsumerPackageJson.engines.node, packageJson.engines.node);
-    assert.match(packageJson.scripts["smoke:eslint9"], /pnpm --dir smoke-consumer install --frozen-lockfile/);
+    assert.match(packageJson.scripts["smoke:eslint9"], /pnpm --dir smoke-consumer install --offline --frozen-lockfile/);
     assert.doesNotMatch(packageJson.scripts["smoke:eslint9"], /--force/);
+    assert.match(smokeConsumerPackageJson.scripts.lint, /fixture\.jsx fixture\.tsx/);
+    assert.match(smokeConsumerPackageJson.scripts["quality:anti-slop"], /fixture\.jsx fixture\.tsx/);
+    assert.match(smokeConsumerPackageJson.scripts["audit:anti-slop"], /fixture\.jsx fixture\.tsx/);
   });
 });
