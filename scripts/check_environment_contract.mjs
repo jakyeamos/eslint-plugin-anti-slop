@@ -112,7 +112,8 @@ function dependencyChecks(errors, root) {
     "eslint>minimatch: 10.2.5",
     "'@eslint/config-array>minimatch': 10.2.5",
     "'@eslint/eslintrc>minimatch': 10.2.5",
-    "js-yaml: 4.3.0",
+    "brace-expansion: 5.0.9",
+    "js-yaml: 4.3.1",
   ]) {
     if (!text.includes(override)) errors.push(`missing required dependency override: ${override}`);
   }
