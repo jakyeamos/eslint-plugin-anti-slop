@@ -12,6 +12,7 @@ const deadCodeScript = join(repoRoot, "scripts", "dead-code-check.mjs");
 const dependencySecurityScript = join(repoRoot, "scripts", "dependency-security.mjs");
 const releaseVersionScript = join(repoRoot, "scripts", "assert-release-version.mjs");
 const secretScanScript = join(repoRoot, "scripts", "secret-scan.mjs");
+const publishedSmokeScript = readFileSync(join(repoRoot, "scripts", "smoke-published.mjs"), "utf8");
 const packageJson = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
 const smokeConsumerPackageJson = JSON.parse(readFileSync(join(repoRoot, "smoke-consumer", "package.json"), "utf8"));
 
@@ -274,5 +275,14 @@ describe("verification scripts", () => {
     assert.match(smokeConsumerPackageJson.scripts.lint, /fixture\.jsx fixture\.tsx/);
     assert.match(smokeConsumerPackageJson.scripts["quality:anti-slop"], /fixture\.jsx fixture\.tsx/);
     assert.match(smokeConsumerPackageJson.scripts["audit:anti-slop"], /fixture\.jsx fixture\.tsx/);
+  });
+
+  it("keeps the packed ESLint 9 smoke on the typed preset, CLI, and formatter path", () => {
+    assert.match(publishedSmokeScript, /type InvoiceListProps/);
+    assert.match(publishedSmokeScript, /antiSlopAiosAuditConfig/);
+    assert.match(publishedSmokeScript, /fixture\.tsx/);
+    assert.match(publishedSmokeScript, /typeScriptCliOutput/);
+    assert.match(publishedSmokeScript, /\"fixture\.jsx\", \"fixture\.tsx\", \"--format\"/);
+    assert.match(packageJson.scripts["smoke:published:eslint9-floor"], /--eslint-version 9\.0\.0 --skip-types/);
   });
 });

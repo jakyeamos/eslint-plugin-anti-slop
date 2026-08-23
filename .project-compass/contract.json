@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 2,
+  "revision": 3,
   "project": {
     "name": "eslint-plugin-anti-slop",
     "identity": "An ESLint plugin that catches low-signal AI and code-review patterns before they land in JavaScript and TypeScript code.",
@@ -39,7 +39,7 @@
             "intended": "The plugin improves code signal without pretending to replace engineering judgment.",
             "planned": "The package exposes rules and configuration for anti-slop patterns.",
             "implemented": "An active ESLint package contains the rule implementation and package surface.",
-            "verified": "RuleTester coverage and the deterministic offline consumer exercise representative JavaScript/JSX and TypeScript/TSX parser paths without false-positive findings."
+            "verified": "RuleTester coverage plus linked and packed consumer smokes exercise representative JavaScript/JSX and TypeScript/TSX parser paths without parser or configuration failures; expected placeholder findings remain observable."
           },
           "evidence": [
             {
@@ -66,6 +66,11 @@
               "ref": "smoke-consumer/fixture.tsx",
               "note": "Real TypeScript/TSX consumer fixture passes the supported parser/config path without findings.",
               "observed_at": "2026-08-11T15:15:38Z"
+            },
+            {
+              "ref": "scripts/smoke-published.mjs",
+              "note": "Packed ESLint 9 smoke loads the published preset, checks a typed TSX fixture through the CLI, and records its formatter evidence.",
+              "observed_at": "2026-08-20T15:20:47Z"
             }
           ],
           "blockers": []
@@ -88,7 +93,7 @@
             "intended": "Teams can adopt the plugin as a predictable quality layer.",
             "planned": "The package is positioned as an ordinary ESLint plugin rather than an agent service.",
             "implemented": "The repository contains a publishable plugin package.",
-            "verified": "`pnpm verify` runs an offline linked consumer through ESLint 9, the built-in CLI gate, and the audit formatter across JSX and TSX fixtures; packed-release compatibility remains separately covered by `verify:ci`."
+            "verified": "`pnpm verify` runs an offline linked consumer through ESLint 9, the built-in CLI gate, and the audit formatter across JSX and TSX fixtures; the packed ESLint 9 floor smoke exercises the same preset, CLI, and formatter path against the candidate package."
           },
           "evidence": [
             {
@@ -105,6 +110,11 @@
               "ref": "smoke-consumer/package.json",
               "note": "Runs ESLint, the CLI gate, and the audit formatter against both representative consumer fixtures.",
               "observed_at": "2026-08-11T15:15:38Z"
+            },
+            {
+              "ref": "scripts/smoke-published.mjs",
+              "note": "The ESLint 9 floor gate installs the packed package and verifies the typed TSX consumer path end to end.",
+              "observed_at": "2026-08-20T15:20:47Z"
             }
           ],
           "blockers": []
@@ -149,13 +159,23 @@
         "ref": "test/rules-ux.test.mjs",
         "note": "RuleTester verifies the representative TypeScript false-positive boundary.",
         "observed_at": "2026-08-11T15:15:38Z"
+      },
+      {
+        "ref": "test/verification-scripts.test.mjs",
+        "note": "Executable contract coverage keeps the packed ESLint 9 smoke on the typed preset, CLI, and formatter path.",
+        "observed_at": "2026-08-20T15:20:47Z"
+      },
+      {
+        "ref": "scripts/smoke-published.mjs",
+        "note": "The packed ESLint 9 floor gate passed with typed TSX findings present in the audit evidence.",
+        "observed_at": "2026-08-20T15:20:47Z"
       }
     ]
   },
   "drift": [
     {
       "kind": "verification-gap",
-      "summary": "The prior false-positive and parser/configuration verification gap is covered by the offline JSX and TSX consumer matrix and matching RuleTester case; packed-release verification remains a separate CI concern.",
+      "summary": "The prior false-positive and parser/configuration verification gap is covered by linked and packed JSX/TSX consumer matrices, the matching RuleTester case, and an ESLint 9 floor assertion that formatter evidence includes the typed fixture.",
       "status": "resolved",
       "observed_at": "2026-08-11T15:15:38Z",
       "evidence": [
@@ -168,9 +188,14 @@
           "ref": "test/rules-ux.test.mjs",
           "note": "RuleTester covers the representative typed empty-state false-positive boundary.",
           "observed_at": "2026-08-11T15:15:38Z"
+        },
+        {
+          "ref": "scripts/smoke-published.mjs",
+          "note": "The packed ESLint 9 floor smoke passed with the preset, CLI, and formatter all traversing the typed TSX path.",
+          "observed_at": "2026-08-20T15:20:47Z"
         }
       ]
     }
   ],
-  "updated_at": "2026-08-11T15:15:38Z"
+  "updated_at": "2026-08-20T15:20:47Z"
 }

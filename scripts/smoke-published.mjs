@@ -70,8 +70,36 @@ try {
   writeFileSync(
     join(fixtureRoot, "fixture.tsx"),
     [
-      "export function TypeScriptBillingEmptyState(): JSX.Element {",
-      "  return <p>TODO</p>;",
+      "type Invoice = {",
+      "  id: string;",
+      "  total: number;",
+      "};",
+      "",
+      "type InvoiceListProps = {",
+      "  invoices: readonly Invoice[];",
+      "  onCreate: () => void;",
+      "};",
+      "",
+      "export function TypeScriptBillingEmptyState({ invoices, onCreate }: InvoiceListProps) {",
+      "  if (invoices.length === 0) {",
+      "    return (",
+      "      <section aria-labelledby=\"invoice-empty\">",
+      "        <h2 id=\"invoice-empty\">No invoices</h2>",
+      "        <p>TODO</p>",
+      "        <button type=\"button\" onClick={onCreate}>Create invoice</button>",
+      "      </section>",
+      "    );",
+      "  }",
+      "",
+      "  return (",
+      "    <ul aria-label=\"Invoices\">",
+      "      {invoices.map((invoice) => (",
+      "        <li key={invoice.id}>",
+      "          {invoice.id}: {invoice.total}",
+      "        </li>",
+      "      ))}",
+      "    </ul>",
+      "  );",
       "}",
       "",
     ].join("\n"),
@@ -230,7 +258,13 @@ try {
     .trim()
     .split("\n")
     .map((line) => JSON.parse(line));
-  assert.ok(auditEvents.some((event) => event.rule_id === "anti-slop/no-placeholder-copy"));
+  assert.ok(
+    auditEvents.some(
+      (event) =>
+        event.rule_id === "anti-slop/no-placeholder-copy" &&
+        event.evidence.some((evidence) => evidence.file === "fixture.tsx"),
+    ),
+  );
 } finally {
   rmSync(workRoot, { recursive: true, force: true });
 }
