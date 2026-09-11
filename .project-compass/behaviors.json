@@ -1,0 +1,26 @@
+{
+  "behaviors": [
+    {
+      "id": "candidate-eslint-plugin-anti-slop-core-loop",
+      "spec_ref": "README.md",
+      "title": "Explainable diagnostics with consistent public gate states",
+      "authority": "accepted",
+      "source_head": "3e25156c45153218389cd6407376c9c2ac253293",
+      "scope_note": "Existing canonical README behavior associated with accepted root outcomes; child organization remains proposed and fresh proof limited to registered assertions."
+    },
+    {
+      "id": "candidate-explainable-rules",
+      "spec_ref": "README.md",
+      "title": "Report specific low-signal code and interface patterns with stable metadata and bounded diagnostics.",
+      "authority": "accepted",
+      "scope_note": "Existing canonical README behavior associated with accepted root outcomes; child organization remains proposed and fresh proof limited to registered assertions."
+    },
+    {
+      "id": "candidate-gate-reporting",
+      "spec_ref": "README.md",
+      "title": "Translate findings into explicit public gate and audit states while preserving skipped and failed analysis.",
+      "authority": "accepted",
+      "scope_note": "Existing canonical README behavior associated with accepted root outcomes; child organization remains proposed and fresh proof limited to registered assertions."
+    }
+  ]
+}

@@ -1,0 +1,320 @@
+{
+  "schema": "compass-development/v1",
+  "revision": 1,
+  "inventory": {
+    "source": "git-tracked",
+    "include": [
+      "**"
+    ],
+    "exclude": [],
+    "behavior_ref": ".project-compass/behaviors.json"
+  },
+  "bindings": [
+    {
+      "id": "candidate-core-loop",
+      "compass_id": "project",
+      "authority": "accepted",
+      "paths": [
+        "README.md",
+        "audit-formatter.mjs",
+        "bin/anti-slop.mjs",
+        "package.json",
+        "pnpm-lock.yaml",
+        "src/aios-audit-config.mjs",
+        "src/analysis.mjs",
+        "src/audit-formatter.mjs",
+        "src/audit.mjs",
+        "src/cli.mjs",
+        "src/finding-core.mjs",
+        "src/gate-policy.mjs",
+        "src/gate.mjs",
+        "src/index.mjs",
+        "src/input.mjs",
+        "src/internal/rules/catalog.mjs",
+        "src/rule-metadata.mjs",
+        "src/rules/_shared.mjs",
+        "src/rules/_ui-structural.mjs",
+        "src/rules/no-arbitrary-z-index.mjs",
+        "src/rules/no-decorative-grid-background.mjs",
+        "src/rules/no-defensive-guard-sprawl.mjs",
+        "src/rules/no-demo-data-primary-path.mjs",
+        "src/rules/no-excessive-radius.mjs",
+        "src/rules/no-generic-stat-label.mjs",
+        "src/rules/no-gradient-text.mjs",
+        "src/rules/no-hidden-reveal-default.mjs",
+        "src/rules/no-marketing-copy.mjs",
+        "src/rules/no-nested-cards.mjs",
+        "src/rules/no-placeholder-copy.mjs",
+        "src/rules/no-side-stripe-accent.mjs",
+        "src/rules/no-unjustified-use-client.mjs",
+        "src/rules/no-useless-memo.mjs",
+        "src/rules/require-empty-state-action.mjs",
+        "src/rules/require-reduced-motion.mjs",
+        "test/public-contract.test.mjs",
+        ".project-compass/behaviors.json",
+        ".project-compass/development.json"
+      ],
+      "outcomes": [
+        "explainable-lint-findings",
+        "local-ci-parity"
+      ],
+      "references": [
+        "README.md",
+        ".project-compass/contract.json"
+      ],
+      "constraints": [
+        "Report explainable, configurable high-confidence React/TypeScript findings; do not treat lint as a universal correctness or taste judgment.",
+        "Preserve manual review for server/client boundaries; no automatic removal of use-client directives.",
+        "Preserve supported Node and ESLint 9 flat-config/public package surfaces; ESLint 8 CLI is unsupported.",
+        "Keep invalid configuration/baselines and fatal analysis distinct from successful, skipped and finding-bearing analysis; never overwrite malformed baselines.",
+        "Keep configured baseline/report paths inside the project root, including symlink resolution.",
+        "Retain requested audit/warn mode separately from effective branch enforcement and retain prior compatible baseline/audit history."
+      ],
+      "behavior_ids": [
+        "candidate-eslint-plugin-anti-slop-core-loop"
+      ],
+      "proof": [
+        {
+          "id": "test-public-contract",
+          "receipt": ".project-compass/evidence/test-public-contract.json",
+          "command": [
+            "node",
+            "--test",
+            "test/public-contract.test.mjs"
+          ],
+          "oracle_ref": "test/public-contract.test.mjs",
+          "behavior_ids": [
+            "candidate-eslint-plugin-anti-slop-core-loop"
+          ]
+        }
+      ],
+      "handoff_review": "Existing README obligations reviewed against committed implementation; proposed child organization is not installed or ratified. Owner-dirty root revision changes historical consumer verification evidence only, not identity, audience, outcome or negative boundary; committed root is preserved and the owner checkpoint is left untouched. Rule fixtures establish only asserted static cases, not rendered accessibility or universal code quality. Imported runCli and injected-runner tests do not prove spawned executable or packed/installed consumer parity. Fresh direct CLI evidence is a separate handoff. Legacy audit schema compatibility does not assign active runtime ownership to AIOS.",
+      "decision_id": "canonical-readme-source-association"
+    },
+    {
+      "id": "candidate-explainable-rules",
+      "compass_id": "project",
+      "authority": "accepted",
+      "paths": [
+        "README.md",
+        "package.json",
+        "pnpm-lock.yaml",
+        "src/index.mjs",
+        "src/internal/rules/catalog.mjs",
+        "src/rule-metadata.mjs",
+        "src/rules/_shared.mjs",
+        "src/rules/_ui-structural.mjs",
+        "src/rules/no-arbitrary-z-index.mjs",
+        "src/rules/no-decorative-grid-background.mjs",
+        "src/rules/no-defensive-guard-sprawl.mjs",
+        "src/rules/no-demo-data-primary-path.mjs",
+        "src/rules/no-excessive-radius.mjs",
+        "src/rules/no-generic-stat-label.mjs",
+        "src/rules/no-gradient-text.mjs",
+        "src/rules/no-hidden-reveal-default.mjs",
+        "src/rules/no-marketing-copy.mjs",
+        "src/rules/no-nested-cards.mjs",
+        "src/rules/no-placeholder-copy.mjs",
+        "src/rules/no-side-stripe-accent.mjs",
+        "src/rules/no-unjustified-use-client.mjs",
+        "src/rules/no-useless-memo.mjs",
+        "src/rules/require-empty-state-action.mjs",
+        "src/rules/require-reduced-motion.mjs",
+        "test/rule-catalog.test.mjs",
+        "test/rules-foundation.test.mjs",
+        "test/rules-interface.test.mjs",
+        "test/rules-ux.test.mjs"
+      ],
+      "outcomes": [
+        "explainable-lint-findings",
+        "local-ci-parity"
+      ],
+      "references": [
+        "README.md",
+        ".project-compass/contract.json"
+      ],
+      "constraints": [
+        "Report explainable, configurable high-confidence React/TypeScript findings; do not treat lint as a universal correctness or taste judgment.",
+        "Preserve manual review for server/client boundaries; no automatic removal of use-client directives.",
+        "Preserve supported Node and ESLint 9 flat-config/public package surfaces; ESLint 8 CLI is unsupported.",
+        "Keep invalid configuration/baselines and fatal analysis distinct from successful, skipped and finding-bearing analysis; never overwrite malformed baselines.",
+        "Keep configured baseline/report paths inside the project root, including symlink resolution.",
+        "Retain requested audit/warn mode separately from effective branch enforcement and retain prior compatible baseline/audit history."
+      ],
+      "behavior_ids": [
+        "candidate-explainable-rules"
+      ],
+      "proof": [
+        {
+          "id": "test-rule-catalog",
+          "receipt": ".project-compass/evidence/test-rule-catalog.json",
+          "command": [
+            "node",
+            "--test",
+            "test/rule-catalog.test.mjs"
+          ],
+          "oracle_ref": "test/rule-catalog.test.mjs",
+          "behavior_ids": [
+            "candidate-explainable-rules"
+          ]
+        },
+        {
+          "id": "test-rules-foundation",
+          "receipt": ".project-compass/evidence/test-rules-foundation.json",
+          "command": [
+            "node",
+            "--test",
+            "test/rules-foundation.test.mjs"
+          ],
+          "oracle_ref": "test/rules-foundation.test.mjs",
+          "behavior_ids": [
+            "candidate-explainable-rules"
+          ]
+        },
+        {
+          "id": "test-rules-interface",
+          "receipt": ".project-compass/evidence/test-rules-interface.json",
+          "command": [
+            "node",
+            "--test",
+            "test/rules-interface.test.mjs"
+          ],
+          "oracle_ref": "test/rules-interface.test.mjs",
+          "behavior_ids": [
+            "candidate-explainable-rules"
+          ]
+        },
+        {
+          "id": "test-rules-ux",
+          "receipt": ".project-compass/evidence/test-rules-ux.json",
+          "command": [
+            "node",
+            "--test",
+            "test/rules-ux.test.mjs"
+          ],
+          "oracle_ref": "test/rules-ux.test.mjs",
+          "behavior_ids": [
+            "candidate-explainable-rules"
+          ]
+        }
+      ],
+      "handoff_review": "Existing README obligations reviewed against committed implementation; proposed child organization is not installed or ratified. Owner-dirty root revision changes historical consumer verification evidence only, not identity, audience, outcome or negative boundary; committed root is preserved and the owner checkpoint is left untouched. Rule fixtures establish only asserted static cases, not rendered accessibility or universal code quality. Imported runCli and injected-runner tests do not prove spawned executable or packed/installed consumer parity. Fresh direct CLI evidence is a separate handoff. Legacy audit schema compatibility does not assign active runtime ownership to AIOS.",
+      "decision_id": "canonical-readme-source-association"
+    },
+    {
+      "id": "candidate-gate-reporting",
+      "compass_id": "project",
+      "authority": "accepted",
+      "paths": [
+        "README.md",
+        "audit-formatter.mjs",
+        "bin/anti-slop.mjs",
+        "package.json",
+        "pnpm-lock.yaml",
+        "src/aios-audit-config.mjs",
+        "src/analysis.mjs",
+        "src/audit-formatter.mjs",
+        "src/audit.mjs",
+        "src/cli.mjs",
+        "src/finding-core.mjs",
+        "src/gate-policy.mjs",
+        "src/gate.mjs",
+        "src/index.mjs",
+        "src/input.mjs",
+        "src/internal/rules/catalog.mjs",
+        "src/rule-metadata.mjs",
+        "src/rules/_shared.mjs",
+        "src/rules/_ui-structural.mjs",
+        "src/rules/no-arbitrary-z-index.mjs",
+        "src/rules/no-decorative-grid-background.mjs",
+        "src/rules/no-defensive-guard-sprawl.mjs",
+        "src/rules/no-demo-data-primary-path.mjs",
+        "src/rules/no-excessive-radius.mjs",
+        "src/rules/no-generic-stat-label.mjs",
+        "src/rules/no-gradient-text.mjs",
+        "src/rules/no-hidden-reveal-default.mjs",
+        "src/rules/no-marketing-copy.mjs",
+        "src/rules/no-nested-cards.mjs",
+        "src/rules/no-placeholder-copy.mjs",
+        "src/rules/no-side-stripe-accent.mjs",
+        "src/rules/no-unjustified-use-client.mjs",
+        "src/rules/no-useless-memo.mjs",
+        "src/rules/require-empty-state-action.mjs",
+        "src/rules/require-reduced-motion.mjs",
+        "test/audit.test.mjs",
+        "test/cli.test.mjs",
+        "test/gate.test.mjs"
+      ],
+      "outcomes": [
+        "explainable-lint-findings",
+        "local-ci-parity"
+      ],
+      "references": [
+        "README.md",
+        ".project-compass/contract.json"
+      ],
+      "constraints": [
+        "Report explainable, configurable high-confidence React/TypeScript findings; do not treat lint as a universal correctness or taste judgment.",
+        "Preserve manual review for server/client boundaries; no automatic removal of use-client directives.",
+        "Preserve supported Node and ESLint 9 flat-config/public package surfaces; ESLint 8 CLI is unsupported.",
+        "Keep invalid configuration/baselines and fatal analysis distinct from successful, skipped and finding-bearing analysis; never overwrite malformed baselines.",
+        "Keep configured baseline/report paths inside the project root, including symlink resolution.",
+        "Retain requested audit/warn mode separately from effective branch enforcement and retain prior compatible baseline/audit history."
+      ],
+      "behavior_ids": [
+        "candidate-gate-reporting"
+      ],
+      "proof": [
+        {
+          "id": "test-gate",
+          "receipt": ".project-compass/evidence/test-gate.json",
+          "command": [
+            "node",
+            "--test",
+            "test/gate.test.mjs"
+          ],
+          "oracle_ref": "test/gate.test.mjs",
+          "behavior_ids": [
+            "candidate-gate-reporting"
+          ]
+        },
+        {
+          "id": "test-audit",
+          "receipt": ".project-compass/evidence/test-audit.json",
+          "command": [
+            "node",
+            "--test",
+            "test/audit.test.mjs"
+          ],
+          "oracle_ref": "test/audit.test.mjs",
+          "behavior_ids": [
+            "candidate-gate-reporting"
+          ]
+        },
+        {
+          "id": "test-cli",
+          "receipt": ".project-compass/evidence/test-cli.json",
+          "command": [
+            "node",
+            "--test",
+            "test/cli.test.mjs"
+          ],
+          "oracle_ref": "test/cli.test.mjs",
+          "behavior_ids": [
+            "candidate-gate-reporting"
+          ]
+        }
+      ],
+      "handoff_review": "Existing README obligations reviewed against committed implementation; proposed child organization is not installed or ratified. Owner-dirty root revision changes historical consumer verification evidence only, not identity, audience, outcome or negative boundary; committed root is preserved and the owner checkpoint is left untouched. Rule fixtures establish only asserted static cases, not rendered accessibility or universal code quality. Imported runCli and injected-runner tests do not prove spawned executable or packed/installed consumer parity. Fresh direct CLI evidence is a separate handoff. Legacy audit schema compatibility does not assign active runtime ownership to AIOS.",
+      "decision_id": "canonical-readme-source-association"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "canonical-readme-source-association",
+      "summary": "Reviewed source association of current README static rule and explicit gate obligations with root outcomes. Preserves owner-active evidence checkpoint and existing legacy root; no child ratification or maturity promotion.",
+      "source": "README.md",
+      "status": "accepted"
+    }
+  ]
+}
